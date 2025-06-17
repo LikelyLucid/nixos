@@ -106,10 +106,6 @@
     isNormalUser = true;
     description = "Arthur Mckellar";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      hyprpaper waybar kitty rofi-wayland
-    ];
   };
 
   # -------------------------------------------------
