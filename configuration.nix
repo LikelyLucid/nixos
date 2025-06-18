@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       # <nixos-hardware/dell/xps/15-9530>
       ./hardware-configuration.nix
+      ./modules/window-manager/window-manager.nix
     ];
 
 
@@ -41,49 +42,6 @@
     LC_TIME         = "en_NZ.UTF-8";
   };
 
-  # -------------------------------------------------
-  # NVIDIA + Wayland / Hyprland
-  # -------------------------------------------------
-  services.xserver.enable = false;         # pure Wayland session
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.opengl.enable = true;
-
-  hardware.nvidia = {
-    modesetting.enable = true;      # required for Wayland
-    powerManagement.enable = true;
-    open = false;                   # set to true if GPU supports the open driver
-    prime = {
-      offload.enable = true;        # hybrid graphics off-load
-      intelBusId  = "PCI:0:2:0";   # Intel iGPU (00:02.0)
-      nvidiaBusId = "PCI:1:0:0";   # NVIDIA dGPU (01:00.0)
-    };
-  };
-
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;         # XWayland for legacy apps
-    nvidiaPatches = true;           # extra patches for NVIDIA/Wayland
-  };
-
-  # ---------------------------------------------
-  # Display / Login manager (greetd + tuigreet)
-  # ---------------------------------------------
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
-        user = "greeter";
-      };
-    };
-  };
-
-  # XDG portals (screencast, file‑open dialogs, etc.)
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
-  };
-
   # Libinput for touchpad / mouse
   # services.libinput.enable = true;
 
@@ -112,13 +70,13 @@
   # -------------------------------------------------
   nixpkgs.config.allowUnfree = true;
 
-  environment.sessionVariables = {
-    WLR_NO_HARDWARE_CURSOR = "1";              # avoids cursor corruption on NVIDIA
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-  };
 
   environment.systemPackages = with pkgs; [
     neovim wget git pciutils htop gh lazygit
+  ];
+
+  fonts.packages = with pkgs; [
+    jetbrains-mono
   ];
 
   # -------------------------------------------------
