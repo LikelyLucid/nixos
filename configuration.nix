@@ -12,6 +12,13 @@
       ./modules/window-manager/window-manager.nix
     ];
 
+  nix.settings = {
+    # You can leave the package line out if you’re happy with the Nix that ships
+    # with your current channel; keeping it explicit avoids surprises.
+    # package = pkgs.nix;
+
+    experimental-features = [ "nix-command" "flakes" ];
+  };
 
   # -------------------------------------------------
   # Bootloader
