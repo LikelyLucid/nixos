@@ -1,4 +1,4 @@
-{ config, pkgs, zenBrowser, ... }:
+{ config, pkgs, zenBrowser, lazyvim-config, ... }:
 {
   imports = [
     ./modules/dev/developer.nix

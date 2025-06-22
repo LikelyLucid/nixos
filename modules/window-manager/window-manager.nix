@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
-    ./hyprland.nix
+     ./hyprland.nix
+    #./plasma.nix
   ];
 }

@@ -2,7 +2,7 @@
   description = "My XPS 15 9530 NixOS Config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -12,9 +12,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+
+    # My Config files
+    lazyvim-config = {
+      url = "github:LikelyLucid/lazyvim-dotfiles";
+      flake = false;
+      };
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, ... }: {
     nixosConfigurations.artsxps = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -25,12 +31,12 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            extraSpecialArgs = { inherit zenBrowser; };
+            extraSpecialArgs = { inherit zenBrowser lazyvim-config; };
             users.lucid = import ./home.nix;
           };
         })
       ];
-      specialArgs = { inherit zenBrowser; };
+      specialArgs = { inherit zenBrowser lazyvim-config; };
     };
   };
 }

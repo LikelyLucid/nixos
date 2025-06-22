@@ -18,7 +18,7 @@
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-    nvidiaPatches = true;
+    # nvidiaPatches = true; # Not needed now, yahoo
   };
 
   services.greetd = {
@@ -40,4 +40,7 @@
     WLR_NO_HARDWARE_CURSOR = "1";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
   };
+  environment.systemPackages = with pkgs; [
+    jq brightnessctl rofi-bluetooth networkmanager_dmenu alsa-utils dunst hyprpolkitagent wl-clipboard
+  ];
 }

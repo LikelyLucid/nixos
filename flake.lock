@@ -38,6 +38,22 @@
         "type": "github"
       }
     },
+    "lazyvim-config": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1750183274,
+        "narHash": "sha256-egSyfAlG9gnsMPzRryBhiqZter0tQMsRQ9+8YkVPfHI=",
+        "owner": "LikelyLucid",
+        "repo": "lazyvim-dotfiles",
+        "rev": "1ca3b6a5a26a03f601012955647fd77e307c6ee0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LikelyLucid",
+        "repo": "lazyvim-dotfiles",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "locked": {
         "lastModified": 1750083401,
@@ -55,16 +71,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1704290814,
-        "narHash": "sha256-LWvKHp7kGxk/GEtlrGYV68qIvPHkU9iToomNFGagixU=",
+        "lastModified": 1750134718,
+        "narHash": "sha256-v263g4GbxXv87hMXMCpjkIxd/viIF7p3JpJrwgKdNiI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "70bdadeb94ffc8806c0570eb5c2695ad29f0e421",
+        "rev": "9e83b64f727c88a7711a2c463a7b16eedb69a84c",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-23.05",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -73,8 +89,10 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
+        "lazyvim-config": "lazyvim-config",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "zenBrowser": "zenBrowser"
       }
     },
     "systems": {
@@ -89,6 +107,29 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "zenBrowser": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1750152169,
+        "narHash": "sha256-XN5OBCCXKmPBL+UXyyScI5HGgs4U8OFGQTnKuxurBFI=",
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
+        "rev": "ed811ab0d0b407b59cda1023820e9986fd28c8c3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "0xc000022070",
+        "repo": "zen-browser-flake",
         "type": "github"
       }
     }
