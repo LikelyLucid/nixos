@@ -10,6 +10,7 @@
       # <nixos-hardware/dell/xps/15-9530>
       ./hardware-configuration.nix
       ./modules/window-manager/window-manager.nix
+      ./modules/audio/dell_xps_speakers.nix
     ];
 
   nix.settings = {
