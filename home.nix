@@ -1,6 +1,7 @@
 { config, pkgs, zenBrowser, lazyvim-config, ... }:
 {
   imports = [
+    ./modules/window-manager/hyprland-config.nix
     ./modules/dev/developer.nix
     ./modules/notes/notes.nix
     ./modules/browsers/browsers.nix

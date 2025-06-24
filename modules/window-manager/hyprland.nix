@@ -36,6 +36,7 @@
     extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
   };
 
+
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSOR = "1";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";

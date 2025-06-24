@@ -10,7 +10,7 @@
       # <nixos-hardware/dell/xps/15-9530>
       ./hardware-configuration.nix
       ./modules/window-manager/window-manager.nix
-      ./modules/audio/dell_xps_speakers.nix
+      # ./modules/audio/dell_xps_speakers.nix
     ];
 
   nix.settings = {
@@ -92,6 +92,9 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+   hardware.enableAllFirmware = true;
 
   # -------------------------------------------------
   # Users
