@@ -103,7 +103,11 @@
     isNormalUser = true;
     description = "Arthur Mckellar";
     extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
   };
+  users.defaultUserShell = pkgs.zsh;
+
+  programs.zsh.enable = true;
 
   # -------------------------------------------------
   # Environment / Packages & Vars

@@ -7,4 +7,8 @@
   chmod -R u+w ~/.config/nvim
   '';
 
+  home.sessionVariables = {
+    EDITOR = "nvim";
+  };
+
 }
