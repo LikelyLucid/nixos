@@ -42,6 +42,6 @@
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
   };
   environment.systemPackages = with pkgs; [
-    jq brightnessctl rofi-bluetooth networkmanager_dmenu alsa-utils dunst hyprpolkitagent wl-clipboard
+    jq brightnessctl rofi-bluetooth networkmanager_dmenu alsa-utils dunst hyprpolkitagent wl-clipboard bottom
   ];
 }

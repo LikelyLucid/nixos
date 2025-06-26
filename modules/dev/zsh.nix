@@ -18,12 +18,15 @@
     ];
 
     initExtra = ''
-      eval "$(starship init zsh)"    
+      eval "$(starship init zsh)"
+      eval "$(zoxide init zsh)"
+      compinit
       '';
   };
 
   programs.starship = {
     enable = true;
   };
+  programs.zoxide.enable = true;
 }
 

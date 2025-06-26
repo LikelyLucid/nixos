@@ -25,7 +25,7 @@
       system = "x86_64-linux";
       modules = [
         nixos-hardware.nixosModules.dell-xps-15-9530
-        ./configuration.nix
+        ./artsxps/configuration.nix
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
           home-manager = {
