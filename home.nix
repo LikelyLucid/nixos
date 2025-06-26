@@ -16,6 +16,8 @@
     kitty
     rofi-wayland
     cava
+    wallust
+    spotify-player
   ];
 
   home.stateVersion = "23.05";
