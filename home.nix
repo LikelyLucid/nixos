@@ -15,7 +15,9 @@
     waybar
     kitty
     rofi-wayland
+    cava
   ];
 
   home.stateVersion = "23.05";
-}
+
+  }
