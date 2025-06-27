@@ -94,7 +94,7 @@
   };
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
-   hardware.enableAllFirmware = true;
+  hardware.enableAllFirmware = true;
 
   # -------------------------------------------------
   # Users
@@ -116,8 +116,14 @@
 
 
   environment.systemPackages = with pkgs; [
-    wget git pciutils htop gh lazygit
+    wget git pciutils htop gh lazygit sops age syncthing
   ];
+
+  sops = {
+    age.keyFile = "/var/lib/sops-nix/key.txt";
+    age.generateKey = true;
+    defaultSopsFile = ../secrets/secrets.yaml;
+  };
 
  fonts.packages = with pkgs; [
     jetbrains-mono

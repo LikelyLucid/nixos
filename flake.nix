@@ -18,19 +18,26 @@
       url = "github:LikelyLucid/lazyvim-dotfiles";
       flake = false;
       };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, sops-nix, ... }: {
     nixosConfigurations.artsxps = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         nixos-hardware.nixosModules.dell-xps-15-9530
         ./artsxps/configuration.nix
+        sops-nix.nixosModules.sops
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
+            sharedModules = [ sops-nix.homeManagerModules.sops ];
             extraSpecialArgs = { inherit zenBrowser lazyvim-config; };
             users.lucid = import ./home.nix;
           };
