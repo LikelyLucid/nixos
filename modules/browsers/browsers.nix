@@ -1,7 +1,7 @@
 { pkgs, zenBrowser, ... }:
 {
   imports = [
-    ./firefox.nix
+    # ./firefox.nix
     ./zen.nix
   ];
 }

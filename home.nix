@@ -18,6 +18,7 @@
     cava
     wallust
     spotify-player
+    fastfetch
   ];
 
   home.stateVersion = "23.05";
