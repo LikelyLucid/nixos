@@ -21,6 +21,17 @@
     fastfetch
   ];
 
+  services.syncthing = {
+    enable = true;
+    dataDir = "${config.home.homeDirectory}/Sync";
+    openDefaultPorts = true;
+  };
+
+  sops = {
+    age.keyFile = "/var/lib/sops-nix/key.txt";
+    defaultSopsFile = ./secrets/secrets.yaml;
+  };
+
   home.stateVersion = "23.05";
 
   }
