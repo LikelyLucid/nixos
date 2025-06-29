@@ -21,6 +21,9 @@
     # nvidiaPatches = true; # Not needed now, yahoo
   };
 
+  programs.hyprlock.enable = true;
+  services.hypridle.enable = true;
+
   services.greetd = {
     enable = true;
     settings = {
