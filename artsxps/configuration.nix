@@ -125,6 +125,13 @@
     defaultSopsFile = ../secrets/secrets.yaml;
   };
 
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 5d --keep 5";
+    flake = "/etc/nixos";
+  };
+
  fonts.packages = with pkgs; [
     jetbrains-mono
     pkgs.nerd-fonts.jetbrains-mono

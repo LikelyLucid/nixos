@@ -36,12 +36,23 @@
     extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
   };
 
-
   environment.sessionVariables = {
-    WLR_NO_HARDWARE_CURSOR = "1";
+    # existing ones
+    WLR_NO_HARDWARE_CURSOR    = "1";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+
+    # Electron/Wayland/Ozone for Obsidian & friends:
+    ELECTRON_ENABLE_WAYLAND   = "1";
+    OZONE_PLATFORM            = "wayland";
+    XDG_CURRENT_DESKTOP       = "Hyprland";
+    XDG_SESSION_TYPE          = "wayland";
+    XDG_SESSION_DESKTOP       = "Hyprland";
+    QT_QPA_PLATFORM           = "wayland";
   };
+
   environment.systemPackages = with pkgs; [
-    jq brightnessctl rofi-bluetooth networkmanager_dmenu alsa-utils dunst hyprpolkitagent wl-clipboard bottom
+    jq brightnessctl rofi-bluetooth networkmanager_dmenu
+    alsa-utils dunst hyprpolkitagent wl-clipboard bottom flameshot slurp grim grimblast
   ];
 }
+
