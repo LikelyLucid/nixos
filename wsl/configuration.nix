@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 {
   wsl.enable = true;
+  wsl.defaultUser = "lucid";
 
   ############################################
   # NIX SETTINGS
