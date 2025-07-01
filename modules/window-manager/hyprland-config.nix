@@ -1,12 +1,12 @@
-{ pkgs, lazyvim-config, lib, ... }:
+{ pkgs, lazyvim-config, lib, dotfiles, ... }:
 {
  services.hyprpaper = {
     enable = true;
     settings = {
       ipc = "on";
       splash = false;
-      preload = "~/dotfiles/media/wallpapers/Wallpaper 4.jpg";
-      wallpaper = ",~/dotfiles/media/wallpapers/Wallpaper 4.jpg";
+      preload = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
+      wallpaper = ",${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
       };
   };
   wayland.windowManager.hyprland.extraConfig = "exec-once = hyprpaper &";
