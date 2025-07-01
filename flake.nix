@@ -45,6 +45,25 @@
       ];
       specialArgs = { inherit zenBrowser lazyvim-config; };
     };
+
+    nixosConfigurations.wsl = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./wsl/configuration.nix
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
+        ({ config, pkgs, ... }: {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            sharedModules = [ sops-nix.homeManagerModules.sops ];
+            extraSpecialArgs = { inherit lazyvim-config; };
+            users.lucid = import ./wsl/home.nix;
+          };
+        })
+      ];
+      specialArgs = { inherit lazyvim-config; };
+    };
   };
 }
 
