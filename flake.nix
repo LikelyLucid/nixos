@@ -19,6 +19,11 @@
       flake = false;
       };
 
+    dotfiles = {
+      url = "github:LikelyLucid/dotfiles";
+      flake = false;
+    };
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,7 +33,7 @@
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, sops-nix, nixos-wsl, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, dotfiles, sops-nix, nixos-wsl, ... }: {
     nixosConfigurations.artsxps = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -41,12 +46,12 @@
             useGlobalPkgs = true;
             useUserPackages = true;
             sharedModules = [ sops-nix.homeManagerModules.sops ];
-            extraSpecialArgs = { inherit zenBrowser lazyvim-config; };
+            extraSpecialArgs = { inherit zenBrowser lazyvim-config dotfiles; };
             users.lucid = import ./home.nix;
           };
         })
       ];
-      specialArgs = { inherit zenBrowser lazyvim-config; };
+      specialArgs = { inherit zenBrowser lazyvim-config dotfiles; };
     };
 
     nixosConfigurations.wsl = nixpkgs.lib.nixosSystem {
@@ -61,12 +66,12 @@
             useGlobalPkgs = true;
             useUserPackages = true;
             sharedModules = [ sops-nix.homeManagerModules.sops ];
-            extraSpecialArgs = { inherit lazyvim-config; };
+            extraSpecialArgs = { inherit lazyvim-config dotfiles; };
             users.lucid = import ./wsl/home.nix;
           };
         })
       ];
-      specialArgs = { inherit lazyvim-config; };
+      specialArgs = { inherit lazyvim-config dotfiles; };
     };
   };
 }

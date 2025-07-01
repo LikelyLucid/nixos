@@ -1,7 +1,8 @@
-{ pkgs, lazyvim-config, ... }:
+{ pkgs, lazyvim-config, dotfiles, ... }:
 {
   imports = [
     ../modules/dev/developer.nix
+    ../modules/dotfiles.nix
   ];
 
   home.username = "lucid";
