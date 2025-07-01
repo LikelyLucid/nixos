@@ -1,4 +1,4 @@
-{ config, pkgs, zenBrowser, lazyvim-config, ... }:
+{ config, pkgs, zenBrowser, lazyvim-config, dotfiles, ... }:
 
 {
   imports = [
@@ -6,6 +6,7 @@
     ./modules/dev/developer.nix
     ./modules/notes/notes.nix
     ./modules/browsers/browsers.nix
+    ./modules/dotfiles.nix
   ];
 
   home.username = "lucid";
