@@ -5,7 +5,7 @@
   ];
 
   home.username = "lucid";
-  home.homeDirectory = "/mnt/c/Users/micoo";
+  home.homeDirectory = "/home/lucid";
 
   sops = {
     age.keyFile = "/var/lib/sops-nix/key.txt";
