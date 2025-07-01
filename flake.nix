@@ -23,9 +23,12 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-wsl.url = "github:nix-community/nixos-wsl";
+    nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, sops-nix, ... }: {
+  outputs = { self, nixpkgs, nixos-hardware, home-manager, zenBrowser, lazyvim-config, sops-nix, nixos-wsl, ... }: {
     nixosConfigurations.artsxps = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -50,6 +53,7 @@
       system = "x86_64-linux";
       modules = [
         ./wsl/configuration.nix
+        nixos-wsl.nixosModules.default
         sops-nix.nixosModules.sops
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
