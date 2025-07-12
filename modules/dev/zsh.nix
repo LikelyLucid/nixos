@@ -17,11 +17,17 @@
       }
     ];
 
-    initExtra = ''
+    initContent = ''
       eval "$(starship init zsh)"
       eval "$(zoxide init zsh)"
       compinit
-      '';
+      bindkey '^L' clear-screen
+    '';
+
+    shellAliases = {
+      nixos = "git add . && git commit && nh os switch .";
+      gc = "git commit";
+    };
   };
 
   programs.starship = {

@@ -45,6 +45,7 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
+            backupFileExtension = "backup";
             sharedModules = [ sops-nix.homeManagerModules.sops ];
             extraSpecialArgs = { inherit zenBrowser lazyvim-config dotfiles; };
             users.lucid = import ./home.nix;
