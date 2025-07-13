@@ -94,7 +94,7 @@
   };
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  hardware.enableAllFirmware = true;
+  # hardware.enableAllFirmware = true;
 
   # -------------------------------------------------
   # Users
