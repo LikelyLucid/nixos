@@ -1,0 +1,6 @@
+---
+creation_rules:
+  - path_regex: secrets/secrets.yaml
+    age: age1vvdsse7dy2thsug7rlaxa5jlczljhmapahlf8ukr9z8hne28xvxqlvtx8y
+  - path_regex: secrets/sops-nix.agekey
+    age: age1vvdsse7dy2thsug7rlaxa5jlczljhmapahlf8ukr9z8hne28xvxqlvtx8y

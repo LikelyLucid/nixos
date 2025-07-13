@@ -38,7 +38,8 @@
       system = "x86_64-linux";
       modules = [
         nixos-hardware.nixosModules.dell-xps-15-9530
-        ./artsxps/configuration.nix
+        ./hosts/artsxps/configuration.nix
+        ./modules/secrets.nix
         sops-nix.nixosModules.sops
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
@@ -59,7 +60,8 @@
       system = "x86_64-linux";
       modules = [
         nixos-wsl.nixosModules.wsl
-        ./wsl/configuration.nix
+        ./hosts/wsl/configuration.nix
+        ./modules/secrets.nix
         sops-nix.nixosModules.sops
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
@@ -68,7 +70,7 @@
             useUserPackages = true;
             sharedModules = [ sops-nix.homeManagerModules.sops ];
             extraSpecialArgs = { inherit lazyvim-config dotfiles; };
-            users.lucid = import ./wsl/home.nix;
+            users.lucid = import ./hosts/wsl/home.nix;
           };
         })
       ];

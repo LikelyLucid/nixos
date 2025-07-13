@@ -1,0 +1,6 @@
+# Ignore the unencrypted age key if it's ever placed in this directory
+sops-nix.agekey
+
+# Ignore local sops configuration
+.sops.yaml.bak
+age_key.agekey

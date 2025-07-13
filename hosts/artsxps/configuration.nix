@@ -9,7 +9,7 @@
     [ # Include the results of the hardware scan.
       # <nixos-hardware/dell/xps/15-9530>
       ./hardware-configuration.nix
-      ../modules/window-manager/window-manager.nix
+      ../../modules/window-manager/window-manager.nix
       # ./modules/audio/dell_xps_speakers.nix
     ];
 
@@ -121,8 +121,8 @@
 
   sops = {
     age.keyFile = "/var/lib/sops-nix/key.txt";
-    age.generateKey = true;
-    defaultSopsFile = ../secrets/secrets.yaml;
+    defaultSopsFile = ../../secrets/secrets.yaml;
+    
   };
 
   programs.nh = {
