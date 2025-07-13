@@ -120,7 +120,7 @@
   ];
 
   sops = {
-    age.keyFile = "/var/lib/sops-nix/key.txt";
+    age.keyFile = "/home/lucid/.secrets/age.agekey";
     defaultSopsFile = ../../secrets/secrets.yaml;
     
   };
@@ -129,7 +129,7 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep-since 5d --keep 5";
-    flake = "/etc/nixos";
+    flake = "~/nixos";
   };
 
  fonts.packages = with pkgs; [
