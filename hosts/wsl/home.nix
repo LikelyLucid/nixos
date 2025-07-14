@@ -1,17 +1,17 @@
 { pkgs, lazyvim-config, dotfiles, ... }:
 {
+  ############################################
+  # SHARED HOME CONFIGURATION
+  ############################################
   imports = [
-    ../modules/dev/developer.nix
-    ../modules/dotfiles.nix
+    ../modules/shared/base-home.nix
   ];
 
-  home.username = "lucid";
-  home.homeDirectory = "/home/lucid";
-
+  ############################################
+  # WSL-SPECIFIC SOPS CONFIGURATION
+  ############################################
   sops = {
     age.keyFile = "/var/lib/sops-nix/key.txt";
     defaultSopsFile = ../secrets/secrets.yaml;
   };
-
-  home.stateVersion = "23.05";
 }

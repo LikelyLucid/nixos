@@ -9,18 +9,11 @@
     [ # Include the results of the hardware scan.
       # <nixos-hardware/dell/xps/15-9530>
       ./hardware-configuration.nix
+      ../../modules/shared/base.nix
       ../../modules/window-manager/window-manager.nix
       # ./modules/audio/dell_xps_speakers.nix
       ../../modules/networking/tailscale.nix
     ];
-
-  nix.settings = {
-    # You can leave the package line out if you’re happy with the Nix that ships
-    # with your current channel; keeping it explicit avoids surprises.
-    # package = pkgs.nix;
-
-    experimental-features = [ "nix-command" "flakes" ];
-  };
 
   # -------------------------------------------------
   # Bootloader
@@ -64,22 +57,6 @@
       };
   };
   # -------------------------------------------------
-  # Locale / Timezone
-  # -------------------------------------------------
-  time.timeZone = "Pacific/Auckland";
-  i18n.defaultLocale = "en_GB.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS      = "en_NZ.UTF-8";
-    LC_IDENTIFICATION = "en_NZ.UTF-8";
-    LC_MEASUREMENT  = "en_NZ.UTF-8";
-    LC_MONETARY     = "en_NZ.UTF-8";
-    LC_NAME         = "en_NZ.UTF-8";
-    LC_NUMERIC      = "en_NZ.UTF-8";
-    LC_PAPER        = "en_NZ.UTF-8";
-    LC_TELEPHONE    = "en_NZ.UTF-8";
-    LC_TIME         = "en_NZ.UTF-8";
-  };
-
   # Libinput for touchpad / mouse
   # services.libinput.enable = true;
 
@@ -98,17 +75,9 @@
   # hardware.enableAllFirmware = true;
 
   # -------------------------------------------------
-  # Users
+  # Additional User Groups (hardware-specific)
   # -------------------------------------------------
-  users.users.lucid = {
-    isNormalUser = true;
-    description = "Arthur Mckellar";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.zsh;
-  };
-  users.defaultUserShell = pkgs.zsh;
-
-  programs.zsh.enable = true;
+  users.users.lucid.extraGroups = [ "networkmanager" ];
 
   # -------------------------------------------------
   # Environment / Packages & Vars
@@ -117,7 +86,9 @@
 
 
   environment.systemPackages = with pkgs; [
-    wget git pciutils htop gh lazygit sops age syncthing
+    # Hardware-specific packages
+    pciutils
+    syncthing
   ];
 
   
@@ -134,9 +105,5 @@
     pkgs.nerd-fonts.jetbrains-mono
     # (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
   ];
-  # -------------------------------------------------
-  # System version (do not change lightly)
-  # -------------------------------------------------
-  system.stateVersion = "25.05";
 }
 
