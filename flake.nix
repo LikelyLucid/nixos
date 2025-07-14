@@ -39,8 +39,8 @@
       modules = [
         nixos-hardware.nixosModules.dell-xps-15-9530
         ./hosts/artsxps/configuration.nix
-        ./modules/secrets.nix
         sops-nix.nixosModules.sops
+        ./modules/secrets.nix
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
           home-manager = {
@@ -61,8 +61,8 @@
       modules = [
         nixos-wsl.nixosModules.wsl
         ./hosts/wsl/configuration.nix
-        ./modules/secrets.nix
         sops-nix.nixosModules.sops
+        ./modules/secrets.nix
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
           home-manager = {

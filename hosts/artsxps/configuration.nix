@@ -11,6 +11,7 @@
       ./hardware-configuration.nix
       ../../modules/window-manager/window-manager.nix
       # ./modules/audio/dell_xps_speakers.nix
+      ../../modules/networking/tailscale.nix
     ];
 
   nix.settings = {
@@ -119,11 +120,7 @@
     wget git pciutils htop gh lazygit sops age syncthing
   ];
 
-  sops = {
-    age.keyFile = "/home/lucid/.secrets/age.agekey";
-    defaultSopsFile = ../../secrets/secrets.yaml;
-    
-  };
+  
 
   programs.nh = {
     enable = true;
