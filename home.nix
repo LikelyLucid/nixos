@@ -12,6 +12,14 @@
   home.username = "lucid";
   home.homeDirectory = "/home/lucid";
 
+  home.sessionVariables = {
+    SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.secrets/age.agekey";
+  };
+
+  home.extraSessionCommands = ''
+    export GEMINI_API_KEY="$(cat ${config.sops.secrets.gemini_api_key.path})"
+  '';
+
   home.packages = with pkgs; [
     hyprpaper
     waybar
@@ -71,10 +79,6 @@
     gui = { theme = "black"; };
   };
 };
-  sops = {
-    age.keyFile = "/var/lib/sops-nix/key.txt";
-    defaultSopsFile = ./secrets/secrets.yaml;
-  };
 
   home.stateVersion = "23.05";
 }

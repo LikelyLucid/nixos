@@ -51,11 +51,11 @@
     wget git htop gh lazygit sops age
   ];
 
-  sops = {
-    age.keyFile = "/var/lib/sops-nix/key.txt";
-    defaultSopsFile = ../../secrets/secrets.yaml;
-    
-  };
+  # sops = {
+  #   age.keyFile = "/var/lib/sops-nix/key.txt";
+  #   defaultSopsFile = ../../secrets/secrets.yaml;
+  #
+  # };
 
   ############################################
   # SYSTEM VERSION
