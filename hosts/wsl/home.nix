@@ -4,7 +4,7 @@
   # SHARED HOME CONFIGURATION
   ############################################
   imports = [
-    ../modules/shared/base-home.nix
+    ../../modules/shared/base-home.nix
   ];
 
   ############################################
