@@ -9,6 +9,8 @@
     ./modules/dotfiles.nix
   ];
 
+  config.wallpaper = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
+
   home.username = "lucid";
   home.homeDirectory = "/home/lucid";
 
@@ -16,9 +18,9 @@
     SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.secrets/age.agekey";
   };
 
-  home.extraSessionCommands = ''
-    export GEMINI_API_KEY="$(cat ${config.sops.secrets.gemini_api_key.path})"
-  '';
+  # home.extraSessionCommands = ''
+  #   export GEMINI_API_KEY="$(cat ${config.sops.secrets.gemini_api_key.path})"
+  # '';
 
   home.packages = with pkgs; [
     hyprpaper
