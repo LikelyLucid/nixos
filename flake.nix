@@ -42,7 +42,6 @@
         sops-nix.nixosModules.sops
         ./modules/secrets.nix
         home-manager.nixosModules.home-manager
-        ./modules/wallpaper.nix
         ({ config, pkgs, ... }: {
           home-manager = {
             useGlobalPkgs = true;
@@ -65,7 +64,6 @@
         sops-nix.nixosModules.sops
         ./modules/secrets.nix
         home-manager.nixosModules.home-manager
-        ./modules/wallpaper.nix
         ({ config, pkgs, ... }: {
           home-manager = {
             useGlobalPkgs = true;

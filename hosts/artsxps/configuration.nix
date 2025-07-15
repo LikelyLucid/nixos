@@ -34,8 +34,6 @@
   networking.hostName = "artsxps";
   networking.networkmanager.enable = true;
 
-  networking.tailscale.allowedSSIDs = [ "UCWireless" "UCvisitor" ];
-
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 

@@ -27,7 +27,6 @@
     shellAliases = {
       nixos = "git add . && git commit && nh os switch .";
       gc = "git commit";
-      spt = "spotify_player";
     };
   };
 
