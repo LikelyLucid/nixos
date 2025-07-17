@@ -7,6 +7,7 @@
     ./modules/notes/notes.nix
     ./modules/browsers/browsers.nix
     ./modules/dotfiles.nix
+    ./modules/office/office.nix
   ];
 
   home.username = "lucid";
@@ -16,9 +17,9 @@
     SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.secrets/age.agekey";
   };
 
-  home.extraSessionCommands = ''
-    export GEMINI_API_KEY="$(cat ${config.sops.secrets.gemini_api_key.path})"
-  '';
+  # home.extraSessionCommands = ''
+  #   export GEMINI_API_KEY="$(cat ${config.sops.secrets.gemini_api_key.path})"
+  # '';
 
   home.packages = with pkgs; [
     hyprpaper
@@ -29,6 +30,7 @@
     wallust
     spotify-player
     fastfetch
+    pavucontrol
   ];
 
  services.syncthing = {

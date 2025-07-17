@@ -27,6 +27,7 @@
     shellAliases = {
       nixos = "git add . && git commit && nh os switch .";
       gc = "git commit";
+      spt = "spotify_player";
     };
   };
 
@@ -34,5 +35,6 @@
     enable = true;
   };
   programs.zoxide.enable = true;
+  programs.atuin.enable = true;
 }
 
