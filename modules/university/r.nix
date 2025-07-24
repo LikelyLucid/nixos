@@ -3,6 +3,11 @@
 {
   environment.systemPackages = with pkgs; [
     rstudioWrapper
-    R
+    (rWrapper.override {
+      packages = with rPackages; [
+        tidyverse
+        ggplot2
+      ];
+    })
   ];
 }
