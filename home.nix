@@ -31,7 +31,13 @@
     spotify-player
     fastfetch
     pavucontrol
+    noto-fonts
+    noto-fonts-cjk-sans
   ];
+
+  fonts.fontconfig.defaultFonts = {
+    sansSerif = [ "Noto Sans" ];
+  };
 
  services.syncthing = {
   enable         = true;

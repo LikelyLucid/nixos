@@ -41,6 +41,7 @@
         ./hosts/artsxps/configuration.nix
         sops-nix.nixosModules.sops
         ./modules/secrets.nix
+        ./modules/university/university.nix
         home-manager.nixosModules.home-manager
         ({ config, pkgs, ... }: {
           home-manager = {
