@@ -15,6 +15,7 @@
 
   home.sessionVariables = {
     SOPS_AGE_KEY_FILE = "${config.home.homeDirectory}/.secrets/age.agekey";
+    OZONE_PLATFORM = "wayland";
   };
 
   # home.extraSessionCommands = ''
