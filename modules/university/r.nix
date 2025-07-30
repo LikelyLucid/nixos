@@ -5,7 +5,7 @@
   let
     RStudio-with-my-packages = rstudioWrapper.override {
       packages = with rPackages; [
-        tidyverse # ggplot2 is part of tidyverse
+        tidyverse performance readr kableExtra see
       ];
     };
   in [
