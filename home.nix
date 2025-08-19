@@ -8,6 +8,7 @@
     ./modules/browsers/browsers.nix
     ./modules/dotfiles.nix
     ./modules/office/office.nix
+    ./modules/university/university.nix
   ];
 
   home.username = "lucid";

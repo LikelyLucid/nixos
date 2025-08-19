@@ -3,5 +3,6 @@
 {
   imports = [
     ./r.nix
+    ./zotero.nix
   ];
 }

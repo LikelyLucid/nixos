@@ -118,7 +118,7 @@
 
 
   environment.systemPackages = with pkgs; [
-    wget git pciutils htop gh lazygit sops age syncthing
+    wget git pciutils htop gh lazygit sops age syncthing texlive.combined.scheme-full
   ];
 
   

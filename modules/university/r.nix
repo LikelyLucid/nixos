@@ -5,7 +5,7 @@
   let
     RStudio-with-my-packages = rstudioWrapper.override {
       packages = with rPackages; [
-        tidyverse performance readr kableExtra see readxl stringi GGally
+        tidyverse performance readr kableExtra see readxl stringi GGally leaps mice
       ];
     };
   in [
