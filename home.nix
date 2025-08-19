@@ -35,6 +35,8 @@
     pavucontrol
     noto-fonts
     noto-fonts-cjk-sans
+    codex
+    python3
   ];
 
   fonts.fontconfig.defaultFonts = {

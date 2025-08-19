@@ -1,7 +1,12 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
+  ############################################
+  # WSL
+  ############################################
   wsl.enable = true;
   wsl.defaultUser = "lucid";
+  # Ensure systemd is used inside WSL to avoid systemctl errors
+  wsl.wslConf.boot.systemd = true;
 
   ############################################
   # NIX SETTINGS
@@ -12,7 +17,9 @@
   # HOSTNAME & NETWORKING
   ############################################
   networking.hostName = "nixos-wsl";
-  networking.networkmanager.enable = true;
+  # NetworkManager is not needed inside WSL and can slow startup
+  # Remove/disable it to prevent long boot and journal errors
+  # networking.networkmanager.enable = false;
 
   ############################################
   # LOCALE / TIMEZONE
