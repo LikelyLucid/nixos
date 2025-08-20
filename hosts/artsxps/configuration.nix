@@ -1,3 +1,6 @@
+############################################
+# DELL XPS 15 9530 NIXOS CONFIGURATION
+############################################
 # Edit this configuration file to define what should be installed on
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
@@ -5,14 +8,19 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      # <nixos-hardware/dell/xps/15-9530>
-      ./hardware-configuration.nix
-      ../../modules/window-manager/window-manager.nix
-      # ./modules/audio/dell_xps_speakers.nix
-      ../../modules/networking/tailscale.nix
-    ];
+  ############################################
+  # IMPORTS
+  ############################################
+  imports = [
+    # Hardware configuration
+    ./hardware-configuration.nix
+    # System modules
+    ../../modules/window-manager/window-manager.nix
+    ../../modules/networking/tailscale.nix
+    ../../modules/security/security.nix
+    ../../modules/system/monitoring.nix
+    ../../modules/system/performance.nix
+  ];
 
   nix.settings = {
     # You can leave the package line out if you’re happy with the Nix that ships
@@ -20,17 +28,23 @@
     # package = pkgs.nix;
 
     experimental-features = [ "nix-command" "flakes" ];
+    
+    # Optimize store and enable auto-optimise  
+    auto-optimise-store = true;
+    
+    # Trusted users for nix operations
+    trusted-users = [ "root" "lucid" ];
   };
 
-  # -------------------------------------------------
-  # Bootloader
-  # -------------------------------------------------
+  ############################################
+  # BOOTLOADER CONFIGURATION  
+  ############################################
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # -------------------------------------------------
-  # Hostname & Networking
-  # -------------------------------------------------
+  ############################################
+  # HOSTNAME & NETWORKING
+  ############################################
   networking.hostName = "artsxps";
   networking.networkmanager.enable = true;
   # networking.networkmanager.tailscale.ssids = [ "UCWireless" "UCVisitor" ];
@@ -38,35 +52,44 @@
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
-  # -------------------------------------------------
-  # Battery
-  # -------------------------------------------------
-
+  ############################################
+  # HARDWARE CONFIGURATION
+  ############################################
+  
+  # Thermal management
   services.thermald.enable = true;
 
+  # Power management with TLP
   services.tlp = {
-      enable = true;
-      settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "performance";
-        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+    enable = true;
+    settings = {
+      # CPU scaling
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-        CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      # CPU energy performance policy  
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
 
-        CPU_MIN_PERF_ON_AC = 0;
-        CPU_MAX_PERF_ON_AC = 100;
-        CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 20;
+      # CPU performance limits
+      CPU_MIN_PERF_ON_AC = 0;
+      CPU_MAX_PERF_ON_AC = 100;
+      CPU_MIN_PERF_ON_BAT = 0;
+      CPU_MAX_PERF_ON_BAT = 20;
 
-       #Optional helps save long term battery health
-       # START_CHARGE_THRESH_BAT0 = 40; # 40 and below it starts to charge
-       # STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
-
-      };
+      # Battery charge thresholds (uncomment for battery health)
+      # START_CHARGE_THRESH_BAT0 = 40; # Start charging at 40%
+      # STOP_CHARGE_THRESH_BAT0 = 80;  # Stop charging at 80%
+    };
   };
-  # -------------------------------------------------
-  # Locale / Timezone
-  # -------------------------------------------------
+
+  # Use latest kernel packages
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  ############################################
+  # LOCALE & TIMEZONE
+  ############################################
+  # LOCALE & TIMEZONE
+  ############################################
   time.timeZone = "Pacific/Auckland";
   i18n.defaultLocale = "en_GB.UTF-8";
   i18n.extraLocaleSettings = {
@@ -81,13 +104,13 @@
     LC_TIME         = "en_NZ.UTF-8";
   };
 
-  # Libinput for touchpad / mouse
-  # services.libinput.enable = true;
-
-  # -------------------------------------------------
-  # Audio (PipeWire on Wayland)
-  # -------------------------------------------------
+  ############################################
+  # AUDIO CONFIGURATION
+  ############################################
+  # Enable real-time kit for audio
   security.rtkit.enable = true;
+  
+  # PipeWire audio server  
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -95,12 +118,9 @@
     pulse.enable = true;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-  # hardware.enableAllFirmware = true;
-
-  # -------------------------------------------------
-  # Users
-  # -------------------------------------------------
+  ############################################
+  # USER CONFIGURATION
+  ############################################
   users.users.lucid = {
     isNormalUser = true;
     description = "Arthur Mckellar";
@@ -111,18 +131,36 @@
 
   programs.zsh.enable = true;
 
-  # -------------------------------------------------
-  # Environment / Packages & Vars
-  # -------------------------------------------------
+  ############################################
+  # SYSTEM PACKAGES & ENVIRONMENT
+  ############################################
+  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-
+  # Essential system packages
   environment.systemPackages = with pkgs; [
-    wget git pciutils htop gh lazygit sops age syncthing texlive.combined.scheme-full
+    # System utilities
+    wget
+    git
+    pciutils
+    htop
+    
+    # Development tools
+    gh
+    lazygit
+    
+    # Security tools
+    sops
+    age
+    
+    # File sync
+    syncthing
+    
+    # Document processing
+    texlive.combined.scheme-full
   ];
 
-  
-
+  # Nix Helper for easier system management
   programs.nh = {
     enable = true;
     clean.enable = true;
@@ -130,14 +168,15 @@
     flake = "/home/lucid/nixos";
   };
 
- fonts.packages = with pkgs; [
+  # System fonts
+  fonts.packages = with pkgs; [
     jetbrains-mono
-    pkgs.nerd-fonts.jetbrains-mono
-    # (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+    nerd-fonts.jetbrains-mono
   ];
-  # -------------------------------------------------
-  # System version (do not change lightly)
-  # -------------------------------------------------
+  ############################################
+  # SYSTEM VERSION
+  ############################################
+  # Do not change lightly - this sets the NixOS release version
   system.stateVersion = "25.05";
 }
 
