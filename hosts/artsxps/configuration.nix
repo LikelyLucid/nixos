@@ -29,6 +29,16 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # -------------------------------------------------
+  # Boot Splash (Plymouth)
+  # -------------------------------------------------
+  boot.plymouth = {
+    enable = true;
+    # Using the Dark-Planet theme from adi1090x/plymouth-themes
+    theme = "dark_planet";
+    themePackages = with pkgs; [ adi1090x-plymouth-themes ];
+  };
+
+  # -------------------------------------------------
   # Hostname & Networking
   # -------------------------------------------------
   networking.hostName = "artsxps";
@@ -140,4 +150,3 @@
   # -------------------------------------------------
   system.stateVersion = "25.05";
 }
-

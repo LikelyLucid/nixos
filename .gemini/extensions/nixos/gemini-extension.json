@@ -4,7 +4,10 @@
   "mcpServers": {
     "nixos": {
       "command": "nix",
-      "args": ["run", "github:utensils/mcp-nixos", "--"]
-    }
+      "args": # IMPORTANT: the top-level key is `mcp_servers` rather than `mcpServers`.
+[mcp_servers.server-name]
+command = "npx"
+args = ["-y", "mcp-server"]
+env = { "API_KEY" = "value" }    }
   }
 }
