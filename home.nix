@@ -27,7 +27,7 @@
     hyprpaper
     waybar
     kitty
-    rofi-wayland
+    rofi
     cava
     wallust
     spotify-player
