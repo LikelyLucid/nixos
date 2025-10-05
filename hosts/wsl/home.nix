@@ -13,12 +13,8 @@
   # CLI-ONLY PACKAGES
   ############################################
   home.packages = with pkgs; [
-    cava
-    wallust
-    spotify-player
-    fastfetch
-    codex
     python3
+    fastfetch
   ];
 
   sops = {
