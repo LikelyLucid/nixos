@@ -49,6 +49,14 @@ in {
   ];
 
   ############################################
+  # KDE CONNECT
+  ############################################
+  services.kdeconnect = {
+    enable = true;
+    indicator = true;
+  };
+
+  ############################################
   # FONT CONFIGURATION
   ############################################
   fonts.fontconfig.defaultFonts.sansSerif = [ "Noto Sans" ];

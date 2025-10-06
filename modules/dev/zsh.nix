@@ -23,6 +23,13 @@
       eval "$(zoxide init zsh)"
       compinit
       bindkey '^L' clear-screen
+      function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        IFS= read -r cwd < "$tmp"
+        [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+        rm -f -- "$tmp"
+      }
     '';
     shellAliases = {
       nixos = "git add . && git commit && nh os switch .";

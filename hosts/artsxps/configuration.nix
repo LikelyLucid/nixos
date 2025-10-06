@@ -102,6 +102,13 @@
     texlive.combined.scheme-full
     wget
   ];
+
+  ############################################
+  # COMPATIBILITY UTILITIES
+  ############################################
+  systemd.tmpfiles.rules = [
+    "L /usr/bin/which - - - - ${pkgs.which}/bin/which"
+  ];
   programs.nh = {
     enable = true;
     clean.enable = true;

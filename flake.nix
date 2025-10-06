@@ -13,6 +13,16 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    codex_binary = {
+      url = "https://github.com/openai/codex/releases/latest/download/codex-x86_64-unknown-linux-musl.tar.gz";
+      flake = false;
+    };
+
+    codex_release_meta = {
+      url = "https://api.github.com/repos/openai/codex/releases/latest";
+      flake = false;
+    };
+
     lazyvim-config = {
       url = "github:LikelyLucid/lazyvim-dotfiles";
       flake = false;
@@ -42,6 +52,8 @@
     dotfiles,
     sops-nix,
     nixos-wsl,
+    codex_binary,
+    codex_release_meta,
     ...
   }:
     let
@@ -49,6 +61,10 @@
 
       common_special_args = {
         inherit lazyvim-config dotfiles;
+      };
+
+      codex_overlay = import ./overlays/codex.nix {
+        inherit codex_binary codex_release_meta;
       };
 
       mkHomeManagerModule = {
@@ -80,6 +96,7 @@
           modules =
             modules
             ++ [
+              { nixpkgs.overlays = [ codex_overlay ]; }
               sops-nix.nixosModules.sops
               ./modules/secrets.nix
               home-manager.nixosModules.home-manager
