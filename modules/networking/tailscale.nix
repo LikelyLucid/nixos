@@ -1,12 +1,16 @@
 { config, pkgs, ... }:
-
 {
-  services.tailscale.enable = true;
-  services.tailscale.package = pkgs.tailscale;
-  services.tailscale.authKeyFile = config.sops.secrets.tailscale-auth-key.path;
-  services.tailscale.useRoutingFeatures = "client";
-  services.tailscale.extraUpFlags = [
-    "--exit-node=100.75.156.101"
-    "--exit-node-allow-lan-access"
-  ];
+  ############################################
+  # TAILSCALE
+  ############################################
+  services.tailscale = {
+    enable = true;
+    package = pkgs.tailscale;
+    authKeyFile = config.sops.secrets.tailscale-auth-key.path;
+    useRoutingFeatures = "client";
+    extraUpFlags = [
+      "--exit-node=100.75.156.101"
+      "--exit-node-allow-lan-access"
+    ];
+  };
 }

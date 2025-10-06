@@ -1,14 +1,16 @@
-{ pkgs, lazyvim-config, lib, ... }:
+{ pkgs, ... }:
 {
-  home.packages = with pkgs; [ neovim zig ripgrep gnugrep fzf uv nodejs-slim_20 yazi gemini-cli];
-  # home.activation.copyNvimConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
-  # rm -rf ~/.config/nvim
-  # cp -r ${lazyvim-config} ~/.config/nvim
-  # chmod -R u+w ~/.config/nvim
-  # '';
+  home.packages = with pkgs; [
+    fzf
+    gemini-cli
+    gnugrep
+    neovim
+    nodejs-slim_20
+    ripgrep
+    uv
+    yazi
+    zig
+  ];
 
-  home.sessionVariables = {
-    EDITOR = "nvim";
-  };
-
+  home.sessionVariables.EDITOR = "nvim";
 }

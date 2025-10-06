@@ -1,5 +1,8 @@
 { config, pkgs, ... }:
 {
+  ############################################
+  # GRAPHICS & NVIDIA
+  ############################################
   services.xserver.enable = false;
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.graphics.enable = true;
@@ -10,52 +13,67 @@
     open = false;
     prime = {
       offload.enable = true;
-      intelBusId  = "PCI:0:2:0";
+      intelBusId = "PCI:0:2:0";
       nvidiaBusId = "PCI:1:0:0";
     };
   };
 
+  ############################################
+  # HYPRLAND
+  ############################################
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-    # nvidiaPatches = true; # Not needed now, yahoo
   };
-
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
 
   services.greetd = {
     enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --greeting 'Welcome back Arthur!' --cmd Hyprland";
-	user = "greeter";
-      };
+    settings.default_session = {
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --greeting 'Welcome back Arthur!' --cmd Hyprland";
+      user = "greeter";
     };
   };
 
+  ############################################
+  # XDG PORTAL
+  ############################################
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
   };
 
+  ############################################
+  # ENVIRONMENT VARIABLES
+  ############################################
   environment.sessionVariables = {
-    # existing ones
-    WLR_NO_HARDWARE_CURSOR    = "1";
+    WLR_NO_HARDWARE_CURSOR = "1";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-
-    # Electron/Wayland/Ozone for Obsidian & friends:
-    ELECTRON_ENABLE_WAYLAND   = "1";
-    OZONE_PLATFORM            = "wayland";
-    XDG_CURRENT_DESKTOP       = "Hyprland";
-    XDG_SESSION_TYPE          = "wayland";
-    XDG_SESSION_DESKTOP       = "Hyprland";
-    QT_QPA_PLATFORM           = "wayland";
+    ELECTRON_ENABLE_WAYLAND = "1";
+    OZONE_PLATFORM = "wayland";
+    XDG_CURRENT_DESKTOP = "Hyprland";
+    XDG_SESSION_TYPE = "wayland";
+    XDG_SESSION_DESKTOP = "Hyprland";
+    QT_QPA_PLATFORM = "wayland";
   };
 
+  ############################################
+  # SYSTEM PACKAGES
+  ############################################
   environment.systemPackages = with pkgs; [
-    jq brightnessctl rofi-bluetooth networkmanager_dmenu
-    alsa-utils dunst hyprpolkitagent wl-clipboard bottom flameshot slurp grim grimblast
+    alsa-utils
+    brightnessctl
+    bottom
+    dunst
+    flameshot
+    grim
+    grimblast
+    hyprpolkitagent
+    jq
+    networkmanager_dmenu
+    rofi-bluetooth
+    slurp
+    wl-clipboard
   ];
 }
-

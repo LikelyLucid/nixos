@@ -1,19 +1,30 @@
-{ pkgs, lazyvim-config, lib, dotfiles, ... }:
-{
- services.hyprpaper = {
+{ pkgs, dotfiles, ... }:
+let
+  wallpaper_path = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
+in {
+  ############################################
+  # HYPRPAPER
+  ############################################
+  services.hyprpaper = {
     enable = true;
     settings = {
       ipc = "on";
       splash = false;
-      preload = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
-      wallpaper = ",${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
-      };
+      preload = wallpaper_path;
+      wallpaper = ",${wallpaper_path}";
+    };
   };
-  wayland.windowManager.hyprland.extraConfig = "exec-once = hyprpaper &";
+
+  ############################################
+  # HYPRLAND SESSION HELPERS
+  ############################################
+  wayland.windowManager.hyprland.extraConfig = ''
+    exec-once = hyprpaper &
+  '';
 
   services.playerctld.enable = true;
-
   programs.hyprlock.enable = true;
+
   services.hypridle = {
     enable = true;
     settings = {
@@ -21,7 +32,6 @@
         lock_cmd = "hyprlock";
         before_sleep_cmd = "hyprlock";
       };
-
       listener = [
         {
           timeout = 300;
@@ -34,5 +44,4 @@
       ];
     };
   };
-
 }

@@ -1,7 +1,5 @@
-{ pkgs, zenBrowser, ... }:
+{ zenBrowser, ... }:
 {
-  imports = [
-    zenBrowser.homeModules.default
-  ];
+  imports = [ zenBrowser.homeModules.default ];
   programs.zen-browser.enable = true;
 }

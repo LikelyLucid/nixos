@@ -1,12 +1,21 @@
-{ config, lib, dotfiles, ... }:
-{
-  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/hypr/hyprland.conf";
-  xdg.configFile."kitty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/kitty";
-  xdg.configFile."rofi".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/rofi";
-  xdg.configFile."waybar".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/waybar";
-  xdg.configFile."spotify-player".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/spotify-player";
-  xdg.configFile."wallust".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/wallust";
-  xdg.configFile."flameshot".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/flameshot";
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
+{ config, dotfiles, ... }:
+let
+  mk_link = config.lib.file.mkOutOfStoreSymlink;
+  config_links = {
+    "hypr/hyprland.conf" = "hypr/hyprland.conf";
+    "kitty" = "kitty";
+    "rofi" = "rofi";
+    "waybar" = "waybar";
+    "spotify-player" = "spotify-player";
+    "wallust" = "wallust";
+    "flameshot" = "flameshot";
+    "nvim" = "nvim";
+  };
+in {
+  xdg.configFile =
+    builtins.mapAttrs
+      (_: relative_path: {
+        source = mk_link "${dotfiles}/${relative_path}";
+      })
+      config_links;
 }
-

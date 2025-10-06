@@ -1,10 +1,7 @@
-{ ... }:
+final: prev:
 {
   ############################################
-  # NOTE-TAKING TOOLS
+  # CODEX WRAPPER
   ############################################
-  imports = [
-    ./obsidian.nix
-    ./pandoc.nix
-  ];
+  codex = prev.callPackage ../packages/codex { };
 }
