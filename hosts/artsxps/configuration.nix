@@ -101,6 +101,7 @@
     syncthing
     texlive.combined.scheme-full
     wget
+    zip
   ];
 
   ############################################
