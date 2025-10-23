@@ -23,15 +23,6 @@
   boot.loader.grub.default = 0;
 
   ############################################
-  # BOOT SPLASH
-  ############################################
-  boot.plymouth = {
-    enable = true;
-    theme = "dark_planet";
-    themePackages = with pkgs; [ adi1090x-plymouth-themes ];
-  };
-
-  ############################################
   # HOSTNAME & NETWORKING
   ############################################
   networking.hostName = "artsxps";
