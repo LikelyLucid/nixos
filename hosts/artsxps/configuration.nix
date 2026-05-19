@@ -11,6 +11,19 @@
   ];
 
   ############################################
+  # BITWARDEN SECRETS (self-hosted Vaultwarden)
+  ############################################
+  bitwarden.enable = true;
+  bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
+  bitwarden.auth.method = "api-key";
+  bitwarden.secrets = {
+    tailscale-auth-key = {
+      item = "Tailscale Auth Key";
+      field = "password";
+    };
+  };
+
+  ############################################
   # NIX SETTINGS
   ############################################
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -82,13 +95,11 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    age
     git
     gh
     htop
     lazygit
     pciutils
-    sops
     syncthing
     texlive.combined.scheme-full
     wget

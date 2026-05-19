@@ -13,16 +13,6 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    codex_binary = {
-      url = "https://github.com/openai/codex/releases/latest/download/codex-x86_64-unknown-linux-musl.tar.gz";
-      flake = false;
-    };
-
-    codex_release_meta = {
-      url = "https://api.github.com/repos/openai/codex/releases/latest";
-      flake = false;
-    };
-
     lazyvim-config = {
       url = "github:LikelyLucid/lazyvim-dotfiles";
       flake = false;
@@ -40,6 +30,8 @@
 
     nixos-wsl.url = "github:nix-community/nixos-wsl";
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
+
+    pi.url = "github:lukasl-dev/pi.nix";
   };
 
   outputs = inputs@{
@@ -52,8 +44,7 @@
     dotfiles,
     sops-nix,
     nixos-wsl,
-    codex_binary,
-    codex_release_meta,
+    pi,
     ...
   }:
     let
@@ -61,10 +52,6 @@
 
       common_special_args = {
         inherit lazyvim-config dotfiles;
-      };
-
-      codex_overlay = import ./overlays/codex.nix {
-        inherit codex_binary codex_release_meta;
       };
 
       mkHomeManagerModule = {
@@ -96,9 +83,10 @@
           modules =
             modules
             ++ [
-              { nixpkgs.overlays = [ codex_overlay ]; }
+              { nixpkgs.overlays = [ pi.overlays.default ]; }
               sops-nix.nixosModules.sops
               ./modules/secrets.nix
+              ./modules/bitwarden-secrets.nix
               home-manager.nixosModules.home-manager
               home_module
             ];
@@ -122,7 +110,8 @@
           ./hosts/wsl/configuration.nix
         ];
         home_module = mkHomeManagerModule {
-          user_module = ./hosts/wsl/home.nix;
+          user_module = ./home.nix;
+          extra_special_args = { isWsl = true; };
         };
       };
     };

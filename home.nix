@@ -1,19 +1,27 @@
-{ pkgs, zenBrowser, lazyvim-config, dotfiles, ... }:
+{ pkgs, lib, zenBrowser, lazyvim-config, dotfiles, isWsl ? false, ... }:
 let
   home_dir = "/home/lucid";
 in {
   ############################################
   # MODULE IMPORTS
   ############################################
-  imports = [
-    ./modules/window-manager/hyprland-config.nix
-    ./modules/dev/developer.nix
-    ./modules/notes/notes.nix
-    ./modules/browsers/browsers.nix
-    ./modules/dotfiles.nix
-    ./modules/office/office.nix
-    ./modules/university/university.nix
-  ];
+  imports =
+    [
+      # Always included
+      ./modules/dev/developer.nix
+      ./modules/dotfiles.nix
+    ]
+    ++ lib.optionals (!isWsl) [
+      # Desktop Linux only (GUI, display servers, etc.)
+      ./modules/window-manager/hyprland-config.nix
+      ./modules/notes/notes.nix
+      ./modules/browsers/browsers.nix
+      ./modules/office/office.nix
+      ./modules/university/university.nix
+    ]
+    ++ lib.optionals (isWsl) [
+      # WSL-only home-manager config
+    ];
 
   ############################################
   # USER DETAILS
@@ -22,36 +30,124 @@ in {
   home.homeDirectory = home_dir;
 
   ############################################
-  # SESSION VARIABLES
+  # SOPS
   ############################################
-  home.sessionVariables = {
-    SOPS_AGE_KEY_FILE = "${home_dir}/.secrets/age.agekey";
-    OZONE_PLATFORM = "wayland";
+  sops = {
+    age.keyFile = if isWsl then "/var/lib/sops-nix/key.txt" else "${home_dir}/.secrets/age.agekey";
+    defaultSopsFile = ./secrets/secrets.yaml;
   };
 
   ############################################
   # HOME PACKAGES
+  # Organised by category for easy maintenance
   ############################################
-  home.packages = with pkgs; [
-    cava
-    codex
-    fastfetch
-    hyprpaper
-    kitty
-    noto-fonts
-    noto-fonts-cjk-sans
-    pavucontrol
-    python3
-    rofi
-    spotify-player
-    wallust
-    waybar
-  ];
+  home.packages =
+    with pkgs;
+    [
+      ########################################
+      # RUNTIME ENVIRONMENTS
+      ########################################
+      nodejs           # JavaScript runtime
+      bun              # Fast all-in-one JS/TS runtime
+      go               # Go programming language
+      python3          # Python runtime
+      uv               # Fast Python package manager
+
+      ########################################
+      # AI / AGENT DEVELOPMENT TOOLS
+      ########################################
+      pi-coding-agent  # pi coding agent (from lukasl-dev/pi.nix overlay)
+      aider-chat       # AI pair programming in terminal
+      opencode         # Terminal UI for LLMs
+
+      ########################################
+      # ENHANCED CLI TOOLS
+      ########################################
+      bat              # `cat` with syntax highlighting & git integration
+      eza              # Modern `ls` replacement (colours, icons, tree view)
+      fd               # `find` replacement that's fast and intuitive
+      delta            # Syntax-highlighted git diffs
+      just             # Command runner — like make but modern
+      yq               # YAML/JSON/XML processor (like jq for everything)
+      jq               # JSON processor
+      ripgrep          # `grep` replacement — fast recursive search
+      hyperfine        # Command benchmarking tool
+
+      ########################################
+      # NETWORK TOOLS
+      ########################################
+      httpie           # Human-friendly curl alternative
+      dogdns           # DNS lookup utility
+      websocat         # WebSocket client
+
+      ########################################
+      # SYSTEM / MONITORING
+      ########################################
+      fastfetch        # System info
+      btop             # Resource monitor
+      procs            # Modern `ps` replacement
+      du-dust          # `du` replacement — disk usage visualised
+      duf              # `df` replacement — disk free with better output
+
+      ########################################
+      # FONTS
+      ########################################
+      noto-fonts
+      noto-fonts-cjk-sans
+    ]
+    ++ lib.optionals (!isWsl) [
+      # Desktop Linux GUI packages
+      cava
+      hyprpaper
+      kitty
+      pavucontrol
+      rofi
+      spotify-player
+      wallust
+      waybar
+    ]
+    ++ lib.optionals (isWsl) [
+      # WSL-specific tooling
+    ];
 
   ############################################
-  # KDE CONNECT
+  # ZSH ALIASES for new tools
   ############################################
-  services.kdeconnect = {
+  programs.zsh.shellAliases = {
+    # Enhanced CLI aliases
+    ls = "eza --icons --group-directories-first";
+    ll = "eza --icons --group-directories-first -la";
+    lt = "eza --icons --group-directories-first --tree";
+    cat = "bat --paging=never";
+    du = "dust";
+    df = "duf";
+    ps = "procs";
+    grep = "rg";
+    top = "btop";
+
+    # Git
+    ga = "git add";
+    gc = "git commit";
+    gp = "git push";
+    gl = "git log --oneline --graph";
+    gd = "git diff";
+    gds = "git diff --staged";
+
+    # AI tools
+    pi = "pi";
+    aider = "aider";
+
+    # Network
+    curl = "httpie";
+
+    # WSL: quick jump to Windows home (dynamically detected)
+    winhome = "cd \"$(wslpath \"$(powershell.exe -NoProfile -NonInteractive -Command Write-Output '$env:USERPROFILE' 2>/dev/null | tr -d '\\r\\n')\" 2>/dev/null || echo /mnt/c/Users)\"";
+  };
+
+  ############################################
+  # KDE CONNECT (desktop only)
+  ############################################
+  services.kdeconnect = lib.mkIf (!isWsl) {
     enable = true;
     indicator = true;
   };
@@ -94,6 +190,19 @@ in {
       gui.theme = "black";
     };
   };
+
+  ############################################
+  # WSL: Ollama passthrough + dynamic Windows home detection
+  ############################################
+  programs.zsh.initExtra = lib.mkIf isWsl ''
+    # Point Ollama to Windows-hosted Ollama Cloud
+    export OLLAMA_HOST="http://$(grep nameserver /etc/resolv.conf | awk '{print $2}'):11434"
+
+    # Detect Windows home directory dynamically (works for any Windows username)
+    if [[ -z "$WIN_HOME" ]]; then
+      export WIN_HOME=$(wslpath "$(powershell.exe -NoProfile -NonInteractive -Command Write-Output '$env:USERPROFILE' 2>/dev/null | tr -d '\\r\\n')" 2>/dev/null)
+    fi
+  '';
 
   ############################################
   # STATE VERSION
