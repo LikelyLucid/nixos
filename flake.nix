@@ -28,6 +28,11 @@
       flake = false;
     };
 
+    pi-ollama-cloud = {
+      url = "github:fgrehm/pi-ollama-cloud";
+      flake = false;
+    };
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -48,6 +53,7 @@
     lazyvim-config,
     dotfiles,
     pi-config,
+    pi-ollama-cloud,
     sops-nix,
     nixos-wsl,
     pi,
@@ -58,6 +64,7 @@
 
       common_special_args = {
         inherit lazyvim-config dotfiles pi-config;
+        isWsl = false;
       };
 
       mkHomeManagerModule = {
@@ -119,6 +126,7 @@
           user_module = ./home.nix;
           extra_special_args = { isWsl = true; };
         };
+        extra_special_args = { isWsl = true; };
       };
     };
 }
