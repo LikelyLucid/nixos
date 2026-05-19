@@ -1,4 +1,4 @@
-{ pkgs, lib, zenBrowser, lazyvim-config, dotfiles, isWsl ? false, ... }:
+{ pkgs, lib, zenBrowser, lazyvim-config, dotfiles, pi-config, isWsl ? false, ... }:
 let
   home_dir = "/home/lucid";
 in {
@@ -10,6 +10,7 @@ in {
       # Always included
       ./modules/dev/developer.nix
       ./modules/dotfiles.nix
+      ./modules/pi-config.nix
     ]
     ++ lib.optionals (!isWsl) [
       # Desktop Linux only (GUI, display servers, etc.)
@@ -197,6 +198,11 @@ in {
   programs.zsh.initExtra = lib.mkIf isWsl ''
     # Point Ollama to Windows-hosted Ollama Cloud
     export OLLAMA_HOST="http://$(grep nameserver /etc/resolv.conf | awk '{print $2}'):11434"
+
+    # Load Ollama Cloud API key if available
+    if [ -f /home/lucid/.config/ollama-api-key ]; then
+      export OLLAMA_API_KEY="$(cat /home/lucid/.config/ollama-api-key)"
+    fi
 
     # Detect Windows home directory dynamically (works for any Windows username)
     if [[ -z "$WIN_HOME" ]]; then

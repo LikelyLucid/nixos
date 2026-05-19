@@ -3,4 +3,8 @@ sops-nix.agekey
 
 # Ignore local sops configuration
 .sops.yaml.bak
-age_key.agekey
+age_key.agekeyresult
+
+# Ignore local pi/GSD artefacts
+.pi/
+pi-config/

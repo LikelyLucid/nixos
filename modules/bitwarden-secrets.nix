@@ -13,8 +13,8 @@ let
   # bash variables. The script receives all parameters as CLI args from the
   # systemd service.
 
-  fetchScript = pkgs.writeShellScriptBin "bitwarden-fetch" (''
-
+  fetchScript = pkgs.writeScriptBin "bitwarden-fetch" (''
+    #!${pkgs.runtimeShell}
     set -e
 
     SERVER="${cfg.serverUrl}"
@@ -38,10 +38,11 @@ let
       echo "[bitwarden] Logging in with API key..."
       BW_CLIENTID="$(cat "$CLIENT_ID_FILE")"
       BW_CLIENTSECRET="$(cat "$CLIENT_SECRET_FILE")"
-      export BW_SESSION="$(bw login --apikey --raw 2>/dev/null <<< "$BW_CLIENTID"$'\n'"$BW_CLIENTSECRET")"
+      export BW_SESSION="$(printf '%s\n%s\n' "$BW_CLIENTID" "$BW_CLIENTSECRET" | bw login --apikey --raw 2>/dev/null)"
       if [ -z "$BW_SESSION" ]; then
-        echo "[bitwarden] Login failed - check API credentials" >&2
-        exit 1
+        echo "[bitwarden] WARNING: Login failed - check API credentials" >&2
+        echo "[bitwarden] Skipping secret fetch."
+        exit 0
       fi
     else
       echo "[bitwarden] Using session file: $SESSION_FILE"
@@ -53,17 +54,7 @@ let
     fi
   '' + (lib.concatStringsSep "\n" (lib.mapAttrsToList (name: secret: ''
     echo "  → ${name}"
-    bw get field ${secret.field} \
-      --itemid "${secret.item}" \
-      --session "$(cat "$SESSION_FILE")" \
-      > /tmp/.bw-${name} 2>/dev/null \
-    || bw get ${secret.field} "${secret.item}" \
-      --session "$(cat "$SESSION_FILE")" \
-      > /tmp/.bw-${name} 2>/dev/null \
-    || {
-      echo "  Failed to fetch '${name}'" >&2
-      exit 1
-    }
+    bw get field ${secret.field} --itemid "${secret.item}" --session "$(cat "$SESSION_FILE")" > /tmp/.bw-${name} 2>/dev/null || bw get ${secret.field} "${secret.item}" --session "$(cat "$SESSION_FILE")" > /tmp/.bw-${name} 2>/dev/null || { echo "  Failed to fetch '${name}'" >&2; exit 1; }
     mv /tmp/.bw-${name} "$SECRETS_DIR/${name}"
     chmod 0400 "$SECRETS_DIR/${name}"
   '') cfg.secrets)) + ''

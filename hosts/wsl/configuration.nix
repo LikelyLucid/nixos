@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   ############################################
   # IMPORTS
@@ -126,4 +126,10 @@
   # STATE VERSION
   ############################################
   system.stateVersion = "25.05";
+
+  ############################################
+  # WSL: Disable system-level secrets that require desktop setup
+  ############################################
+  sops.secrets = { };
+  sops.age.keyFile = lib.mkForce "/home/lucid/.secrets/age.agekey";
 }

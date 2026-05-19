@@ -23,6 +23,11 @@
       flake = false;
     };
 
+    pi-config = {
+      url = "github:LikelyLucid/pi-config";
+      flake = false;
+    };
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -42,6 +47,7 @@
     zenBrowser,
     lazyvim-config,
     dotfiles,
+    pi-config,
     sops-nix,
     nixos-wsl,
     pi,
@@ -51,7 +57,7 @@
       inherit (nixpkgs.lib) nixosSystem;
 
       common_special_args = {
-        inherit lazyvim-config dotfiles;
+        inherit lazyvim-config dotfiles pi-config;
       };
 
       mkHomeManagerModule = {
