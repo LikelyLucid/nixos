@@ -7,7 +7,7 @@ let
     lib.nameValuePair name "${secretsDir}/${name}"
   ) cfg.secrets;
 
-  # Build the secrets loop at Nix build time
+  # Build secrets loop
   secretFetches = lib.concatStringsSep "\n" (lib.mapAttrsToList (name: secret: ''
     echo "  -> ${name}"
     bw get field ${secret.field} --itemid "${secret.item}" --session "$BW_SESSION" > /tmp/.bw-${name} 2>/dev/null \
@@ -38,47 +38,51 @@ let
       bw config server "$SERVER" 2>/dev/null || true
     fi
 
-    # 1. Try to unlock first (idempotent)
-    if [ -f "$MASTER_PASS_FILE" ]; then
-      echo "[bitwarden] Unlocking vault..."
-      BW_SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null) || true
-    elif [ -f "$SESSION_FILE" ]; then
-      echo "[bitwarden] Using existing session file..."
-      BW_SESSION=$(cat "$SESSION_FILE" 2>/dev/null || true)
-    fi
+    # Helper: try to get a session key
+    get_session() {
+      rm -f "$SESSION_FILE.tmp"
+      if [ -f "$MASTER_PASS_FILE" ]; then
+        bw unlock --passwordfile "$MASTER_PASS_FILE" --raw > "$SESSION_FILE.tmp" 2>/dev/null || true
+      elif [ -f "$SESSION_FILE" ]; then
+        cp "$SESSION_FILE" "$SESSION_FILE.tmp" 2>/dev/null || true
+      fi
+      cat "$SESSION_FILE.tmp" 2>/dev/null || true
+      rm -f "$SESSION_FILE.tmp" 2>/dev/null || true
+    }
 
-    # 2. If no session, try email+password login
+    # 1. Try to get existing session
+    BW_SESSION=$(get_session)
+
+    # 2. If no session, try to log in
     if [ -z "$BW_SESSION" ]; then
       if [ -n "$EMAIL" ] && [ -f "$MASTER_PASS_FILE" ]; then
         echo "[bitwarden] Logging in with email..."
         bw logout 2>/dev/null || true
         bw login "$EMAIL" --passwordfile "$MASTER_PASS_FILE" 2>/dev/null || true
-        BW_SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null) || true
-      # 3. Fall back to API key login
+        BW_SESSION=$(get_session)
       elif [ -f "$CLIENT_ID_FILE" ] && [ -f "$CLIENT_SECRET_FILE" ]; then
         echo "[bitwarden] Logging in with API key..."
-        export BW_CLIENTID=$(cat "$CLIENT_ID_FILE")
-        export BW_CLIENTSECRET=$(cat "$CLIENT_SECRET_FILE")
+        export BW_CLIENTID="$(cat "$CLIENT_ID_FILE")"
+        export BW_CLIENTSECRET="$(cat "$CLIENT_SECRET_FILE")"
         bw logout 2>/dev/null || true
         bw login --apikey 2>/dev/null || true
-        if [ -f "$MASTER_PASS_FILE" ]; then
-          BW_SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null) || true
-        fi
+        BW_SESSION=$(get_session)
       fi
     fi
 
-    # 4. Still no session? Exit gracefully
+    # 3. Still no session? Exit gracefully
     if [ -z "$BW_SESSION" ]; then
       echo "[bitwarden] WARNING: Could not unlock vault" >&2
-      echo "[bitwarden]   Provide: auth.email + auth.masterPasswordFile" >&2
-      echo "[bitwarden]   Or: API key files + master password file" >&2
+      echo "[bitwarden]   Provide: auth.email + auth.masterPasswordFile"
+      echo "[bitwarden]   Or: API key files + master password file"
       echo "[bitwarden] Skipping secret fetch."
       exit 0
     fi
 
+    # Save session for future boots
     printf '%s\n' "$BW_SESSION" > "$SESSION_FILE"
 
-    # 5. Fetch secrets
+    # 4. Fetch secrets
     ${secretFetches}
 
     echo "[bitwarden] Secrets written to $SECRETS_DIR"
