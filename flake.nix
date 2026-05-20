@@ -28,11 +28,6 @@
       flake = false;
     };
 
-    pi-ollama-cloud = {
-      url = "github:fgrehm/pi-ollama-cloud";
-      flake = false;
-    };
-
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -44,7 +39,7 @@
     pi.url = "github:lukasl-dev/pi.nix";
 
     sopswarden = {
-      url = "github:pfassina/sopswarden/impure-implementation";
+      url = "github:pfassina/sopswarden";
     };
   };
 
@@ -57,9 +52,9 @@
     lazyvim-config,
     dotfiles,
     pi-config,
-    pi-ollama-cloud,
     sops-nix,
     nixos-wsl,
+    pi,
     sopswarden,
   }:
     let
@@ -100,7 +95,6 @@
             modules
             ++ [
               { nixpkgs.overlays = [ pi.overlays.default ]; }
-              sops-nix.nixosModules.sops
               home-manager.nixosModules.home-manager
               home_module
             ];
@@ -109,6 +103,7 @@
       nixosConfigurations.artsxps = mkHost {
         modules = [
           nixos-hardware.nixosModules.dell-xps-15-9530
+          sops-nix.nixosModules.sops
           ./hosts/artsxps/configuration.nix
           ./modules/secrets.nix
           ./modules/bitwarden-secrets.nix
