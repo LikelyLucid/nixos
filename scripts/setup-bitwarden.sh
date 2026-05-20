@@ -14,7 +14,11 @@ CLIENT_SECRET_FILE="$HOME/.config/bw-client-secret"
 MASTER_PASS_FILE="$HOME/.config/bw-master-pass"
 SESSION_FILE="$HOME/.config/bw-session"
 
-Info="\e[36m"; Success="\e[32m"; Warning="\e[33m"; Error="\e[31m"; Reset="\e[0m"
+Info="\e[36m"
+Success="\e[32m"
+Warning="\e[33m"
+Error="\e[31m"
+Reset="\e[0m"
 
 echo -e "${Info}╔══════════════════════════════════════════════════════╗${Reset}"
 echo -e "${Info}║  Vaultwarden Setup — One-Time Interactive           ║${Reset}"
@@ -26,24 +30,24 @@ echo ""
 
 # ─── Ensure bw is available ─────────────────────────────────────────────────
 if ! command -v bw &>/dev/null; then
-    echo -e "${Info}◆ Bitwarden CLI not found. Launching nix shell...${Reset}"
-    exec nix shell nixpkgs#bitwarden-cli --command bash "$0"
+	echo -e "${Info}◆ Bitwarden CLI not found. Launching nix shell...${Reset}"
+	exec nix shell nixpkgs#bitwarden-cli --command bash "$0"
 fi
 
 # ─── Check if already fully configured ──────────────────────────────────────
 if [ -f "$CLIENT_ID_FILE" ] && [ -f "$CLIENT_SECRET_FILE" ] && [ -f "$MASTER_PASS_FILE" ]; then
-    echo -e "${Success}✓ Already configured. Testing...${Reset}"
-    export BW_CLIENTID="$(cat $CLIENT_ID_FILE)"
-    export BW_CLIENTSECRET="$(cat $CLIENT_SECRET_FILE)"
-    if bw login --apikey 2>/dev/null; then
-        SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null)
-        if [ -n "$SESSION" ]; then
-            echo "$SESSION" > "$SESSION_FILE"
-            echo -e "${Success}✓ Session valid. Secrets will auto-fetch at boot.${Reset}"
-            exit 0
-        fi
-    fi
-    echo -e "${Warning}⚠ Setup needs re-run.${Reset}"
+	echo -e "${Success}✓ Already configured. Testing...${Reset}"
+	export BW_CLIENTID="$(cat $CLIENT_ID_FILE)"
+	export BW_CLIENTSECRET="$(cat $CLIENT_SECRET_FILE)"
+	if bw login --apikey 2>/dev/null; then
+		SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null)
+		if [ -n "$SESSION" ]; then
+			echo "$SESSION" >"$SESSION_FILE"
+			echo -e "${Success}✓ Session valid. Secrets will auto-fetch at boot.${Reset}"
+			exit 0
+		fi
+	fi
+	echo -e "${Warning}⚠ Setup needs re-run.${Reset}"
 fi
 
 # ─── Configure server ───────────────────────────────────────────────────────
@@ -62,14 +66,14 @@ read -s -p "  client_secret: " BW_CLIENT_SECRET
 echo ""
 
 if [ -z "$BW_CLIENT_ID" ] || [ -z "$BW_CLIENT_SECRET" ]; then
-    echo -e "${Error}  Both values are required.${Reset}"
-    exit 1
+	echo -e "${Error}  Both values are required.${Reset}"
+	exit 1
 fi
 
 # ─── Save API credentials ───────────────────────────────────────────────────
 mkdir -p "$HOME/.config"
-echo "$BW_CLIENT_ID" > "$CLIENT_ID_FILE"
-echo "$BW_CLIENT_SECRET" > "$CLIENT_SECRET_FILE"
+echo "$BW_CLIENT_ID" >"$CLIENT_ID_FILE"
+echo "$BW_CLIENT_SECRET" >"$CLIENT_SECRET_FILE"
 chmod 600 "$CLIENT_ID_FILE" "$CLIENT_SECRET_FILE"
 echo -e "${Success}✓ API credentials saved${Reset}"
 echo ""
@@ -86,16 +90,16 @@ read -s -p "  Confirm master password: " BW_MASTER_PASS_CONFIRM
 echo ""
 
 if [ -z "$BW_MASTER_PASS" ]; then
-    echo -e "${Error}  Master password is required.${Reset}"
-    exit 1
+	echo -e "${Error}  Master password is required.${Reset}"
+	exit 1
 fi
 
 if [ "$BW_MASTER_PASS" != "$BW_MASTER_PASS_CONFIRM" ]; then
-    echo -e "${Error}  Passwords don't match.${Reset}"
-    exit 1
+	echo -e "${Error}  Passwords don't match.${Reset}"
+	exit 1
 fi
 
-echo "$BW_MASTER_PASS" > "$MASTER_PASS_FILE"
+echo "$BW_MASTER_PASS" >"$MASTER_PASS_FILE"
 chmod 400 "$MASTER_PASS_FILE"
 echo -e "${Success}✓ Master password saved to $MASTER_PASS_FILE (chmod 400)${Reset}"
 echo ""
@@ -116,11 +120,11 @@ echo -e "${Info}◆ Step 4: Unlocking vault and creating session...${Reset}"
 SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null)
 
 if [ -z "$SESSION" ]; then
-    echo -e "${Error}  Unlock failed. Wrong master password?${Reset}"
-    exit 1
+	echo -e "${Error}  Unlock failed. Wrong master password?${Reset}"
+	exit 1
 fi
 
-echo "$SESSION" > "$SESSION_FILE"
+echo "$SESSION" >"$SESSION_FILE"
 chmod 600 "$SESSION_FILE"
 echo -e "${Success}✓ Session created and saved${Reset}"
 echo ""
@@ -131,10 +135,10 @@ echo -e "${Info}◆ Step 5: Testing secret fetch...${Reset}"
 # Try fetching the Tailscale key
 SECRET=$(bw get password "Tailscale Auth Key" --session "$SESSION" 2>/dev/null || echo "")
 if [ -n "$SECRET" ]; then
-    echo -e "${Success}✓ Successfully fetched 'Tailscale Auth Key'${Reset}"
+	echo -e "${Success}✓ Successfully fetched 'Tailscale Auth Key'${Reset}"
 else
-    echo -e "${Warning}⚠ Could not fetch 'Tailscale Auth Key'.${Reset}"
-    echo -e "${Warning}  Make sure this item exists in your vault.${Reset}"
+	echo -e "${Warning}⚠ Could not fetch 'Tailscale Auth Key'.${Reset}"
+	echo -e "${Warning}  Make sure this item exists in your vault.${Reset}"
 fi
 echo ""
 
