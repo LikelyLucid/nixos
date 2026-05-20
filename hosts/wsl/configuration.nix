@@ -19,6 +19,10 @@
       item = "Tailscale Auth Key";
       field = "password";
     };
+    ollama-api-key = {
+      item = "Ollama API Key";
+      field = "password";
+    };
   };
 
   ############################################
