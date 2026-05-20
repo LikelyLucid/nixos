@@ -17,7 +17,8 @@ let
     chmod 0400 "$SECRETS_DIR/${name}"
   '') cfg.secrets);
 
-  fetchScript = pkgs.writeScriptBin "bitwarden-fetch" ''
+  fetchScript = pkgs.writeScriptBin "bitwarden-fetch"
+    ''
     #!${pkgs.runtimeShell}
     set -e
 
@@ -98,7 +99,7 @@ with open('/home/lucid/.pi/agent/auth.json', 'w') as f:
     fi
 
     echo "[bitwarden] Secrets written to $SECRETS_DIR"
-  '';
+    '';
 in {
   options.bitwarden = {
     enable = lib.mkEnableOption "Bitwarden CLI secret management";
