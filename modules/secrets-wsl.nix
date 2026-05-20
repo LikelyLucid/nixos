@@ -10,8 +10,8 @@ in {
     };
   };
 
-  # Export OLLAMA_API_KEY from the decrypted sops secret for all login shells
-  environment.etc."profile.d/ollama-api-key.sh".text = ''
+  # Export OLLAMA_API_KEY from the decrypted sops secret in all shells
+  environment.extraInit = ''
     export OLLAMA_API_KEY="$(cat ${secretsDir})"
   '';
 }
