@@ -42,6 +42,10 @@
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
 
     pi.url = "github:lukasl-dev/pi.nix";
+
+    sopswarden = {
+      url = "github:pfassina/sopswarden/impure-implementation";
+    };
   };
 
   outputs = inputs@{
@@ -56,8 +60,7 @@
     pi-ollama-cloud,
     sops-nix,
     nixos-wsl,
-    pi,
-    ...
+    sopswarden,
   }:
     let
       inherit (nixpkgs.lib) nixosSystem;
@@ -98,8 +101,6 @@
             ++ [
               { nixpkgs.overlays = [ pi.overlays.default ]; }
               sops-nix.nixosModules.sops
-              ./modules/secrets.nix
-              ./modules/bitwarden-secrets.nix
               home-manager.nixosModules.home-manager
               home_module
             ];
@@ -109,6 +110,8 @@
         modules = [
           nixos-hardware.nixosModules.dell-xps-15-9530
           ./hosts/artsxps/configuration.nix
+          ./modules/secrets.nix
+          ./modules/bitwarden-secrets.nix
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
@@ -120,13 +123,14 @@
       nixosConfigurations.wsl = mkHost {
         modules = [
           nixos-wsl.nixosModules.wsl
+          sopswarden.nixosModules.default
           ./hosts/wsl/configuration.nix
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
           extra_special_args = { isWsl = true; };
         };
-        extra_special_args = { isWsl = true; };
+        extra_special_args = { inherit sopswarden; isWsl = true; };
       };
     };
 }

@@ -10,13 +10,26 @@
   ############################################
   # BITWARDEN SECRETS (self-hosted Vaultwarden)
   ############################################
-  bitwarden.enable = true;
-  bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
-  bitwarden.auth.method = "api-key";
-  bitwarden.secrets = {
-    tailscale-auth-key = {
-      item = "Tailscale Auth Key";
-      field = "password";
+  bitwarden.enable = false;
+  # SOPSwarden replaces our custom bitwarden module for WSL
+
+  ############################################
+  # SOPSWARDEN (Bitwarden → SOPS)
+  ############################################
+  services.sopswarden = {
+    enable = true;
+    secrets = {
+      tailscale-auth-key = "Tailscale Auth Key";
+    };
+    installPackages = true;
+    installSyncCommand = true;
+  };
+
+  programs.rbw = {
+    enable = true;
+    settings = {
+      email = "micoolplays@gmail.com";
+      base_url = "https://vaultwarden.likelylucid.com";
     };
   };
 
@@ -28,11 +41,11 @@
   wsl.wslConf.boot.systemd = true;
 
   # Better WSL interop - access Windows files from /mnt
-  wsl.wslConf.interop.enable = true;
+  wsl.wslConf.interop.enabled = true;
   wsl.wslConf.interop.appendWindowsPath = true;
 
   # Automount Windows drives
-  wsl.wslConf.automount.enable = true;
+  wsl.wslConf.automount.enabled = true;
   wsl.wslConf.automount.root = "/mnt";
   wsl.wslConf.automount.options = "metadata,umask=22,fmask=11";
 
@@ -127,9 +140,5 @@
   ############################################
   system.stateVersion = "25.05";
 
-  ############################################
-  # WSL: Disable system-level secrets that require desktop setup
-  ############################################
-  sops.secrets = { };
-  sops.age.keyFile = lib.mkForce "/home/lucid/.secrets/age.agekey";
+
 }
