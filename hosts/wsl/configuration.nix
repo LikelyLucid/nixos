@@ -12,6 +12,7 @@
   ############################################
   bitwarden.enable = true;
   bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
+  bitwarden.auth.email = "micoolplays@gmail.com";
   bitwarden.auth.masterPasswordFile = "/home/lucid/.config/bw-master-pass";
   bitwarden.secrets = {
     tailscale-auth-key = {
