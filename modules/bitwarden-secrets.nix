@@ -42,7 +42,7 @@ let
     get_session() {
       rm -f "$SESSION_FILE.tmp"
       if [ -f "$MASTER_PASS_FILE" ]; then
-        bw unlock --passwordfile "$MASTER_PASS_FILE" --raw > "$SESSION_FILE.tmp" 2>&1 || true
+        bw unlock --passwordfile "$MASTER_PASS_FILE" --raw > "$SESSION_FILE.tmp" 2>/dev/null || true
       elif [ -f "$SESSION_FILE" ]; then
         cp "$SESSION_FILE" "$SESSION_FILE.tmp" 2>/dev/null || true
       fi
@@ -84,6 +84,18 @@ let
 
     # 4. Fetch secrets
     ${secretFetches}
+
+    # 5. Post-fetch: write ollama key to pi auth.json
+    if [ -f "$SECRETS_DIR/ollama-api-key" ]; then
+      python3 -c "
+import json
+key = open('$SECRETS_DIR/ollama-api-key').read().strip()
+with open('/home/lucid/.pi/agent/auth.json', 'w') as f:
+    json.dump({'ollama-cloud': {'type': 'api_key', 'key': key}}, f)
+"
+      chmod 600 /home/lucid/.pi/agent/auth.json
+      echo "[bitwarden] Written ollama key to auth.json"
+    fi
 
     echo "[bitwarden] Secrets written to $SECRETS_DIR"
   '';
@@ -156,7 +168,7 @@ in {
         RemainAfterExit = true;
         ExecStart = "${fetchScript}/bin/bitwarden-fetch";
         PrivateTmp = true;
-        ReadWritePaths = [ secretsDir ];
+        ReadWritePaths = [ secretsDir "/home/lucid/.pi/agent" ];
         ProtectSystem = "strict";
       };
     };
