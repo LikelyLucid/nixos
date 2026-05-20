@@ -6,7 +6,9 @@ in {
     age.keyFile = "/home/lucid/.secrets/age.agekey";
     defaultSopsFile = ../secrets/wsl-secrets.yaml;
     secrets = {
-      ollama-api-key = { };
+      ollama-api-key = {
+        owner = "lucid";
+      };
     };
   };
 
