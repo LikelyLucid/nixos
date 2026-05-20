@@ -5,6 +5,7 @@
   ############################################
   imports = [
     ../../modules/system/locale.nix
+    ../../modules/networking/tailscale.nix
   ];
 
   ############################################
