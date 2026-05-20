@@ -8,15 +8,16 @@
   ];
 
   ############################################
-  # SOPSWARDEN (Bitwarden -> SOPS)
+  # BITWARDEN VAULT (auto-unlock with master password file)
   ############################################
-  services.sopswarden = {
-    enable = true;
-    secrets = {
-      tailscale-auth-key = "Tailscale Auth Key";
+  bitwarden.enable = true;
+  bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
+  bitwarden.auth.masterPasswordFile = "/home/lucid/.config/bw-master-pass";
+  bitwarden.secrets = {
+    tailscale-auth-key = {
+      item = "Tailscale Auth Key";
+      field = "password";
     };
-    installPackages = true;
-    installSyncCommand = true;
   };
 
   ############################################

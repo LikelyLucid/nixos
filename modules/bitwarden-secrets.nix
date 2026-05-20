@@ -8,53 +8,65 @@ let
     lib.nameValuePair name "${secretsDir}/${name}"
   ) cfg.secrets;
 
-  # ─── Build the fetch script ────────────────────────────────────────────────
-  # We use pkgs.writeScriptBin to avoid Nix string interpolation issues with
-  # bash variables. The script receives all parameters as CLI args from the
-  # systemd service.
-
   fetchScript = pkgs.writeScriptBin "bitwarden-fetch" (''
     #!${pkgs.runtimeShell}
     set -e
 
     SERVER="${cfg.serverUrl}"
-    METHOD="${cfg.auth.method}"
     SESSION_FILE="${cfg.auth.sessionFile}"
     CLIENT_ID_FILE="${cfg.auth.clientIdFile}"
     CLIENT_SECRET_FILE="${cfg.auth.clientSecretFile}"
+    MASTER_PASS_FILE="${cfg.auth.masterPasswordFile}"
     SECRETS_DIR="${secretsDir}"
 
-    # Configure server
-    if [ -n "$SERVER" ]; then
-      echo "[bitwarden] Server: $SERVER"
-      export BW_SERVER="$SERVER"
-      bw config server "$SERVER" 2>/dev/null || true
-    else
-      echo "[bitwarden] Server: bitwarden.com (official)"
+    echo "[bitwarden] Server: $SERVER"
+
+    # 1. Log in with API key (idempotent - bw skips if already logged in)
+    export BW_CLIENTID="$(cat "$CLIENT_ID_FILE" 2>/dev/null || true)"
+    export BW_CLIENTSECRET="$(cat "$CLIENT_SECRET_FILE" 2>/dev/null || true)"
+
+    if [ -z "$BW_CLIENTID" ] || [ -z "$BW_CLIENTSECRET" ]; then
+      echo "[bitwarden] WARNING: API credentials not found" >&2
+      echo "[bitwarden]   Place client_id in: $CLIENT_ID_FILE" >&2
+      echo "[bitwarden]   Place client_secret in: $CLIENT_SECRET_FILE" >&2
+      echo "[bitwarden] Skipping secret fetch."
+      exit 0
     fi
 
-    # Authenticate
-    if [ "$METHOD" = "api-key" ]; then
-      echo "[bitwarden] Logging in with API key..."
-      BW_CLIENTID="$(cat "$CLIENT_ID_FILE")"
-      BW_CLIENTSECRET="$(cat "$CLIENT_SECRET_FILE")"
-      export BW_SESSION="$(printf '%s\n%s\n' "$BW_CLIENTID" "$BW_CLIENTSECRET" | bw login --apikey --raw 2>/dev/null)"
-      if [ -z "$BW_SESSION" ]; then
-        echo "[bitwarden] WARNING: Login failed - check API credentials" >&2
-        echo "[bitwarden] Skipping secret fetch."
-        exit 0
-      fi
-    else
-      echo "[bitwarden] Using session file: $SESSION_FILE"
-      if [ ! -f "$SESSION_FILE" ]; then
-        echo "[bitwarden] Session file not found at $SESSION_FILE" >&2
-        echo "  Run: bw unlock --raw > $SESSION_FILE" >&2
-        exit 1
-      fi
+    # Configure server URL if set
+    if [ -n "$SERVER" ]; then
+      bw config server "$SERVER" 2>/dev/null || true
     fi
+
+    # Login (quietly - bw stores encrypted vault locally)
+    BW_SESSION="$(bw login --apikey --raw 2>/dev/null)" || true
+
+    # 2. Unlock with master password file (non-interactive via --passwordfile)
+    if [ -f "$MASTER_PASS_FILE" ]; then
+      echo "[bitwarden] Unlocking vault..."
+      BW_SESSION="$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null)"
+    elif [ -f "$SESSION_FILE" ]; then
+      echo "[bitwarden] Using existing session file..."
+      BW_SESSION="$(cat "$SESSION_FILE")"
+    fi
+
+    if [ -z "$BW_SESSION" ]; then
+      echo "[bitwarden] WARNING: Could not unlock vault" >&2
+      echo "[bitwarden]   Run: bw unlock --raw > $SESSION_FILE" >&2
+      echo "[bitwarden]   Or create: $MASTER_PASS_FILE with your master password" >&2
+      echo "[bitwarden] Skipping secret fetch."
+      exit 0
+    fi
+
+    # Save session for later runs
+    printf '%s\n' "$BW_SESSION" > "$SESSION_FILE"
+
+    # 3. Fetch each secret
   '' + (lib.concatStringsSep "\n" (lib.mapAttrsToList (name: secret: ''
     echo "  → ${name}"
-    bw get field ${secret.field} --itemid "${secret.item}" --session "$(cat "$SESSION_FILE")" > /tmp/.bw-${name} 2>/dev/null || bw get ${secret.field} "${secret.item}" --session "$(cat "$SESSION_FILE")" > /tmp/.bw-${name} 2>/dev/null || { echo "  Failed to fetch '${name}'" >&2; exit 1; }
+    bw get field ${secret.field} --itemid "${secret.item}" --session "$BW_SESSION" > /tmp/.bw-${name} 2>/dev/null \
+    || bw get ${secret.field} "${secret.item}" --session "$BW_SESSION" > /tmp/.bw-${name} 2>/dev/null \
+    || { echo "  Failed to fetch '${name}'" >&2; exit 1; }
     mv /tmp/.bw-${name} "$SECRETS_DIR/${name}"
     chmod 0400 "$SECRETS_DIR/${name}"
   '') cfg.secrets)) + ''
@@ -78,28 +90,33 @@ in {
     };
 
     auth = {
-      method = lib.mkOption {
-        type = lib.types.enum [ "session-file" "api-key" ];
-        default = "session-file";
-        description = "Authentication method for Bitwarden CLI.";
-      };
-
       sessionFile = lib.mkOption {
         type = lib.types.str;
         default = "/home/lucid/.config/bw-session";
-        description = "Path to Bitwarden session key file (for session-file method)";
+        description = "Path to Bitwarden session key file";
       };
 
       clientIdFile = lib.mkOption {
         type = lib.types.str;
         default = "/home/lucid/.config/bw-client-id";
-        description = "Path to Bitwarden API client_id file (for api-key method)";
+        description = "Path to Bitwarden API client_id file";
       };
 
       clientSecretFile = lib.mkOption {
         type = lib.types.str;
         default = "/home/lucid/.config/bw-client-secret";
-        description = "Path to Bitwarden API client_secret file (for api-key method)";
+        description = "Path to Bitwarden API client_secret file";
+      };
+
+      masterPasswordFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          Path to a file containing the Bitwarden master password.
+          Used with `bw unlock --passwordfile` for non-interactive unlock.
+          This file should have restricted permissions (chmod 400).
+        '';
+        example = "/home/lucid/.config/bw-master-pass";
       };
     };
 
@@ -162,17 +179,14 @@ in {
         RemainAfterExit = true;
         ExecStart = "${fetchScript}/bin/bitwarden-fetch";
         PrivateTmp = true;
+        ReadWritePaths = [
+          secretsDir
+          "/home/lucid/.config"
+        ];
+        # Access API credentials and master password
         ProtectSystem = "strict";
-        ReadWritePaths = [ secretsDir ];
+        ProtectHome = "read-only";
       };
     };
-
-    # Expose secrets via /etc for easy reference
-    environment.etc = lib.mapAttrs' (name: _:
-      lib.nameValuePair "bitwarden-secrets/${name}" {
-        source = "${secretsDir}/${name}";
-        mode = "0400";
-      }
-    ) cfg.secrets;
   };
 }

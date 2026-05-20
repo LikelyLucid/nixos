@@ -118,14 +118,14 @@
       nixosConfigurations.wsl = mkHost {
         modules = [
           nixos-wsl.nixosModules.wsl
-          sopswarden.nixosModules.default
+          ./modules/bitwarden-secrets.nix
           ./hosts/wsl/configuration.nix
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
           extra_special_args = { isWsl = true; };
         };
-        extra_special_args = { inherit sopswarden; isWsl = true; };
+        extra_special_args = { isWsl = true; };
       };
     };
 }
