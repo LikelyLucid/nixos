@@ -8,13 +8,7 @@
   ];
 
   ############################################
-  # BITWARDEN SECRETS (self-hosted Vaultwarden)
-  ############################################
-  bitwarden.enable = false;
-  # SOPSwarden replaces our custom bitwarden module for WSL
-
-  ############################################
-  # SOPSWARDEN (Bitwarden → SOPS)
+  # SOPSWARDEN (Bitwarden -> SOPS)
   ############################################
   services.sopswarden = {
     enable = true;
@@ -23,14 +17,6 @@
     };
     installPackages = true;
     installSyncCommand = true;
-  };
-
-  programs.rbw = {
-    enable = true;
-    settings = {
-      email = "micoolplays@gmail.com";
-      base_url = "https://vaultwarden.likelylucid.com";
-    };
   };
 
   ############################################
