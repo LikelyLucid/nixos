@@ -74,9 +74,6 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
 
-  # Ollama Cloud API key for pi-ollama-cloud extension
-  environment.variables.OLLAMA_API_KEY = "RqG6945ruiUPf5OpamAB2fQwfTjlz2";
-
   environment.systemPackages = with pkgs; [
     # Core tools
     curl

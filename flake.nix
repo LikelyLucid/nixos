@@ -118,7 +118,9 @@
       nixosConfigurations.wsl = mkHost {
         modules = [
           nixos-wsl.nixosModules.wsl
+          sops-nix.nixosModules.sops
           ./hosts/wsl/configuration.nix
+          ./modules/secrets-wsl.nix
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
