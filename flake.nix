@@ -118,7 +118,6 @@
       nixosConfigurations.wsl = mkHost {
         modules = [
           nixos-wsl.nixosModules.wsl
-          ./modules/bitwarden-secrets.nix
           ./hosts/wsl/configuration.nix
         ];
         home_module = mkHomeManagerModule {

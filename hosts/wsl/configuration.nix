@@ -8,24 +8,6 @@
   ];
 
   ############################################
-  # BITWARDEN VAULT (auto-unlock with master password file)
-  ############################################
-  bitwarden.enable = true;
-  bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
-  bitwarden.auth.email = "micoolplays@gmail.com";
-  bitwarden.auth.masterPasswordFile = "/home/lucid/.config/bw-master-pass";
-  bitwarden.secrets = {
-    tailscale-auth-key = {
-      item = "Tailscale Auth Key";
-      field = "password";
-    };
-    ollama-api-key = {
-      item = "Ollama API Key";
-      field = "password";
-    };
-  };
-
-  ############################################
   # WSL
   ############################################
   wsl.enable = true;
@@ -91,6 +73,9 @@
   # PACKAGES
   ############################################
   nixpkgs.config.allowUnfree = true;
+
+  # Ollama Cloud API key for pi-ollama-cloud extension
+  environment.variables.OLLAMA_API_KEY = "RqG6945ruiUPf5OpamAB2fQwfTjlz2";
 
   environment.systemPackages = with pkgs; [
     # Core tools
