@@ -118,20 +118,15 @@ if ($bwCheck -eq "configured") {
         wsl -d $DistroName -- bash -c "chmod 400 /home/lucid/.config/bw-master-pass"
 
         Write-Host "  Logging in and unlocking..." -ForegroundColor Gray
-        wsl -d $DistroName -- bash -c "
+        wsl -d $DistroName -- bash -c '
             bw config server https://vaultwarden.likelylucid.com 2>/dev/null
             bw logout 2>/dev/null || true
-            BW_PASS=\$(cat /home/lucid/.config/bw-master-pass)
-            bw login $bwEmail \"\$BW_PASS\" 2>/dev/null
-            SESSION=\$(bw unlock --passwordfile /home/lucid/.config/bw-master-pass --raw 2>/dev/null)
-            if [ -n \"\$SESSION\" ]; then
-                echo \"\$SESSION\" > /home/lucid/.config/bw-session
-                chmod 600 /home/lucid/.config/bw-session
-                echo 'OK'
-            else
-                echo 'UNLOCK_FAILED'
-            fi
-        "
+            bw login "'$bwEmail'" --passwordfile /home/lucid/.config/bw-master-pass 2>/dev/null
+            bw unlock --passwordfile /home/lucid/.config/bw-master-pass --raw 2>/dev/null > /home/lucid/.config/bw-session
+            chmod 600 /home/lucid/.config/bw-session
+            SESSION=$(cat /home/lucid/.config/bw-session)
+            if [ -n "$SESSION" ]; then echo OK; else echo UNLOCK_FAILED; fi
+        '
         Write-Host "  [OK] Vault unlocked. Secrets auto-fetch at every boot." -ForegroundColor Green
     }
 }

@@ -49,8 +49,7 @@ let
       if [ -n "$EMAIL" ] && [ -f "$MASTER_PASS_FILE" ]; then
         echo "[bitwarden] Logging in with email..."
         bw logout 2>/dev/null || true
-        BW_PASS=$(cat "$MASTER_PASS_FILE")
-        bw login "$EMAIL" "$BW_PASS" 2>/dev/null || true
+        bw login "$EMAIL" --passwordfile "$MASTER_PASS_FILE" 2>/dev/null || true
         BW_SESSION=$(bw unlock --passwordfile "$MASTER_PASS_FILE" --raw 2>/dev/null) || true
       # 3. Fall back to API key login
       elif [ -f "$CLIENT_ID_FILE" ] && [ -f "$CLIENT_SECRET_FILE" ]; then
