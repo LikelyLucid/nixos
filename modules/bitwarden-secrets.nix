@@ -42,7 +42,7 @@ let
     get_session() {
       rm -f "$SESSION_FILE.tmp"
       if [ -f "$MASTER_PASS_FILE" ]; then
-        bw unlock --passwordfile "$MASTER_PASS_FILE" --raw > "$SESSION_FILE.tmp" 2>/dev/null || true
+        bw unlock --passwordfile "$MASTER_PASS_FILE" --raw > "$SESSION_FILE.tmp" 2>&1 || true
       elif [ -f "$SESSION_FILE" ]; then
         cp "$SESSION_FILE" "$SESSION_FILE.tmp" 2>/dev/null || true
       fi

@@ -122,7 +122,7 @@ if ($bwCheck -eq "configured") {
             bw config server https://vaultwarden.likelylucid.com 2>/dev/null
             bw logout 2>/dev/null || true
             bw login "'$bwEmail'" --passwordfile /home/lucid/.config/bw-master-pass 2>/dev/null
-            bw unlock --passwordfile /home/lucid/.config/bw-master-pass --raw 2>/dev/null > /home/lucid/.config/bw-session
+            bw unlock --passwordfile /home/lucid/.config/bw-master-pass --raw > /home/lucid/.config/bw-session 2>&1
             chmod 600 /home/lucid/.config/bw-session
             SESSION=$(cat /home/lucid/.config/bw-session)
             if [ -n "$SESSION" ]; then echo OK; else echo UNLOCK_FAILED; fi
