@@ -6,7 +6,7 @@
   services.tailscale = {
     enable = true;
     package = pkgs.tailscale;
-    authKeyFile = "/home/lucid/.config/tailscale-auth-key";
+    authKeyFile = null;
     useRoutingFeatures = "client";
     extraUpFlags = [
       "--exit-node=100.75.156.101"
