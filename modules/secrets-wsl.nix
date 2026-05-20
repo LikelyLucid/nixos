@@ -21,7 +21,7 @@ in {
       ExecStart = "${pkgs.writeScriptBin "write-ollama-auth" ''
         #!${pkgs.runtimeShell}
         KEY=$(cat ${secretsDir})
-        printf '{"ollama-cloud":{"type":"api_key","key":"%%s"}}\n' "$KEY" > /home/lucid/.pi/agent/auth.json
+        printf '{"ollama-cloud":{"type":"api_key","key":"%s"}}\n' "$KEY" > /home/lucid/.pi/agent/auth.json
         chmod 600 /home/lucid/.pi/agent/auth.json
       ''}/bin/write-ollama-auth";
       PrivateTmp = true;
