@@ -29,6 +29,9 @@ let
     MASTER_PASS_FILE="${cfg.auth.masterPasswordFile}"
     SECRETS_DIR="${secretsDir}"
 
+    # Use lucid's bw state (service runs as root)
+    export HOME=/home/lucid
+
     echo "[bitwarden] Server: $SERVER"
 
     if [ -n "$SERVER" ]; then
