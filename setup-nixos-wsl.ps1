@@ -69,10 +69,10 @@ if ($needsImport) {
 }
 
 Write-Host "`n[4/6] Building NixOS (first build 5-15 min)..." -ForegroundColor Cyan
-wsl -d $DistroName -- bash -c "set -e; NIX_CONFIG='experimental-features = nix-command flakes'; rm -rf /etc/nixos 2>/dev/null || true; cp -r $ConfigMount/* /etc/nixos/; cp $ConfigMount/.gitignore /etc/nixos/ 2>/dev/null || true; nixos-rebuild switch --flake /etc/nixos#wsl --accept-flake-config 2>&1; echo '  Build complete.'"
+wsl -d $DistroName -- bash -c "set -e; NIX_CONFIG='experimental-features = nix-command flakes'; sudo rm -rf /etc/nixos 2>/dev/null || true; sudo mkdir -p /etc/nixos; sudo cp -r $ConfigMount/* /etc/nixos/; sudo cp -r $ConfigMount/.gitignore /etc/nixos/ 2>/dev/null || true; nixos-rebuild switch --flake /etc/nixos#wsl --accept-flake-config 2>&1; echo '  Build complete.'"
 
 Write-Host "`n[5/6] Setting up config symlink..." -ForegroundColor Cyan
-wsl -d $DistroName -- bash -c "set -e; for i in 1 2 3 4 5 6 7 8 9 10; do if id lucid &>/dev/null; then break; fi; sleep 1; done; if ! [ -L /home/lucid/nixos ] && ! [ -d /home/lucid/nixos ]; then ln -sf $ConfigMount /home/lucid/nixos; chown -h lucid:users /home/lucid/nixos; fi; rm -rf /etc/nixos 2>/dev/null || true; ln -sf $ConfigMount /etc/nixos; echo '  Symlinks created.'"
+wsl -d $DistroName -- bash -c "set -e; for i in 1 2 3 4 5 6 7 8 9 10; do if id lucid &>/dev/null; then break; fi; sleep 1; done; if ! [ -L /home/lucid/nixos ] && ! [ -d /home/lucid/nixos ]; then ln -sf $ConfigMount /home/lucid/nixos; chown -h lucid:users /home/lucid/nixos; fi; sudo rm -rf /etc/nixos 2>/dev/null || true; sudo ln -sf $ConfigMount /etc/nixos; echo '  Symlinks created.'"
 
 Write-Host "`n[6/6] Setting up Bitwarden vault..." -ForegroundColor Cyan
 
