@@ -100,7 +100,6 @@ in {
       # Desktop Linux GUI packages
       cava
       hyprpaper
-      kitty
       pavucontrol
       rofi
       spotify-player
@@ -193,6 +192,35 @@ in {
   };
 
   ############################################
+  # GHOSTTY TERMINAL (with wallust colors)
+  ############################################
+  home.file.".config/ghostty/config" = lib.mkIf (!isWsl) {
+    text = ''
+      # Font
+      font-family = JetBrains Mono Nerd Font
+      font-size = 12
+
+      # Window
+      background-opacity = 0.9
+      window-padding-x = 10
+      window-padding-y = 10
+
+      # Clipboard
+      clipboard-read = allow
+      clipboard-write = allow
+
+      # Shell integration
+      shell-integration = zsh
+
+      # Wallust colors (auto-generated from wallpaper)
+      config-file = ?colors.conf
+    '';
+  };
+
+  # Note: wallust templates/config come from dotfiles
+  # Add ghostty template to your dotfiles wallust/templates/ folder manually
+
+  ############################################
   # WSL: Ollama passthrough + dynamic Windows home detection
   ############################################
   programs.zsh.initExtra = lib.mkIf isWsl ''
@@ -213,5 +241,5 @@ in {
   ############################################
   # STATE VERSION
   ############################################
-  home.stateVersion = "23.05";
+  home.stateVersion = "25.05";
 }

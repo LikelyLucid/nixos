@@ -38,9 +38,8 @@
 
     pi.url = "github:lukasl-dev/pi.nix";
 
-    sopswarden = {
-      url = "github:pfassina/sopswarden";
-    };
+    codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
+
   };
 
   outputs = inputs@{
@@ -55,7 +54,7 @@
     sops-nix,
     nixos-wsl,
     pi,
-    sopswarden,
+    codex-desktop-linux,
   }:
     let
       inherit (nixpkgs.lib) nixosSystem;
@@ -104,6 +103,7 @@
         modules = [
           nixos-hardware.nixosModules.dell-xps-15-9530
           sops-nix.nixosModules.sops
+          codex-desktop-linux.nixosModules.default
           ./hosts/artsxps/configuration.nix
           ./modules/secrets.nix
           ./modules/bitwarden-secrets.nix

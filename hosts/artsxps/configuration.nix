@@ -8,12 +8,14 @@
     ../../modules/window-manager/window-manager.nix
     ../../modules/networking/tailscale.nix
     ../../modules/system/locale.nix
+    ../../modules/work/work.nix
   ];
 
   ############################################
   # BITWARDEN SECRETS (self-hosted Vaultwarden)
   ############################################
-  bitwarden.enable = true;
+  # bitwarden is disabled temporarily to simplify boot debugging
+  bitwarden.enable = false;
   bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
   bitwarden.auth.method = "api-key";
   bitwarden.secrets = {
@@ -71,12 +73,47 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    
+    # Better audio quality settings
+    extraConfig.pipewire."92-high-quality" = {
+      "context.properties" = {
+        "default.clock.rate" = 48000;
+        "default.clock.allowed-rates" = [ 44100 48000 88200 96000 ];
+        "default.clock.quantum" = 1024;
+        "default.clock.min-quantum" = 256;
+        "default.clock.max-quantum" = 2048;
+      };
+    };
   };
 
   ############################################
   # KERNEL
   ############################################
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
+
+  ############################################
+  # PERFORMANCE TUNING
+  ############################################
+  zramSwap.enable = true;
+
+  # SSD TRIM
+  services.fstrim.enable = true;
+
+  # Spread hardware IRQs across all CPU cores
+  services.irqbalance.enable = true;
+
+  boot.kernel.sysctl = {
+    # Lower swappiness = keep things in RAM longer, good for SSDs
+    "vm.swappiness" = 10;
+    # Keep more filesystem metadata cached
+    "vm.vfs_cache_pressure" = 50;
+    # Write dirty pages to disk sooner — less RAM tied up, less stutter
+    "vm.dirty_ratio" = 10;
+    "vm.dirty_background_ratio" = 5;
+    # Increase TCP buffer maxes for better network throughput
+    "net.core.rmem_max" = 134217728;
+    "net.core.wmem_max" = 134217728;
+  };
 
   ############################################
   # USERS
@@ -95,11 +132,13 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
+    easyeffects        # Audio effects/EQ (PipeWire compatible)
     git
     gh
     htop
     lazygit
     pciutils
+    pulsemixer         # Terminal audio mixer
     syncthing
     texlive.combined.scheme-full
     wget

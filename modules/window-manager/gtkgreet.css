@@ -1,0 +1,38 @@
+window {
+    background-image: url("file:///etc/backgrounds/wallpaper.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+box {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 40px;
+}
+
+label {
+    color: white;
+    font-size: 24px;
+}
+
+button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+entry {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+}

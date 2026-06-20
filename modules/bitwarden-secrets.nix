@@ -110,6 +110,12 @@ in {
       example = "https://vaultwarden.likelylucid.com";
     };
 
+    auth.method = lib.mkOption {
+      type = lib.types.enum [ "email" "api-key" ];
+      default = "email";
+      description = "Bitwarden authentication method.";
+    };
+
     auth.email = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;

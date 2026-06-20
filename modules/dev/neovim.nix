@@ -4,8 +4,6 @@
     fzf
     gnugrep
     neovim
-    ripgrep
-    uv
     yazi
     zig
   ];

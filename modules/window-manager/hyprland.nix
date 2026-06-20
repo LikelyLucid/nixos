@@ -48,7 +48,6 @@
   # ENVIRONMENT VARIABLES
   ############################################
   environment.sessionVariables = {
-    WLR_NO_HARDWARE_CURSOR = "1";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     ELECTRON_ENABLE_WAYLAND = "1";
     OZONE_PLATFORM = "wayland";
@@ -64,16 +63,24 @@
   environment.systemPackages = with pkgs; [
     alsa-utils
     brightnessctl
+    blueman            # Bluetooth manager GUI
     bottom
+    cliphist           # Clipboard manager with history
     dunst
     flameshot
+    ghostty            # Fast terminal emulator
     grim
     grimblast
     hyprpolkitagent
     jq
     networkmanager_dmenu
+    nwg-displays       # Monitor config GUI
+    pavucontrol        # Audio mixer
+    playerctl          # Media player controls
     rofi-bluetooth
     slurp
+    swappy             # Screenshot annotation
     wl-clipboard
+    wlr-randr         # Monitor config CLI
   ];
 }

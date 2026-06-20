@@ -13,10 +13,6 @@
         name = "zsh-autosuggestions";
         src = pkgs.zsh-autosuggestions;
       }
-      {
-        name = "zsh-syntax-highlighting";
-        src = pkgs.zsh-syntax-highlighting;
-      }
     ];
     initContent = ''
       eval "$(starship init zsh)"
