@@ -1,11 +1,14 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, codex-cli-nix, ... }:
+let
+  codexCli = codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+in
 {
   ############################################
   # WORK: gcloud CLI
   ############################################
   environment.systemPackages = with pkgs; [
     google-cloud-sdk
-    codex  # Codex CLI (available for standalone use)
+    codexCli  # Codex CLI (v0.141.0, compatible with Desktop's app-server flags)
   ];
 
   ############################################
@@ -13,9 +16,8 @@
   ############################################
   programs.codexDesktopLinux = {
     enable = true;
-    # cliPackage intentionally NOT set — let the Desktop manage its own CLI
-    # compatibility. The nixpkgs codex CLI (0.47.0) uses different app-server
-    # flags than what the Desktop (26.616.41845) expects.
+    # Uses community codex-cli-nix (v0.141.0) which supports --analytics-default-enabled
+    cliPackage = codexCli;
     # computerUseUi.enable = true; # uncomment if you need computer use UI
     # remoteMobileControl.enable = true; # uncomment if you need mobile control
   };

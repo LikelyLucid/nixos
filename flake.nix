@@ -40,6 +40,11 @@
 
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
+    codex-cli-nix = {
+      url = "github:sadjow/codex-cli-nix/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = inputs@{
@@ -55,6 +60,7 @@
     nixos-wsl,
     pi,
     codex-desktop-linux,
+    codex-cli-nix,
   }:
     let
       inherit (nixpkgs.lib) nixosSystem;
@@ -112,7 +118,7 @@
           user_module = ./home.nix;
           extra_special_args = { inherit zenBrowser; };
         };
-        extra_special_args = { inherit zenBrowser; };
+        extra_special_args = { inherit zenBrowser codex-cli-nix; };
       };
 
       nixosConfigurations.wsl = mkHost {
