@@ -5,16 +5,17 @@
   ############################################
   environment.systemPackages = with pkgs; [
     google-cloud-sdk
-    codex  # Codex CLI (also wired into Codex Desktop via cliPackage below)
+    codex  # Codex CLI (available for standalone use)
   ];
 
   ############################################
-  # WORK: Codex Desktop + CLI (OpenAI coding agent)
+  # WORK: Codex Desktop (OpenAI coding agent)
   ############################################
   programs.codexDesktopLinux = {
     enable = true;
-    # Wraps the launcher so CODEX_CLI_PATH always points to the nixpkgs CLI
-    cliPackage = pkgs.codex;
+    # cliPackage intentionally NOT set — let the Desktop manage its own CLI
+    # compatibility. The nixpkgs codex CLI (0.47.0) uses different app-server
+    # flags than what the Desktop (26.616.41845) expects.
     # computerUseUi.enable = true; # uncomment if you need computer use UI
     # remoteMobileControl.enable = true; # uncomment if you need mobile control
   };
