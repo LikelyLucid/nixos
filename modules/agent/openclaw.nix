@@ -116,9 +116,31 @@ in
     ".openclaw/workspace/USER.md".source = ./workspace/USER.md;
     ".openclaw/workspace/IDENTITY.md".source = ./workspace/IDENTITY.md;
     ".openclaw/workspace/TOOLS.md".source = ./workspace/TOOLS.md;
-    ".openclaw/workspace/HEARTBEAT.md".source = ./workspace/HEARTBEAT.md;
     ".openclaw/workspace/goals.md".source = ./workspace/goals.md;
   };
+
+  ############################################
+  # SEED PERSISTENT FILES (not Nix-store symlinks)
+  ############################################
+  home.activation.openclaw-seed-persistent-files = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run --quiet ${pkgs.coreutils}/bin/mkdir -p "${workspaceDir}/memory"
+
+    if [ ! -f "${workspaceDir}/HEARTBEAT.md" ]; then
+      run cat > "${workspaceDir}/HEARTBEAT.md" << 'EOF'
+# Heartbeat Checklist
+
+- [ ] Check `df -h /` — alert if >80%
+- [ ] Check `systemctl --user --failed` — report failures
+- [ ] Check `journalctl -p err --since "30 min ago"` — new errors?
+- [ ] Check Tailscale status: `tailscale status`
+- [ ] Update `system-state.md`
+EOF
+    fi
+
+    if [ ! -f "${workspaceDir}/MEMORY.md" ]; then
+      run touch "${workspaceDir}/MEMORY.md"
+    fi
+  '';
 
   ############################################
   # NPM INSTALL ACTIVATION
