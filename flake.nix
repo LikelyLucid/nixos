@@ -49,6 +49,10 @@
       url = "github:openclaw/nix-openclaw";
     };
 
+    helium-browser = {
+      url = "github:schembriaiden/helium-browser-nix-flake";
+    };
+
   };
 
   outputs = inputs@{
@@ -66,6 +70,7 @@
     codex-desktop-linux,
     codex-cli-nix,
     nix-openclaw,
+    helium-browser,
   }:
     let
       inherit (nixpkgs.lib) nixosSystem;
@@ -105,7 +110,7 @@
           modules =
             modules
             ++ [
-              { nixpkgs.overlays = [ pi.overlays.default ]; }
+              { nixpkgs.overlays = [ pi.overlays.default (final: prev: { helium = helium-browser.packages.${prev.system}.helium; }) ]; }
               home-manager.nixosModules.home-manager
               home_module
             ];

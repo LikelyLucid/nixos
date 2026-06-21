@@ -5,8 +5,7 @@ let
   workspaceDir = "${stateDir}/workspace";
   openclawVersion = "2026.6.9";
 
-  chromiumPath = "${pkgs.chromium}/bin/chromium";
-
+  # Base config (Nix-managed, token injected at runtime)
   openclawConfig = builtins.toJSON {
     gateway = {
       mode = "local";
@@ -38,10 +37,19 @@ let
     };
     browser = {
       enabled = true;
-      headless = true;
-      noSandbox = true;
-      executablePath = chromiumPath;
-      defaultProfile = "openclaw";
+      defaultProfile = "helium";
+      profiles = {
+        helium = {
+          driver = "existing-session";
+          attachOnly = true;
+          userDataDir = "~/.config/net.imput.helium";
+          color = "#7C3AED";
+        };
+        openclaw = {
+          cdpPort = 18800;
+          color = "#FF4500";
+        };
+      };
     };
     plugins = {
       enabled = true;
@@ -56,22 +64,47 @@ let
     };
   };
 
+  # Build runtime config with token merged in
+  mkOpenclawConfig = pkgs.writeShellScript "mk-openclaw-config" ''
+    set -euo pipefail
+    baseConfig="${stateDir}/openclaw.json"
+    runtimeConfig="${stateDir}/openclaw.runtime.json"
+    tokenFile="${config.sops.secrets.openclaw-gateway-token.path}"
+
+    if [ -f "$tokenFile" ]; then
+      token="$(${pkgs.coreutils}/bin/cat "$tokenFile" | ${pkgs.coreutils}/bin/tr -d '\n')"
+      ${pkgs.jq}/bin/jq --arg token "$token" \
+        '.gateway.auth = {"mode":"token","token":$token}' \
+        "$baseConfig" > "$runtimeConfig.tmp"
+      ${pkgs.coreutils}/bin/mv "$runtimeConfig.tmp" "$runtimeConfig"
+    else
+      ${pkgs.coreutils}/bin/cp "$baseConfig" "$runtimeConfig"
+    fi
+
+    echo "$runtimeConfig"
+  '';
+
   openclawWrapper = pkgs.writeShellScriptBin "openclaw-gateway-launch" ''
     set -euo pipefail
     export HOME="${homeDir}"
-    export OPENCLAW_CONFIG_PATH="${stateDir}/openclaw.json"
     export OPENCLAW_STATE_DIR="${stateDir}"
+
+    # Merge token into runtime config
+    export OPENCLAW_CONFIG_PATH="$(${mkOpenclawConfig})"
+
     if [ -f "${config.sops.secrets.opencode-api-key.path}" ]; then
       export OPENCODE_API_KEY="$(${pkgs.coreutils}/bin/cat ${config.sops.secrets.opencode-api-key.path})"
     fi
+
     exec ${pkgs.nodejs}/bin/node ${stateDir}/node_modules/openclaw/openclaw.mjs "$@"
   '';
 in
 {
   ############################################
-  # SOPS SECRET: OpenCode API key
+  # SOPS SECRETS
   ############################################
   sops.secrets.opencode-api-key = { };
+  sops.secrets.openclaw-gateway-token = { };
 
   ############################################
   # OPENCLAW WORKSPACE FILES
@@ -98,6 +131,12 @@ in
     fi
   '';
 
+  # Ensure Helium DevToolsActivePort symlink exists for Chrome MCP attach
+  home.activation.openclaw-helium-symlink = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run --quiet ${pkgs.coreutils}/bin/mkdir -p "${homeDir}/.config/google-chrome"
+    run --quiet ${pkgs.coreutils}/bin/ln -sfn "${homeDir}/.config/net.imput.helium/DevToolsActivePort" "${homeDir}/.config/google-chrome/DevToolsActivePort"
+  '';
+
   ############################################
   # PATH: ensure ~/.local/bin is available
   ############################################
@@ -112,11 +151,29 @@ in
       #!/usr/bin/env bash
       set -euo pipefail
       export HOME="${homeDir}"
-      export OPENCLAW_CONFIG_PATH="${stateDir}/openclaw.json"
       export OPENCLAW_STATE_DIR="${stateDir}"
+
+      # Merge token into runtime config
+      runtimeConfig="${stateDir}/openclaw.runtime.json"
+      baseConfig="${stateDir}/openclaw.json"
+      tokenFile="${config.sops.secrets.openclaw-gateway-token.path}"
+
+      if [ -f "$tokenFile" ]; then
+        token="$(${pkgs.coreutils}/bin/cat "$tokenFile" | ${pkgs.coreutils}/bin/tr -d '\n')"
+        ${pkgs.jq}/bin/jq --arg token "$token" \
+          '.gateway.auth = {"mode":"token","token":$token}' \
+          "$baseConfig" > "$runtimeConfig.tmp"
+        ${pkgs.coreutils}/bin/mv "$runtimeConfig.tmp" "$runtimeConfig"
+      else
+        ${pkgs.coreutils}/bin/cp "$baseConfig" "$runtimeConfig"
+      fi
+
+      export OPENCLAW_CONFIG_PATH="$runtimeConfig"
+
       if [ -f "${config.sops.secrets.opencode-api-key.path}" ]; then
         export OPENCODE_API_KEY="$(${pkgs.coreutils}/bin/cat ${config.sops.secrets.opencode-api-key.path})"
       fi
+
       exec ${pkgs.nodejs}/bin/node ${stateDir}/node_modules/openclaw/openclaw.mjs "$@"
     '';
   };
@@ -124,43 +181,42 @@ in
   ############################################
   # SYSTEMD USER SERVICE
   ############################################
-  systemd.user.services.openclaw-gateway = {
-    Unit = {
-      Description = "OpenClaw gateway";
-      After = [ "network.target" ];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${openclawWrapper}/bin/openclaw-gateway-launch gateway --port 18789";
-      WorkingDirectory = stateDir;
-      Restart = "always";
-      RestartSec = "5s";
-      StandardOutput = "journal";
-      StandardError = "journal";
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
-  };
+  home.file.".config/systemd/user/openclaw-gateway.service".text = ''
+    [Unit]
+    Description=OpenClaw gateway
+    After=network.target sops-nix.service
+    Wants=sops-nix.service
+
+    [Service]
+    Type=simple
+    ExecStart=${openclawWrapper}/bin/openclaw-gateway-launch gateway --port 18789
+    WorkingDirectory=${stateDir}
+    Restart=always
+    RestartSec=5s
+    StandardOutput=journal
+    StandardError=journal
+
+    [Install]
+    WantedBy=default.target
+  '';
+
+  systemd.user.startServices = true;
 
   ############################################
   # YDOTOOLD — Wayland input injection daemon
-  # Enables mouse clicks, keyboard input, scrolling
   ############################################
-  systemd.user.services.ydotoold = {
-    Unit = {
-      Description = "ydotool daemon — Wayland input injection";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${pkgs.ydotool}/bin/ydotoold";
-      Restart = "on-failure";
-      RestartSec = "3";
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
+  home.file.".config/systemd/user/ydotoold.service".text = ''
+    [Unit]
+    Description=ydotool daemon — Wayland input injection
+    After=default.target
+
+    [Service]
+    Type=simple
+    ExecStart=${pkgs.ydotool}/bin/ydotoold
+    Restart=on-failure
+    RestartSec=3
+
+    [Install]
+    WantedBy=default.target
+  '';
 }

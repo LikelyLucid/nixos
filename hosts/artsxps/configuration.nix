@@ -6,7 +6,6 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/window-manager/window-manager.nix
-    ../../modules/agent/hyprland-workspace.nix
     ../../modules/networking/tailscale.nix
     ../../modules/system/locale.nix
     ../../modules/system/ydotool.nix

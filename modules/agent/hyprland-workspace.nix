@@ -33,19 +33,19 @@ in
   # Configured at runtime via hyprctl so we don't need to edit hyprland.conf
   ############################################
 
-  systemd.user.services.agent-workspace = {
-    Unit = {
-      Description = "Setup agent workspace 10";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = setupAgentWorkspace;
-      RemainAfterExit = true;
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
+  home.file.".config/systemd/user/agent-workspace.service".text = ''
+    [Unit]
+    Description=Setup agent workspace 10
+    After=default.target
+
+    [Service]
+    Type=oneshot
+    ExecStart=${setupAgentWorkspace}
+    RemainAfterExit=true
+
+    [Install]
+    WantedBy=default.target
+  '';
+
+  systemd.user.startServices = true;
 }
