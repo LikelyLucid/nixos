@@ -1,6 +1,17 @@
 { pkgs, dotfiles, ... }:
 let
   wallpaper_path = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
+  hyprland_config = builtins.replaceStrings [
+    "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
+    "bind = $mainMod, J, togglesplit, # dwindle"
+    "windowrule = suppressevent maximize, class:.*"
+    "windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
+  ] [
+    ""
+    "bind = $mainMod, J, layoutmsg, togglesplit # dwindle"
+    "windowrule = match:class .*, suppress_event maximize"
+    "windowrule = match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pin false, no_focus true"
+  ] (builtins.readFile "${dotfiles}/hypr/hyprland.conf");
 in {
   ############################################
   # HYPRPAPER
@@ -18,7 +29,9 @@ in {
   ############################################
   # HYPRLAND SESSION HELPERS
   ############################################
-  wayland.windowManager.hyprland.extraConfig = ''
+  xdg.configFile."hypr/hyprland.conf".text = hyprland_config + ''
+    source = ~/.config/hypr/monitors.conf
+
     $terminal = ghostty
     $fileManager = ghostty -- yazi
     

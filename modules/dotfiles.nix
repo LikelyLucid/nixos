@@ -9,8 +9,6 @@ let
 
   # Symlinks that only make sense on desktop Linux (with display server)
   desktop_links = lib.optionalAttrs (!isWsl) {
-    "hypr/hyprland.conf" = "hypr/hyprland.conf";
-    "ghostty" = "ghostty";
     "rofi" = "rofi";
     "waybar" = "waybar";
     "spotify-player" = "spotify-player";
