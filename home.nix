@@ -1,4 +1,4 @@
-{ pkgs, lib, zenBrowser, lazyvim-config, dotfiles, pi-config, isWsl ? false, ... }:
+{ pkgs, lib, zenBrowser, nix-openclaw, lazyvim-config, dotfiles, pi-config, isWsl ? false, ... }:
 let
   home_dir = "/home/lucid";
 in {
@@ -19,6 +19,7 @@ in {
       ./modules/browsers/browsers.nix
       ./modules/office/office.nix
       ./modules/university/university.nix
+      ./modules/agent/agent.nix
     ]
     ++ lib.optionals (isWsl) [
       # WSL-only home-manager config

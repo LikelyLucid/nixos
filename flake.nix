@@ -45,6 +45,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-openclaw = {
+      url = "github:openclaw/nix-openclaw";
+    };
+
   };
 
   outputs = inputs@{
@@ -61,6 +65,7 @@
     pi,
     codex-desktop-linux,
     codex-cli-nix,
+    nix-openclaw,
   }:
     let
       inherit (nixpkgs.lib) nixosSystem;
@@ -73,6 +78,7 @@
       mkHomeManagerModule = {
         user_module,
         extra_special_args ? { },
+        sharedModules ? [ ],
       }:
         ({ ... }:
           {
@@ -80,7 +86,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "backup";
-              sharedModules = [ sops-nix.homeManagerModules.sops ];
+              sharedModules = [ sops-nix.homeManagerModules.sops ] ++ sharedModules;
               extraSpecialArgs = common_special_args // extra_special_args;
               users.lucid = import user_module;
             };
@@ -116,7 +122,7 @@
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
-          extra_special_args = { inherit zenBrowser; };
+          extra_special_args = { inherit zenBrowser nix-openclaw; };
         };
         extra_special_args = { inherit zenBrowser codex-cli-nix; };
       };
