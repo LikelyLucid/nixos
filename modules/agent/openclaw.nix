@@ -5,6 +5,8 @@ let
   workspaceDir = "${stateDir}/workspace";
   openclawVersion = "2026.6.9";
 
+  chromiumPath = "${pkgs.chromium}/bin/chromium";
+
   openclawConfig = builtins.toJSON {
     gateway = {
       mode = "local";
@@ -32,6 +34,24 @@ let
       defaults = {
         model = "opencode-go/mimo-v2.5";
         workspace = workspaceDir;
+      };
+    };
+    browser = {
+      enabled = true;
+      headless = true;
+      noSandbox = true;
+      executablePath = chromiumPath;
+      defaultProfile = "openclaw";
+    };
+    plugins = {
+      enabled = true;
+      load = {
+        paths = [ "${workspaceDir}/plugins/computer-control" ];
+      };
+      entries = {
+        computer-control = {
+          enabled = true;
+        };
       };
     };
   };
@@ -120,6 +140,27 @@ in
     };
     Install = {
       WantedBy = [ "default.target" ];
+    };
+  };
+
+  ############################################
+  # YDOTOOLD — Wayland input injection daemon
+  # Enables mouse clicks, keyboard input, scrolling
+  ############################################
+  systemd.user.services.ydotoold = {
+    Unit = {
+      Description = "ydotool daemon — Wayland input injection";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.ydotool}/bin/ydotoold";
+      Restart = "on-failure";
+      RestartSec = "3";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
     };
   };
 }

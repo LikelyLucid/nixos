@@ -6,8 +6,10 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/window-manager/window-manager.nix
+    ../../modules/agent/hyprland-workspace.nix
     ../../modules/networking/tailscale.nix
     ../../modules/system/locale.nix
+    ../../modules/system/ydotool.nix
     ../../modules/work/work.nix
   ];
 
@@ -132,7 +134,10 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
+    chromium           # Chromium browser for OpenClaw browser control (CDP)
     easyeffects        # Audio effects/EQ (PipeWire compatible)
+    tesseract          # OCR — read text from screenshots
+    ydotool            # Wayland input injection (mouse/keyboard control)
     git
     gh
     htop
