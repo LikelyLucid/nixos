@@ -83,7 +83,7 @@ Workflow:
 # 1. Make changes in ~/dotfiles/ (wallust templates, rofi, waybar, etc.)
 
 # 2. Run wallust to generate colors (if applicable)
-wallust run ~/dotfiles/media/wallpapers/Wallpaper\ 4.jpg
+wallust run ~/dotfiles/media/wallpapers/wallpaper.jpg
 
 # 3. Commit and push
 cd ~/dotfiles

@@ -1,6 +1,6 @@
 { pkgs, dotfiles, ... }:
 let
-  wallpaper_path = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
+  wallpaper_path = "${dotfiles}/media/wallpapers/wallpaper.jpg";
   hyprland_config = builtins.replaceStrings [
     "$fileManager = $terminal -- yazi"
     "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
@@ -37,7 +37,6 @@ in {
     $terminal = ghostty
     $fileManager = nemo
     
-    exec-once = hyprpaper &
     exec-once = nm-applet &
     exec-once = blueman-applet &
     exec-once = dunst &
