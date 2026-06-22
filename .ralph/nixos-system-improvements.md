@@ -1,36 +1,32 @@
-
 # NixOS System Improvements
 
-Add the following to the NixOS configuration:
+## Status: ✅ COMPLETE
 
-## 1. systemd-oomd
-Add `services.oomd.enable = true` to a system-level config. Check if it already exists.
+All changes have been implemented and committed.
 
-## 2. auto-cpufreq
-Add `services.auto-cpufreq.enable = true` with sensible defaults for a laptop (XPS 15 9530).
+## Changes Made
 
-## 3. nix-direnv for R files only
-The user has R files that they don't need on their system all the time. Add `nix-direnv` to their home-manager config but scope it to R projects only. Check if nix-direnv already exists in the config.
+| Item | Status | Details |
+|------|--------|---------|
+| systemd-oomd | ✅ Already active | Running via systemd-oomd.service, no NixOS module needed |
+| auto-cpufreq | ✅ Added | powersave on battery, performance on charger, turbo auto |
+| nix-direnv | ✅ Added | Programs.direnv + nix-direnv enabled. User creates .envrc in R project dirs |
+| atuin | ✅ Already present | programs.atuin.enable = true in zsh.nix |
+| zoxide | ✅ Already present | programs.zoxide.enable = true in zsh.nix |
+| swaync | ✅ Added | Replaces dunst, wallust CSS template created, config.json added |
+| nix.gc.automatic | ⏭️ Removed | Conflicts with existing nh.clean.enable config |
+| nix.auto-optimise-store | ✅ Added | Deduplicates nix store on rebuild |
 
-## 4. Check if atuin is already installed
-Look for atuin in home.nix packages or shell config. Don't re-add if already present.
+## Files Modified
 
-## 5. Add zoxide
-Add `programs.zoxide.enable = true` to home-manager config. This replaces `cd` with smarter jumping.
+- hosts/artsxps/configuration.nix — auto-cpufreq, nix.settings
+- home.nix — swaynotificationcenter, direnv, swaync config
+- modules/window-manager/hyprland-config.nix — exec-once swaync
+- dotfiles/wallust/wallust.toml — swaync template entry
+- dotfiles/wallust/templates/swaync.css — new template
 
-## 6. Add swaync (sway notification center)
-Add swaync to packages, create a wallust CSS template for it, add a wallust entry in wallust.toml. The template should use the standard wallust variables (background, foreground, color0-15). Create a config.json for swaync.
+## Commits
 
-## 7. nix.gc.automatic
-Add automatic garbage collection with a 30-day retention policy.
-
-## 8. Rice swaync with wallust
-Create a swaync wallust template at `~/dotfiles/wallust/templates/swaync.css` and add a wallust entry in `~/dotfiles/wallust/wallust.toml` targeting `~/.config/swaync/style.css`.
-
-## Guidelines
-- Follow the project's nix code style (2-space indent, snake_case, ASCII section comments)
-- Do NOT change anything already working
-- After each file edit, run `lens_diagnostics mode=delta` to check for errors
-- Commit and push dotfiles changes to GitHub after edits
-- Commit and push nixos changes to GitHub after edits
-- Check for existing implementations before adding new things
+- dotfiles: c8906fb "feat: add swaync wallust template"
+- nixos: e078c75 "feat: add oomd, auto-cpufreq, nix gc, direnv, swaync"
+- nixos: f7bebd5 "fix: correct swaync package name, remove redundant gc"
