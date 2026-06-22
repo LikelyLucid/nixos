@@ -109,7 +109,7 @@ in {
             *Screenshot*(full)*) grim - | swappy -f - ;;
             *Lock*) hyprlock ;;
             *Clipboard*) cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy ;;
-            *Disturb*) dunstctl set-paused toggle ;;
+            *Disturb*) swaync-client -d ;;
             *Sleep*) systemctl suspend ;;
             *Reboot*) systemctl reboot ;;
             *Shutdown*) systemctl poweroff ;;

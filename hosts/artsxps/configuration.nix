@@ -37,7 +37,10 @@
   ############################################
   # BOOTLOADER
   ############################################
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot = {
+    enable = true;
+    configurationLimit = 10;
+  };
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.default = 0;
 
@@ -46,6 +49,10 @@
   ############################################
   networking.hostName = "artsxps";
   networking.networkmanager.enable = true;
+  networking.firewall = {
+    allowedTCPPorts = [ 22000 ];
+    allowedUDPPorts = [ 21027 22000 ];
+  };
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
@@ -54,6 +61,7 @@
   # POWER MANAGEMENT
   ############################################
   services.linux-enable-ir-emitter.enable = true;
+  services.fwupd.enable = true;
 
   services.howdy = {
     enable = true;
@@ -120,21 +128,6 @@
 
   # OOM killer is already active via systemd-oomd.service
   # No NixOS module needed — it comes with systemd
-
-  # CPU frequency scaling — adapts governor to workload
-  services.auto-cpufreq = {
-    enable = true;
-    settings = {
-      battery = {
-        governor = "powersave";
-        turbo = "auto";
-      };
-      charger = {
-        governor = "performance";
-        turbo = "auto";
-      };
-    };
-  };
 
   boot.kernel.sysctl = {
     # Lower swappiness = keep things in RAM longer, good for SSDs

@@ -149,7 +149,6 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
     du = "dust";
     df = "duf";
     ps = "procs";
-    grep = "rg";
     top = "btop";
 
     # Git
@@ -163,9 +162,6 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
     # AI tools
     pi = "pi";
     aider = "aider";
-
-    # Network
-    curl = "httpie";
 
     # WSL: quick jump to Windows home (dynamically detected)
     winhome = "cd \"$(wslpath \"$(powershell.exe -NoProfile -NonInteractive -Command Write-Output '$env:USERPROFILE' 2>/dev/null | tr -d '\\r\\n')\" 2>/dev/null || echo /mnt/c/Users)\"";
