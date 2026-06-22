@@ -8,3 +8,4 @@ age_key.agekeyresult
 # Ignore local pi/GSD artefacts
 .pi/
 pi-config/
+result

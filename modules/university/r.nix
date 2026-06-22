@@ -43,7 +43,10 @@ in {
   ############################################
   # R WORKSTATION
   ############################################
-  home.packages = [ rstudio_with_workspace_packages ];
+  home.packages = with pkgs; [
+    rstudio_with_workspace_packages
+    R                 # R CLI for R language server and scripting
+  ];
 
   home.sessionVariables = {
     QT_QPA_PLATFORM = "wayland";

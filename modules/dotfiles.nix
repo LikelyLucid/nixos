@@ -2,18 +2,18 @@
 let
   mk_link = config.lib.file.mkOutOfStoreSymlink;
 
-  # Symlinks that work on both WSL and desktop Linux
-  common_links = {
-    "nvim" = "nvim";
-  };
-
-  # Symlinks that only make sense on desktop Linux (with display server)
+  # Desktop-only symlinks (from dotfiles flake input)
   desktop_links = lib.optionalAttrs (!isWsl) {
     "rofi" = "rofi";
     "waybar" = "waybar";
     "spotify-player" = "spotify-player";
     "wallust" = "wallust";
     "flameshot" = "flameshot";
+  };
+
+  # Common symlinks (from dotfiles flake input)
+  common_links = {
+    # nvim is managed locally so edits are picked up immediately
   };
 
   all_links = common_links // desktop_links;
@@ -23,5 +23,9 @@ in {
       (_: relative_path: {
         source = mk_link "${dotfiles}/${relative_path}";
       })
-      all_links;
+      all_links
+    # nvim uses local path so dotfiles edits take effect without rebuild
+    // {
+      nvim.source = mk_link "/home/lucid/dotfiles/nvim";
+    };
 }
