@@ -66,6 +66,7 @@ networking.networkmanager.enable = true;
 **Commit and push after every logical change.** The `nh` / `nixos-rebuild` commands apply the working tree as-is — uncommitted changes get built into the system but have no safety net. If a rebuild goes wrong, you can't `git revert` your way out of something you never committed.
 
 Two repos to keep in sync:
+
 * `~/nixos/` — the flake config (system + home-manager)
 * `~/dotfiles/` — wallust templates, rofi, waybar, etc. (pulled from GitHub on rebuild)
 
