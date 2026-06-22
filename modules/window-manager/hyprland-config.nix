@@ -12,7 +12,6 @@ let
         "$fileManager = $terminal -- yazi"
         "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
         "bind = $mainMod, J, togglesplit, # dwindle"
-        "# Lockscreen\nbind = $mainMod, L, exec, hyprlock\n"
         "windowrule = suppressevent maximize, class:.*"
         "windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
       ]
@@ -20,7 +19,6 @@ let
         "$fileManager = nemo"
         ""
         "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
-        ""
         "windowrule = match:class .*, suppress_event maximize"
         "windowrule = match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pin false, no_focus true"
       ]
@@ -73,11 +71,11 @@ in
     bind = SHIFT, Print, exec, grim - | swappy -f -
 
     # === CORNE-FRIENDLY KEYBINDS (40%, no number row) ===
-    # Home-row window focus (semicolon keeps Super+L free for lock)
+    # Home-row window focus
     bind = $mainMod, h, movefocus, l
     bind = $mainMod, j, movefocus, d
     bind = $mainMod, k, movefocus, u
-    bind = $mainMod, semicolon, movefocus, r
+    bind = $mainMod, l, movefocus, r
 
     # comma/period for workspace cycling (base-layer keys on Corne)
     bind = $mainMod, comma, workspace, e-1
@@ -89,7 +87,7 @@ in
     bind = $mainMod SHIFT, h, movewindow, l
     bind = $mainMod SHIFT, j, movewindow, d
     bind = $mainMod SHIFT, k, movewindow, u
-    bind = $mainMod SHIFT, semicolon, movewindow, r
+    bind = $mainMod SHIFT, l, movewindow, r
 
     # Resize mode (B for Bigger/Smaller)
     bind = $mainMod, B, submap, resize
@@ -164,7 +162,7 @@ in
       ==============================
 
       FOCUS:
-        Super + h/j/k/;        focus left/down/up/right
+        Super + h/j/k/l        focus left/down/up/right
 
       WORKSPACES:
         Super + ,              previous workspace
@@ -173,7 +171,7 @@ in
         Super Shift + .        move window to next workspace
 
       WINDOW OPS:
-        Super Shift + h/j/k/;  move window in direction
+        Super Shift + h/j/k/l  move window in direction
         Super + B              resize mode (hjkl to resize, ESC/Enter to exit)
         Super + T              toggle split layout
         Super + V              toggle floating
@@ -185,7 +183,6 @@ in
         Super + /    show this cheatsheet
 
       SYSTEM:
-        Super + L    lock screen
         Super + M    exit Hyprland
     '';
   };
