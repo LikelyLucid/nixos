@@ -40,7 +40,7 @@ in {
     exec-once = hyprpaper
     exec-once = nm-applet &
     exec-once = blueman-applet &
-    exec-once = dunst &
+    exec-once = swaync &
     exec-once = wl-paste --watch cliphist store
     
     # Clipboard history

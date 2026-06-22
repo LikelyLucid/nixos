@@ -29,7 +29,10 @@
   ############################################
   # NIX SETTINGS
   ############################################
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+  };
 
   ############################################
   # BOOTLOADER
@@ -55,10 +58,12 @@
   services.howdy = {
     enable = true;
     control = "sufficient";
-    settings = {
-      video.dark_threshold = 100;
-    };
+    settings.video.dark_threshold = 100;
   };
+
+  # Only use howdy for greetd (login screen), not sudo/polkit
+  security.pam.howdy.enable = false;
+  security.pam.services.greetd.howdy.enable = true;
 
   services.thermald.enable = true;
   services.tlp = {
@@ -112,6 +117,31 @@
 
   # Spread hardware IRQs across all CPU cores
   services.irqbalance.enable = true;
+
+  # OOM killer — kills memory hogs before system freezes
+  services.oomd.enable = true;
+
+  # CPU frequency scaling — adapts governor to workload
+  services.auto-cpufreq = {
+    enable = true;
+    settings = {
+      battery = {
+        governor = "powersave";
+        turbo = "auto";
+      };
+      charger = {
+        governor = "performance";
+        turbo = "auto";
+      };
+    };
+  };
+
+  # Automatic garbage collection — 30 day retention
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
 
   boot.kernel.sysctl = {
     # Lower swappiness = keep things in RAM longer, good for SSDs
