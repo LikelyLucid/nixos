@@ -110,7 +110,7 @@
           modules =
             modules
             ++ [
-              { nixpkgs.overlays = [ pi.overlays.default (final: prev: { helium = helium-browser.packages.${prev.system}.helium; }) ]; }
+              { nixpkgs.overlays = [ pi.overlays.default (final: prev: { helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium; }) ]; }
               home-manager.nixosModules.home-manager
               home_module
             ];
