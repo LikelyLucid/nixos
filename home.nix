@@ -129,7 +129,7 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       pavucontrol
       rofi
       spotify-player
-      swaync
+      swaynotificationcenter
       wallust
       waybar
     ]

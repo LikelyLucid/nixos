@@ -118,8 +118,8 @@
   # Spread hardware IRQs across all CPU cores
   services.irqbalance.enable = true;
 
-  # OOM killer — kills memory hogs before system freezes
-  services.oomd.enable = true;
+  # OOM killer is already active via systemd-oomd.service
+  # No NixOS module needed — it comes with systemd
 
   # CPU frequency scaling — adapts governor to workload
   services.auto-cpufreq = {
@@ -134,13 +134,6 @@
         turbo = "auto";
       };
     };
-  };
-
-  # Automatic garbage collection — 30 day retention
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
   };
 
   boot.kernel.sysctl = {
