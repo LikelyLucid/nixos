@@ -14,9 +14,9 @@
   ############################################
   programs.git = {
     enable = true;
-    userName = "LikelyLucid";
-    userEmail = "micoolplays@gmail.com";
-    extraConfig = {
+    settings = {
+      user.name = "LikelyLucid";
+      user.email = "micoolplays@gmail.com";
       core.editor = "nvim";
       pull.rebase = true;
     };
