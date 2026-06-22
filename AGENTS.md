@@ -61,7 +61,17 @@ networking.networkmanager.enable = true;
 
 * Avoid repeating settings. Create reusable functions or variables where necessary.
 
-## 5. Dotfiles Workflow
+## 5. Git Checkpoints
+
+**Commit and push after every logical change.** The `nh` / `nixos-rebuild` commands apply the working tree as-is — uncommitted changes get built into the system but have no safety net. If a rebuild goes wrong, you can't `git revert` your way out of something you never committed.
+
+Two repos to keep in sync:
+* `~/nixos/` — the flake config (system + home-manager)
+* `~/dotfiles/` — wallust templates, rofi, waybar, etc. (pulled from GitHub on rebuild)
+
+Both must be pushed before they're durable.
+
+## 6. Dotfiles Workflow
 
 **Changes to `~/dotfiles/` must be committed + pushed to GitHub before a NixOS rebuild.**
 
