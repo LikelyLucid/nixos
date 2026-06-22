@@ -105,6 +105,7 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       # NIX TOOLING
       ########################################
       nixd             # Nix language server
+      cachix           # Binary cache helper
       nixfmt           # Nix formatter
       statix           # Nix linter
       deadnix          # Finds unused Nix code
