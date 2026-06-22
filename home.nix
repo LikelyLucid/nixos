@@ -100,6 +100,14 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       hyperfine        # Command benchmarking tool
 
       ########################################
+      # NIX TOOLING
+      ########################################
+      nixd             # Nix language server
+      nixfmt           # Nix formatter
+      statix           # Nix linter
+      deadnix          # Finds unused Nix code
+
+      ########################################
       # NETWORK TOOLS
       ########################################
       httpie           # Human-friendly curl alternative
