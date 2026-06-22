@@ -1,4 +1,4 @@
-{ pkgs, dotfiles, ... }:
+{ config, pkgs, dotfiles, ... }:
 let
   wallpaper_path = "${dotfiles}/media/wallpapers/wallpaper.jpg";
   hyprland_config = builtins.replaceStrings [
@@ -55,7 +55,7 @@ in {
     
     # Screenshot tools
     # Rofi launcher: Ctrl+Tab cycles modes (drun, run, window, system)
-    bind = $mainMod, R, exec, rofi -show drun -modi "drun,run,window,system:~/.config/hypr/scripts/rofi-system.sh"
+    bind = $mainMod, R, exec, rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"
     
     bind = , Print, exec, grim -g "$(slurp)" - | swappy -f -
     bind = SHIFT, Print, exec, grim - | swappy -f -
@@ -101,21 +101,21 @@ in {
         #!/usr/bin/env bash
         if [ -n "$1" ]; then
           case "$1" in
-            *Bluetooth*Quick*) rofi-bluetooth ;;
-            *Bluetooth*) blueman-manager ;;
-            *WiFi*Quick*) networkmanager_dmenu ;;
-            *Network*) nm-connection-editor ;;
-            *Audio*) pavucontrol ;;
-            *Monitors*) nwg-displays ;;
-            *Screenshot*(area)*) grim -g "$(slurp)" - | swappy -f - ;;
-            *Screenshot*(full)*) grim - | swappy -f - ;;
-            *Lock*) hyprlock ;;
-            *Clipboard*) cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy ;;
-            *Disturb*) swaync-client -d ;;
-            *Sleep*) systemctl suspend ;;
-            *Reboot*) systemctl reboot ;;
-            *Shutdown*) systemctl poweroff ;;
-            *Logout*) hyprctl dispatch exit ;;
+            "Bluetooth Settings") blueman-manager ;;
+            "Bluetooth Quick Connect") rofi-bluetooth ;;
+            "Network Settings") nm-connection-editor ;;
+            "WiFi Quick Connect") networkmanager_dmenu ;;
+            "Audio") pavucontrol ;;
+            "Monitors") nwg-displays ;;
+            "Screenshot (area)") grim -g "$(slurp)" - | swappy -f - ;;
+            "Screenshot (full)") grim - | swappy -f - ;;
+            "Lock Screen") hyprlock ;;
+            "Clipboard") cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy ;;
+            "Do Not Disturb") swaync-client -d ;;
+            "Sleep") systemctl suspend ;;
+            "Reboot") systemctl reboot ;;
+            "Shutdown") systemctl poweroff ;;
+            "Logout") hyprctl dispatch exit ;;
           esac
         else
           printf '%s\n' \
