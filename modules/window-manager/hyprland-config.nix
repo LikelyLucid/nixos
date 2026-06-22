@@ -2,11 +2,13 @@
 let
   wallpaper_path = "${dotfiles}/media/wallpapers/Wallpaper 4.jpg";
   hyprland_config = builtins.replaceStrings [
+    "$fileManager = $terminal -- yazi"
     "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
     "bind = $mainMod, J, togglesplit, # dwindle"
     "windowrule = suppressevent maximize, class:.*"
     "windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
   ] [
+    "$fileManager = nemo"
     ""
     "bind = $mainMod, J, layoutmsg, togglesplit # dwindle"
     "windowrule = match:class .*, suppress_event maximize"
@@ -34,7 +36,6 @@ in {
 
     $terminal = ghostty
     $fileManager = nemo
-    bind = $mainMod, E, exec, $fileManager
     
     exec-once = hyprpaper &
     exec-once = nm-applet &
