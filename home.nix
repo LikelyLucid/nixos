@@ -1,29 +1,39 @@
-{ pkgs, lib, zenBrowser, nix-openclaw, lazyvim-config, dotfiles, pi-config, isWsl ? false, ... }:
+{
+  pkgs,
+  lib,
+  zenBrowser,
+  nix-openclaw,
+  lazyvim-config,
+  dotfiles,
+  pi-config,
+  isWsl ? false,
+  ...
+}:
 let
   home_dir = "/home/lucid";
-in {
+in
+{
   ############################################
   # MODULE IMPORTS
   ############################################
-  imports =
-    [
-      # Always included
-      ./modules/dev/developer.nix
-      ./modules/dotfiles.nix
-      ./modules/pi-config.nix
-    ]
-    ++ lib.optionals (!isWsl) [
-      # Desktop Linux only (GUI, display servers, etc.)
-      ./modules/window-manager/hyprland-config.nix
-      ./modules/notes/notes.nix
-      ./modules/browsers/browsers.nix
-      ./modules/office/office.nix
-      ./modules/university/university.nix
-      ./modules/agent/agent.nix
-    ]
-    ++ lib.optionals (isWsl) [
-      # WSL-only home-manager config
-    ];
+  imports = [
+    # Always included
+    ./modules/dev/developer.nix
+    ./modules/dotfiles.nix
+    ./modules/pi-config.nix
+  ]
+  ++ lib.optionals (!isWsl) [
+    # Desktop Linux only (GUI, display servers, etc.)
+    ./modules/window-manager/hyprland-config.nix
+    ./modules/notes/notes.nix
+    ./modules/browsers/browsers.nix
+    ./modules/office/office.nix
+    ./modules/university/university.nix
+    ./modules/agent/agent.nix
+  ]
+  ++ lib.optionals (isWsl) [
+    # WSL-only home-manager config
+  ];
 
   ############################################
   # USER DETAILS
@@ -39,92 +49,92 @@ in {
     defaultSopsFile = ./secrets/secrets.yaml;
   };
 
-############################################
-# NEMO FILE MANAGER (riced with wallust)
-############################################
-dconf.settings = lib.mkIf (!isWsl) {
-  "org/nemo/preferences" = {
-    default-folder-viewer = "icon-view";
-    show-location-entry = true;
-    enable-delete = true;
-    date-format = "locale";
+  ############################################
+  # NEMO FILE MANAGER (riced with wallust)
+  ############################################
+  dconf.settings = lib.mkIf (!isWsl) {
+    "org/nemo/preferences" = {
+      default-folder-viewer = "icon-view";
+      show-location-entry = true;
+      enable-delete = true;
+      date-format = "locale";
+    };
+    "org/nemo/icon-view" = {
+      default-zoom-level = "standard";
+    };
+    "org/nemo/window-state" = {
+      start-with-sidebar = true;
+      geometry = "1200x800+100+100";
+    };
   };
-  "org/nemo/icon-view" = {
-    default-zoom-level = "standard";
-  };
-  "org/nemo/window-state" = {
-    start-with-sidebar = true;
-    geometry = "1200x800+100+100";
-  };
-};
 
-# Nemo as default file manager
-xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
-  "inode/directory" = "nemo.desktop";
-};
+  # Nemo as default file manager
+  xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
+    "inode/directory" = "nemo.desktop";
+  };
 
-############################################
-# HOME PACKAGES
-# Organised by category for easy maintenance
-############################################
+  ############################################
+  # HOME PACKAGES
+  # Organised by category for easy maintenance
+  ############################################
   home.packages =
     with pkgs;
     [
       ########################################
       # RUNTIME ENVIRONMENTS
       ########################################
-      nodejs           # JavaScript runtime
-      bun              # Fast all-in-one JS/TS runtime
-      go               # Go programming language
-      python3          # Python runtime
-      uv               # Fast Python package manager
+      nodejs # JavaScript runtime
+      bun # Fast all-in-one JS/TS runtime
+      go # Go programming language
+      python3 # Python runtime
+      uv # Fast Python package manager
 
       ########################################
       # AI / AGENT DEVELOPMENT TOOLS
       ########################################
-      pi-coding-agent  # pi coding agent (from lukasl-dev/pi.nix overlay)
-      aider-chat       # AI pair programming in terminal
-      opencode         # Terminal UI for LLMs
+      pi-coding-agent # pi coding agent (from lukasl-dev/pi.nix overlay)
+      aider-chat # AI pair programming in terminal
+      opencode # Terminal UI for LLMs
 
       ########################################
       # ENHANCED CLI TOOLS
       ########################################
-      bat              # `cat` with syntax highlighting & git integration
-      eza              # Modern `ls` replacement (colours, icons, tree view)
-      fd               # `find` replacement that's fast and intuitive
-      delta            # Syntax-highlighted git diffs
-      just             # Command runner — like make but modern
-      yq               # YAML/JSON/XML processor (like jq for everything)
-      jq               # JSON processor
-      ripgrep          # `grep` replacement — fast recursive search
-      hyperfine        # Command benchmarking tool
-      trash-cli        # Safe terminal trash instead of permanent rm
-      tealdeer         # Fast tldr command examples
+      bat # `cat` with syntax highlighting & git integration
+      eza # Modern `ls` replacement (colours, icons, tree view)
+      fd # `find` replacement that's fast and intuitive
+      delta # Syntax-highlighted git diffs
+      just # Command runner — like make but modern
+      yq # YAML/JSON/XML processor (like jq for everything)
+      jq # JSON processor
+      ripgrep # `grep` replacement — fast recursive search
+      hyperfine # Command benchmarking tool
+      trash-cli # Safe terminal trash instead of permanent rm
+      tealdeer # Fast tldr command examples
 
       ########################################
       # NIX TOOLING
       ########################################
-      nixd             # Nix language server
-      cachix           # Binary cache helper
-      nixfmt           # Nix formatter
-      statix           # Nix linter
-      deadnix          # Finds unused Nix code
+      nixd # Nix language server
+      cachix # Binary cache helper
+      nixfmt # Nix formatter
+      statix # Nix linter
+      deadnix # Finds unused Nix code
 
       ########################################
       # NETWORK TOOLS
       ########################################
-      httpie           # Human-friendly curl alternative
-      doggo            # DNS lookup utility
-      websocat         # WebSocket client
+      httpie # Human-friendly curl alternative
+      doggo # DNS lookup utility
+      websocat # WebSocket client
 
       ########################################
       # SYSTEM / MONITORING
       ########################################
-      fastfetch        # System info
-      btop             # Resource monitor
-      procs            # Modern `ps` replacement
-      dust             # `du` replacement — disk usage visualised
-      duf              # `df` replacement — disk free with better output
+      fastfetch # System info
+      btop # Resource monitor
+      procs # Modern `ps` replacement
+      dust # `du` replacement — disk usage visualised
+      duf # `df` replacement — disk free with better output
 
       ########################################
       # FONTS
@@ -137,7 +147,10 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       cava
       hyprpaper
       (nemo-with-extensions.override {
-        extensions = [ nemo-preview nemo-seahorse ];
+        extensions = [
+          nemo-preview
+          nemo-seahorse
+        ];
       })
       pavucontrol
       rofi
