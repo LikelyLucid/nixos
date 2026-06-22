@@ -170,7 +170,6 @@
     pciutils
     pulsemixer         # Terminal audio mixer
     syncthing
-    texlive.combined.scheme-full
     wget
     zip
   ];

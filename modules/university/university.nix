@@ -4,7 +4,6 @@
   # UNIVERSITY TOOLING
   ############################################
   imports = [
-    ./r.nix
     ./zotero.nix
   ];
 }
