@@ -24,7 +24,10 @@ in {
       ipc = "on";
       splash = false;
       preload = wallpaper_path;
-      wallpaper = ",${wallpaper_path}";
+      wallpaper = [
+        "eDP-1,${wallpaper_path}"
+        "DP-2,${wallpaper_path}"
+      ];
     };
   };
 
