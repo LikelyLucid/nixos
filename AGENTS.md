@@ -61,5 +61,30 @@ networking.networkmanager.enable = true;
 
 * Avoid repeating settings. Create reusable functions or variables where necessary.
 
-```
+## 5. Dotfiles Workflow
+
+**Changes to `~/dotfiles/` must be committed + pushed to GitHub before a NixOS rebuild.**
+
+The `dotfiles` flake input points to `github:LikelyLucid/dotfiles`, so Nix fetches the pinned commit — local changes won't survive unless pushed.
+
+Workflow:
+
+```bash
+# 1. Make changes in ~/dotfiles/ (wallust templates, rofi, waybar, etc.)
+
+# 2. Run wallust to generate colors (if applicable)
+wallust run ~/dotfiles/media/wallpapers/Wallpaper\ 4.jpg
+
+# 3. Commit and push
+cd ~/dotfiles
+git add -A
+git commit -m "what changed"
+git push
+
+# 4. Update flake lock (optional, if dotfiles main branch advanced)
+cd ~/nixos
+nix flake lock --update-input dotfiles
+
+# 5. Rebuild
+sudo nixos-rebuild switch --flake /home/lucid/nixos#artsxps
 ```

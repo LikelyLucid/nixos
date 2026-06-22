@@ -33,63 +33,62 @@ in {
     source = ~/.config/hypr/monitors.conf
 
     $terminal = ghostty
-    $fileManager = ghostty -- yazi
+    $fileManager = nemo
+    bind = $mainMod, E, exec, $fileManager
     
     exec-once = hyprpaper &
     exec-once = nm-applet &
     exec-once = blueman-applet &
     exec-once = dunst &
-    exec-once = cliphist daemon &
-    
-    # System menu (rofi)
-    bind = SUPER, S, exec, ~/.config/hypr/scripts/system-menu.sh
+    exec-once = wl-paste --watch cliphist store
     
     # Clipboard history
     bind = SUPER, V, exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy
+    bind = SUPER SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
     
     # Screenshot tools
+    # Rofi launcher: Ctrl+Tab cycles modes (drun, run, window, system)
+    bind = $mainMod, R, exec, rofi -show drun -modi "drun,run,window,system:~/.config/hypr/scripts/rofi-system.sh"
+    
     bind = , Print, exec, grim -g "$(slurp)" - | swappy -f -
     bind = SHIFT, Print, exec, grim - | swappy -f -
   '';
 
-  # System menu script
-  home.file.".config/hypr/scripts/system-menu.sh" = {
+  # Rofi system mode script (switched via Ctrl+Tab inside rofi)
+  home.file.".config/hypr/scripts/rofi-system.sh" = {
     text = ''
       #!/usr/bin/env bash
-      
-      options=(
-        "\U000f0102  Bluetooth"
-        "\U000f0268  WiFi"
-        "\U000f056e  Audio"
-        "\U000f0339  Monitors"
-        "\U000f0e51  Screenshot (area)"
-        "\U000f0e51  Screenshot (full)"
-        "\U000f06a9  Sleep"
-        "\U000f049f  Reboot"
-        "\U000f049c  Shutdown"
-      )
-      
-      actions=(
-        "blueman-manager"
-        "nm-connection-editor"
-        "pavucontrol"
-        "nwg-displays"
-        "grim -g \"$(slurp)\" - | swappy -f -"
-        "grim - | swappy -f -"
-        "systemctl suspend"
-        "systemctl reboot"
-        "systemctl poweroff"
-      )
-      
-      chosen=$(printf "%s\n" "''${options[@]}" | rofi -dmenu -i -p "System")
-      
-      if [ -n "$chosen" ]; then
-        for i in "''${!options[@]}"; do
-          if [ "''${options[$i]}" = "$chosen" ]; then
-            eval "''${actions[$i]}"
-            break
-          fi
-        done
+      if [ -n "$1" ]; then
+        case "$1" in
+          *Bluetooth*) blueman-manager ;;
+          *WiFi*) nm-connection-editor ;;
+          *Audio*) pavucontrol ;;
+          *Monitors*) nwg-displays ;;
+          *Screenshot*(area)*) grim -g "$(slurp)" - | swappy -f - ;;
+          *Screenshot*(full)*) grim - | swappy -f - ;;
+          *Lock*) hyprlock ;;
+          *Clipboard*) cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy ;;
+          *Disturb*) dunstctl set-paused toggle ;;
+          *Sleep*) systemctl suspend ;;
+          *Reboot*) systemctl reboot ;;
+          *Shutdown*) systemctl poweroff ;;
+          *Logout*) hyprctl dispatch exit ;;
+        esac
+      else
+        printf '%s\n' \
+          "Bluetooth" \
+          "WiFi" \
+          "Audio" \
+          "Monitors" \
+          "Screenshot (area)" \
+          "Screenshot (full)" \
+          "Lock Screen" \
+          "Clipboard" \
+          "Do Not Disturb" \
+          "Sleep" \
+          "Reboot" \
+          "Shutdown" \
+          "Logout"
       fi
     '';
     executable = true;

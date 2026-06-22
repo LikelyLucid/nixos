@@ -31,7 +31,7 @@
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --greeting 'Welcome back Arthur!' --cmd Hyprland";
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --greeting 'Welcome back Arthur!' --cmd ${pkgs.hyprland}/bin/start-hyprland";
       user = "greeter";
     };
   };

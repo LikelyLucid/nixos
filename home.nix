@@ -39,10 +39,34 @@ in {
     defaultSopsFile = ./secrets/secrets.yaml;
   };
 
-  ############################################
-  # HOME PACKAGES
-  # Organised by category for easy maintenance
-  ############################################
+############################################
+# NEMO FILE MANAGER (riced with wallust)
+############################################
+dconf.settings = lib.mkIf (!isWsl) {
+  "org/nemo/preferences" = {
+    default-folder-viewer = "icon-view";
+    show-location-entry = true;
+    enable-delete = true;
+    date-format = "locale";
+  };
+  "org/nemo/icon-view" = {
+    default-zoom-level = "standard";
+  };
+  "org/nemo/window-state" = {
+    start-with-sidebar = true;
+    geometry = "1200x800+100+100";
+  };
+};
+
+# Nemo as default file manager
+xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
+  "inode/directory" = "nemo.desktop";
+};
+
+############################################
+# HOME PACKAGES
+# Organised by category for easy maintenance
+############################################
   home.packages =
     with pkgs;
     [
@@ -79,7 +103,7 @@ in {
       # NETWORK TOOLS
       ########################################
       httpie           # Human-friendly curl alternative
-      dogdns           # DNS lookup utility
+      doggo            # DNS lookup utility
       websocat         # WebSocket client
 
       ########################################
@@ -88,7 +112,7 @@ in {
       fastfetch        # System info
       btop             # Resource monitor
       procs            # Modern `ps` replacement
-      du-dust          # `du` replacement — disk usage visualised
+      dust             # `du` replacement — disk usage visualised
       duf              # `df` replacement — disk free with better output
 
       ########################################
@@ -101,6 +125,7 @@ in {
       # Desktop Linux GUI packages
       cava
       hyprpaper
+      nemo
       pavucontrol
       rofi
       spotify-player
