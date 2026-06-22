@@ -50,6 +50,16 @@
   ############################################
   # POWER MANAGEMENT
   ############################################
+  services.linux-enable-ir-emitter.enable = true;
+
+  services.howdy = {
+    enable = true;
+    control = "sufficient";
+    settings = {
+      video.dark_threshold = 100;
+    };
+  };
+
   services.thermald.enable = true;
   services.tlp = {
     enable = true;
