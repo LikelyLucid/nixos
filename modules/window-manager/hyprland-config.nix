@@ -1,20 +1,32 @@
-{ config, pkgs, dotfiles, ... }:
+{
+  config,
+  pkgs,
+  dotfiles,
+  ...
+}:
 let
   wallpaper_path = "${dotfiles}/media/wallpapers/wallpaper.jpg";
-  hyprland_config = builtins.replaceStrings [
-    "$fileManager = $terminal -- yazi"
-    "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
-    "bind = $mainMod, J, togglesplit, # dwindle"
-    "windowrule = suppressevent maximize, class:.*"
-    "windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
-  ] [
-    "$fileManager = nemo"
-    ""
-    "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
-    "windowrule = match:class .*, suppress_event maximize"
-    "windowrule = match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pin false, no_focus true"
-  ] (builtins.readFile "${dotfiles}/hypr/hyprland.conf");
-in {
+  hyprland_config =
+    builtins.replaceStrings
+      [
+        "$fileManager = $terminal -- yazi"
+        "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
+        "bind = $mainMod, J, togglesplit, # dwindle"
+        "# Lockscreen\nbind = $mainMod, L, exec, hyprlock\n"
+        "windowrule = suppressevent maximize, class:.*"
+        "windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
+      ]
+      [
+        "$fileManager = nemo"
+        ""
+        "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
+        ""
+        "windowrule = match:class .*, suppress_event maximize"
+        "windowrule = match:class ^$, match:title ^$, match:xwayland true, match:float true, match:fullscreen false, match:pin false, no_focus true"
+      ]
+      (builtins.readFile "${dotfiles}/hypr/hyprland.conf");
+in
+{
   ############################################
   # HYPRPAPER
   ############################################
@@ -42,21 +54,21 @@ in {
 
     $terminal = ghostty
     $fileManager = nemo
-    
+
     exec-once = hyprpaper
     exec-once = nm-applet &
     exec-once = blueman-applet &
     exec-once = swaync &
     exec-once = wl-paste --watch cliphist store
-    
+
     # Clipboard history
     bind = SUPER, V, exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy
     bind = SUPER SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
-    
+
     # Screenshot tools
     # Rofi launcher: Ctrl+Tab cycles modes (drun, run, window, system)
     bind = $mainMod, R, exec, rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"
-    
+
     bind = , Print, exec, grim -g "$(slurp)" - | swappy -f -
     bind = SHIFT, Print, exec, grim - | swappy -f -
 
@@ -173,12 +185,12 @@ in {
         Super + /    show this cheatsheet
 
       SYSTEM:
-        Super + L    lock screen     Super + M    exit Hyprland
+        Super + M    exit Hyprland
     '';
   };
 
   services.playerctld.enable = true;
-  
+
   # Ghostty terminal config (wallust will add colors)
   programs.ghostty.enable = true;
   programs.hyprlock.enable = true;
