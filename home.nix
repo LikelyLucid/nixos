@@ -98,6 +98,8 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       jq               # JSON processor
       ripgrep          # `grep` replacement — fast recursive search
       hyperfine        # Command benchmarking tool
+      trash-cli        # Safe terminal trash instead of permanent rm
+      tealdeer         # Fast tldr command examples
 
       ########################################
       # NIX TOOLING
