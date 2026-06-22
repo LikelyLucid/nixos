@@ -55,23 +55,24 @@
 
   };
 
-  outputs = inputs@{
-    self,
-    nixpkgs,
-    nixos-hardware,
-    home-manager,
-    zenBrowser,
-    lazyvim-config,
-    dotfiles,
-    pi-config,
-    sops-nix,
-    nixos-wsl,
-    pi,
-    codex-desktop-linux,
-    codex-cli-nix,
-    nix-openclaw,
-    helium-browser,
-  }:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nixos-hardware,
+      home-manager,
+      zenBrowser,
+      lazyvim-config,
+      dotfiles,
+      pi-config,
+      sops-nix,
+      nixos-wsl,
+      pi,
+      codex-desktop-linux,
+      codex-cli-nix,
+      nix-openclaw,
+      helium-browser,
+    }:
     let
       inherit (nixpkgs.lib) nixosSystem;
 
@@ -80,12 +81,14 @@
         isWsl = false;
       };
 
-      mkHomeManagerModule = {
-        user_module,
-        extra_special_args ? { },
-        sharedModules ? [ ],
-      }:
-        ({ ... }:
+      mkHomeManagerModule =
+        {
+          user_module,
+          extra_special_args ? { },
+          sharedModules ? [ ],
+        }:
+        (
+          { ... }:
           {
             home-manager = {
               useGlobalPkgs = true;
@@ -98,24 +101,30 @@
           }
         );
 
-      mkHost = {
-        modules,
-        home_module,
-        system ? "x86_64-linux",
-        extra_special_args ? { },
-      }:
+      mkHost =
+        {
+          modules,
+          home_module,
+          system ? "x86_64-linux",
+          extra_special_args ? { },
+        }:
         nixosSystem {
           inherit system;
           specialArgs = common_special_args // extra_special_args;
-          modules =
-            modules
-            ++ [
-              { nixpkgs.overlays = [ pi.overlays.default (final: prev: { helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium; }) ]; }
-              home-manager.nixosModules.home-manager
-              home_module
-            ];
+          modules = modules ++ [
+            {
+              nixpkgs.overlays = [
+                pi.overlays.default
+                (final: prev: { helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium; })
+              ];
+            }
+            ./modules/nix-caches.nix
+            home-manager.nixosModules.home-manager
+            home_module
+          ];
         };
-    in {
+    in
+    {
       nixosConfigurations.artsxps = mkHost {
         modules = [
           nixos-hardware.nixosModules.dell-xps-15-9530
@@ -141,9 +150,13 @@
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
-          extra_special_args = { isWsl = true; };
+          extra_special_args = {
+            isWsl = true;
+          };
         };
-        extra_special_args = { isWsl = true; };
+        extra_special_args = {
+          isWsl = true;
+        };
       };
     };
 }
