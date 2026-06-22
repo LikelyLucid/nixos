@@ -135,7 +135,9 @@ xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
       # Desktop Linux GUI packages
       cava
       hyprpaper
-      nemo
+      (nemo-with-extensions.override {
+        extensions = [ nemo-preview nemo-seahorse ];
+      })
       pavucontrol
       rofi
       spotify-player

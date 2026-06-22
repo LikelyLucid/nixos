@@ -83,6 +83,7 @@
     grimblast
     hyprpolkitagent
     jq
+    networkmanagerapplet # Network tray applet + connection editor
     networkmanager_dmenu
     nwg-displays       # Monitor config GUI
     pavucontrol        # Audio mixer

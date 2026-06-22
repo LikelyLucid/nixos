@@ -101,8 +101,10 @@ in {
         #!/usr/bin/env bash
         if [ -n "$1" ]; then
           case "$1" in
+            *Bluetooth*Quick*) rofi-bluetooth ;;
             *Bluetooth*) blueman-manager ;;
-            *WiFi*) nm-connection-editor ;;
+            *WiFi*Quick*) networkmanager_dmenu ;;
+            *Network*) nm-connection-editor ;;
             *Audio*) pavucontrol ;;
             *Monitors*) nwg-displays ;;
             *Screenshot*(area)*) grim -g "$(slurp)" - | swappy -f - ;;
@@ -117,8 +119,10 @@ in {
           esac
         else
           printf '%s\n' \
-            "Bluetooth" \
-            "WiFi" \
+            "Bluetooth Settings" \
+            "Bluetooth Quick Connect" \
+            "Network Settings" \
+            "WiFi Quick Connect" \
             "Audio" \
             "Monitors" \
             "Screenshot (area)" \
