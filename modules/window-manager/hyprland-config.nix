@@ -18,17 +18,20 @@ in {
   ############################################
   # HYPRPAPER
   ############################################
-  services.hyprpaper = {
-    enable = true;
-    settings = {
-      ipc = "on";
-      splash = false;
-      preload = wallpaper_path;
-      wallpaper = [
-        "eDP-1,${wallpaper_path}"
-        "DP-2,${wallpaper_path}"
-      ];
-    };
+  services.hyprpaper.enable = true;
+
+  # Generate hyprpaper.conf directly (v0.8.4 uses block syntax)
+  xdg.configFile."hypr/hyprpaper.conf" = {
+    text = ''
+      ipc=on
+      splash=false
+      preload=${wallpaper_path}
+      wallpaper {
+        monitor=
+        path=${wallpaper_path}
+        fit_mode=cover
+      }
+    '';
   };
 
   ############################################
