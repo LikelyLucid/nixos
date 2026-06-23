@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   dotfiles,
   ...
 }:
@@ -10,6 +11,7 @@ let
       [
         "$fileManager = $terminal -- yazi"
         ''$menu = rofi -show combi -combi-modes "window,run,ssh" -modes combi''
+        "exec-once = waybar & hyprpaper & hypridle"
         "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
         "bind = $mainMod, J, togglesplit, # dwindle"
         "windowrule = suppressevent maximize, class:.*"
@@ -18,6 +20,7 @@ let
       [
         "$fileManager = nemo"
         ''$menu = rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"''
+        "exec-once = ${pkgs.waybar}/bin/waybar"
         ""
         "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
         "windowrule = match:class .*, suppress_event maximize"

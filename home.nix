@@ -263,7 +263,7 @@ in
       shell-integration = zsh
 
       # Wallust colors (auto-generated from wallpaper)
-      config-file = ?colors.conf
+      config-file = /home/lucid/.config/ghostty/colors.conf
     '';
   };
 
