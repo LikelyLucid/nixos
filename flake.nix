@@ -53,6 +53,11 @@
       url = "github:schembriaiden/helium-browser-nix-flake";
     };
 
+    hyprland-canvas = {
+      url = "github:zyrophix/hyprland-canvas";
+      flake = false;
+    };
+
   };
 
   outputs =
@@ -72,12 +77,25 @@
       codex-cli-nix,
       nix-openclaw,
       helium-browser,
+      hyprland-canvas,
     }:
     let
       inherit (nixpkgs.lib) nixosSystem;
 
+      pyPkgs = nixpkgs.legacyPackages.x86_64-linux.python3Packages;
+      hyprland-canvas-pkg = pyPkgs.buildPythonPackage {
+        pname = "hyprland-canvas";
+        version = "1.0.1";
+        src = hyprland-canvas;
+        format = "pyproject";
+        nativeBuildInputs = [ pyPkgs.hatchling ];
+        propagatedBuildInputs = [ pyPkgs.pyyaml ];
+        doCheck = false;
+      };
+
       common_special_args = {
         inherit lazyvim-config dotfiles pi-config;
+        inherit hyprland-canvas-pkg;
         isWsl = false;
       };
 

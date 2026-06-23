@@ -71,6 +71,19 @@ in
     exec-once = systemctl --user restart kdeconnect-indicator.service
     exec-once = kdeconnectd
     exec-once = wl-paste --watch cliphist store
+    exec-once = canvasd
+
+    # Canvas: pan (mouse drag)
+    bind = $mainMod SHIFT, mouse:272, exec, canvas-ctl pan-start
+    bindr = $mainMod SHIFT, mouse:272, exec, canvas-ctl pan-stop
+
+    # Canvas: navigation
+    bind = $mainMod SHIFT, left, exec, canvas-ctl nav-left
+    bind = $mainMod SHIFT, right, exec, canvas-ctl nav-right
+
+    # Canvas: toggle floating / invert
+    bind = $mainMod SHIFT, C, exec, canvas-ctl canvas-toggle
+    bind = $mainMod SHIFT, G, exec, canvas-ctl toggle
 
     # Clipboard history
     bind = $mainMod SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
@@ -283,6 +296,12 @@ in
         Super + Q    terminal        Super + E    file manager
         Super + R    rofi launch     Super + S    scratchpad
         Super + /    show this cheatsheet
+
+      CANVAS:
+        Super Shift + LMB        pan canvas
+        Super Shift + Left/Right  navigate to prev/next window
+        Super Shift + C           toggle canvas floating mode
+        Super Shift + G           invert pan direction
 
       SYSTEM:
         Super + M    exit Hyprland

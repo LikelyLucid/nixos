@@ -6,6 +6,7 @@
   lazyvim-config,
   dotfiles,
   pi-config,
+  hyprland-canvas-pkg,
   isWsl ? false,
   ...
 }:
@@ -177,6 +178,7 @@ in
       swaynotificationcenter
       wallust
       waybar
+      hyprland-canvas-pkg
     ]
     ++ lib.optionals (isWsl) [
       # WSL-specific tooling

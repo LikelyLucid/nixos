@@ -237,6 +237,22 @@
         "type": "github"
       }
     },
+    "hyprland-canvas": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781296225,
+        "narHash": "sha256-GdcJzxrAoddvLSS9p7PTyZF3sXH2GFX2r++P3zdbqxw=",
+        "owner": "zyrophix",
+        "repo": "hyprland-canvas",
+        "rev": "f4cb328d7d27ca75cc0fc8f1b0cd82a8dc9424cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zyrophix",
+        "repo": "hyprland-canvas",
+        "type": "github"
+      }
+    },
     "lazyvim-config": {
       "flake": false,
       "locked": {
@@ -510,6 +526,7 @@
         "dotfiles": "dotfiles",
         "helium-browser": "helium-browser",
         "home-manager": "home-manager",
+        "hyprland-canvas": "hyprland-canvas",
         "lazyvim-config": "lazyvim-config",
         "nix-openclaw": "nix-openclaw",
         "nixos-hardware": "nixos-hardware",
