@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   dotfiles,
   ...
 }:
@@ -10,6 +9,7 @@ let
     builtins.replaceStrings
       [
         "$fileManager = $terminal -- yazi"
+        ''$menu = rofi -show combi -combi-modes "window,run,ssh" -modes combi''
         "    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below\n"
         "bind = $mainMod, J, togglesplit, # dwindle"
         "windowrule = suppressevent maximize, class:.*"
@@ -17,6 +17,7 @@ let
       ]
       [
         "$fileManager = nemo"
+        ''$menu = rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"''
         ""
         "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
         "windowrule = match:class .*, suppress_event maximize"
@@ -68,9 +69,6 @@ in
     bind = $mainMod SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
 
     # Screenshot tools
-    # Rofi launcher: Ctrl+Tab cycles modes (drun, run, window, system)
-    bind = $mainMod, R, exec, rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"
-
     bind = , Print, exec, grim -g "$(slurp)" - | swappy -f -
     bind = SHIFT, Print, exec, grim - | swappy -f -
 
