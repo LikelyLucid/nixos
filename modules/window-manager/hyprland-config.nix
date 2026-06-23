@@ -58,7 +58,11 @@ in
     $terminal = ghostty
     $fileManager = nemo
 
+    env = XCURSOR_THEME,CursorConceptLight
+    env = XCURSOR_SIZE,32
+
     exec-once = ~/.config/hypr/scripts/wallust-apply.sh
+    exec-once = hyprctl setcursor CursorConceptLight 32
     exec-once = hyprpaper
     exec-once = nm-applet &
     exec-once = blueman-applet &
@@ -145,15 +149,15 @@ in
         if [ -n "$1" ]; then
           case "$1" in
             "Bluetooth Settings") blueman-manager ;;
-            "Bluetooth Quick Connect") rofi-bluetooth ;;
+            "Bluetooth Quick Connect") pkill -x rofi 2>/dev/null; (rofi-bluetooth) & ;;
             "Network Settings") nm-connection-editor ;;
-            "WiFi Quick Connect") networkmanager_dmenu ;;
+            "WiFi Quick Connect") pkill -x rofi 2>/dev/null; (networkmanager_dmenu) & ;;
             "Audio") pavucontrol ;;
             "Monitors") nwg-displays ;;
-            "Screenshot (area)") grim -g "$(slurp)" - | swappy -f - ;;
-            "Screenshot (full)") grim - | swappy -f - ;;
+            "Screenshot (area)") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
+            "Screenshot (full)") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
             "Lock Screen") hyprlock ;;
-            "Clipboard") cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy ;;
+            "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
             "Do Not Disturb") swaync-client -d ;;
             "Sleep") systemctl suspend ;;
             "Reboot") systemctl reboot ;;

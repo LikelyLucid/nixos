@@ -74,6 +74,24 @@ in
   };
 
   ############################################
+  # CURSOR THEME
+  ############################################
+  xdg.dataFile."icons/CursorConceptLight" = lib.mkIf (!isWsl) {
+    source = "${dotfiles}/cursors/CursorConceptLight";
+    recursive = true;
+  };
+
+  gtk.cursorTheme = lib.mkIf (!isWsl) {
+    name = "CursorConceptLight";
+    size = 32;
+  };
+
+  home.sessionVariables = lib.mkIf (!isWsl) {
+    XCURSOR_THEME = "CursorConceptLight";
+    XCURSOR_SIZE = "32";
+  };
+
+  ############################################
   # HOME PACKAGES
   # Organised by category for easy maintenance
   ############################################
