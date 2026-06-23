@@ -183,9 +183,7 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    chromium # Chromium browser for OpenClaw browser control (CDP)
     easyeffects # Audio effects/EQ (PipeWire compatible)
-    tesseract # OCR — read text from screenshots
     ydotool # Wayland input injection (mouse/keyboard control)
     git
     gh

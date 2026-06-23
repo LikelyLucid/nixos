@@ -1,4 +1,10 @@
-{ config, lib, pkgs, codex-cli-nix, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  codex-cli-nix,
+  ...
+}:
 let
   codexCli = codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
@@ -7,8 +13,7 @@ in
   # WORK: gcloud CLI
   ############################################
   environment.systemPackages = with pkgs; [
-    google-cloud-sdk
-    codexCli  # Codex CLI (v0.141.0, compatible with Desktop's app-server flags)
+    codexCli # Codex CLI (v0.141.0, compatible with Desktop's app-server flags)
   ];
 
   ############################################
