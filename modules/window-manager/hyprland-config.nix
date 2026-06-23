@@ -20,7 +20,7 @@ let
       [
         "$fileManager = nemo"
         ''$menu = rofi -show drun -modi "drun,run,window,system:${config.home.homeDirectory}/.config/hypr/scripts/rofi-system.sh"''
-        "exec-once = ${pkgs.waybar}/bin/waybar"
+        "exec-once = waybar"
         ""
         "bind = $mainMod, T, layoutmsg, togglesplit # dwindle"
         "windowrule = match:class .*, suppress_event maximize"

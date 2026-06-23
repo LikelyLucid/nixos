@@ -6,7 +6,7 @@
 }:
 let
   tuigreet = lib.getExe pkgs.tuigreet;
-  hyprland_session = lib.getExe' config.programs.hyprland.package "start-hyprland";
+  hyprland_session = "start-hyprland";
 in
 {
   ############################################
