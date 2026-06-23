@@ -155,7 +155,7 @@ in
       libnotify
       pavucontrol
       rofi
-      spotify-player
+      ncspot
       swaynotificationcenter
       wallust
       waybar

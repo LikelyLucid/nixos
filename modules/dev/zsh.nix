@@ -29,7 +29,7 @@
     '';
     shellAliases = {
       nixos = "git add . && git commit && nh os switch .";
-      spt = "spotify_player";
+      spt = "ncspot";
     };
   };
 

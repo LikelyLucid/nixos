@@ -13,7 +13,6 @@ let
   desktop_links = lib.optionalAttrs (!isWsl) {
     "rofi" = "rofi";
     "waybar" = "waybar";
-    "spotify-player" = "spotify-player";
     "wallust" = "wallust";
     "flameshot" = "flameshot";
   };
