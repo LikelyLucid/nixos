@@ -5,7 +5,7 @@
   ...
 }:
 let
-  wallpaper_path = "${dotfiles}/media/wallpapers/wallpaper.jpg";
+  wallpaper_path = "/home/lucid/dotfiles/media/wallpapers/wallpaper.jpg";
   hyprland_config =
     builtins.replaceStrings
       [
@@ -49,19 +49,23 @@ in
   ############################################
   xdg.configFile."hypr/hyprland.conf".text = hyprland_config + ''
     source = ~/.config/hypr/monitors.conf
+    source = ~/.config/hypr/wallust-colors.conf
 
     $terminal = ghostty
     $fileManager = nemo
 
+    exec-once = ~/.config/hypr/scripts/wallust-apply.sh
     exec-once = hyprpaper
     exec-once = nm-applet &
     exec-once = blueman-applet &
-    exec-once = swaync &
+    exec-once = systemctl --user restart swaync.service
+    exec-once = systemctl --user start tray.target
+    exec-once = systemctl --user restart kdeconnect-indicator.service
+    exec-once = kdeconnectd
     exec-once = wl-paste --watch cliphist store
 
     # Clipboard history
-    bind = SUPER, V, exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy
-    bind = SUPER SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
+    bind = $mainMod SHIFT, V, exec, cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
 
     # Screenshot tools
     # Rofi launcher: Ctrl+Tab cycles modes (drun, run, window, system)
@@ -106,6 +110,34 @@ in
 
   # Rofi system mode script (switched via Ctrl+Tab inside rofi)
   home.file = {
+    ".config/hypr/scripts/wallust-apply.sh" = {
+      text = ''
+        #!/usr/bin/env bash
+        set -euo pipefail
+        wallpaper="${wallpaper_path}"
+        wallust -d /home/lucid/dotfiles/wallust run "$wallpaper"
+        hyprctl hyprpaper wallpaper ",$wallpaper" 2>/dev/null || true
+        pkill -SIGUSR2 -x .waybar-wrapped 2>/dev/null || pkill -SIGUSR2 -x waybar 2>/dev/null || true
+        swaync-client -rs 2>/dev/null || true
+        hyprctl reload 2>/dev/null || true
+      '';
+      executable = true;
+    };
+
+    ".local/bin/set-wallpaper" = {
+      text = ''
+        #!/usr/bin/env bash
+        set -euo pipefail
+        if [ "$#" -ne 1 ]; then
+          echo "usage: set-wallpaper /path/to/image" >&2
+          exit 2
+        fi
+        install -m 0644 "$1" ${wallpaper_path}
+        ~/.config/hypr/scripts/wallust-apply.sh
+      '';
+      executable = true;
+    };
+
     ".config/hypr/scripts/rofi-system.sh" = {
       text = ''
         #!/usr/bin/env bash
@@ -149,6 +181,20 @@ in
       executable = true;
     };
 
+    ".config/hypr/scripts/caffinate.sh" = {
+      text = ''
+        #!/usr/bin/env bash
+        if systemctl --user is-active hypridle &>/dev/null; then
+          systemctl --user stop hypridle
+          notify-send "☕ Caffinate ON" "System will not lock or sleep"
+        else
+          systemctl --user start hypridle
+          notify-send "☕ Caffinate OFF" "Normal idle behavior restored"
+        fi
+      '';
+      executable = true;
+    };
+
     ".config/hypr/scripts/cheatsheet.sh" = {
       text = ''
         #!/usr/bin/env bash
@@ -156,6 +202,57 @@ in
       '';
       executable = true;
     };
+
+    ".config/hypr/hyprlock.conf".text = ''
+      source = ~/.config/hypr/wallust-hyprlock.conf
+
+      background {
+        monitor =
+        path = ${wallpaper_path}
+        blur_passes = 3
+        blur_size = 8
+      }
+
+      input-field {
+        monitor =
+        size = 300, 60
+        outline_thickness = 2
+        dots_size = 0.2
+        dots_spacing = 0.35
+        outer_color = $wallust_accent
+        inner_color = $wallust_bg_clear
+        font_color = $wallust_fg
+        fade_on_empty = false
+        placeholder_text = <i>password</i>
+        fail_text = <i>try again</i>
+        fail_color = $wallust_fail
+        position = 0, -80
+        halign = center
+        valign = center
+      }
+
+      label {
+        monitor =
+        text = cmd[update:1000] date +"%H:%M"
+        color = $wallust_fg
+        font_size = 72
+        font_family = JetBrains Mono Nerd Font
+        position = 0, 120
+        halign = center
+        valign = center
+      }
+
+      label {
+        monitor =
+        text = Welcome back, Arthur
+        color = $wallust_accent
+        font_size = 20
+        font_family = JetBrains Mono Nerd Font
+        position = 0, 45
+        halign = center
+        valign = center
+      }
+    '';
 
     ".config/hypr/keybinds.txt".text = ''
       HYPRLAND KEYBINDS (Corne 40%)
@@ -184,6 +281,7 @@ in
 
       SYSTEM:
         Super + M    exit Hyprland
+
     '';
   };
 

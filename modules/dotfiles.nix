@@ -1,6 +1,13 @@
-{ config, lib, dotfiles, isWsl ? false, ... }:
+{
+  config,
+  lib,
+  dotfiles,
+  isWsl ? false,
+  ...
+}:
 let
   mk_link = config.lib.file.mkOutOfStoreSymlink;
+  dotfiles_dir = "/home/lucid/dotfiles";
 
   # Desktop-only symlinks (from dotfiles flake input)
   desktop_links = lib.optionalAttrs (!isWsl) {
@@ -17,14 +24,13 @@ let
   };
 
   all_links = common_links // desktop_links;
-in {
+in
+{
   xdg.configFile =
-    builtins.mapAttrs
-      (_: relative_path: {
-        source = mk_link "${dotfiles}/${relative_path}";
-      })
-      all_links
-    # nvim uses local path so dotfiles edits take effect without rebuild
+    builtins.mapAttrs (_: relative_path: {
+      source = mk_link "${dotfiles_dir}/${relative_path}";
+    }) all_links
+    # dotfiles use local paths so wallust-generated files update live
     // {
       nvim.source = mk_link "/home/lucid/dotfiles/nvim";
     };

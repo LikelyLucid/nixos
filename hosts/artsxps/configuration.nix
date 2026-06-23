@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   ############################################
   # IMPORTS
@@ -30,7 +35,10 @@
   # NIX SETTINGS
   ############################################
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     auto-optimise-store = true;
   };
 
@@ -51,11 +59,19 @@
   networking.networkmanager.enable = true;
   networking.firewall = {
     allowedTCPPorts = [ 22000 ];
-    allowedUDPPorts = [ 21027 22000 ];
+    allowedUDPPorts = [
+      21027
+      22000
+    ];
   };
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+
+  ############################################
+  # KDE CONNECT
+  ############################################
+  programs.kdeconnect.enable = true;
 
   ############################################
   # POWER MANAGEMENT
@@ -97,12 +113,17 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    
+
     # Better audio quality settings
     extraConfig.pipewire."92-high-quality" = {
       "context.properties" = {
         "default.clock.rate" = 48000;
-        "default.clock.allowed-rates" = [ 44100 48000 88200 96000 ];
+        "default.clock.allowed-rates" = [
+          44100
+          48000
+          88200
+          96000
+        ];
         "default.clock.quantum" = 1024;
         "default.clock.min-quantum" = 256;
         "default.clock.max-quantum" = 2048;
@@ -148,7 +169,10 @@
   users.users.lucid = {
     isNormalUser = true;
     description = "Arthur Mckellar";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     shell = pkgs.zsh;
   };
   users.defaultUserShell = pkgs.zsh;
@@ -159,16 +183,16 @@
   ############################################
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    chromium           # Chromium browser for OpenClaw browser control (CDP)
-    easyeffects        # Audio effects/EQ (PipeWire compatible)
-    tesseract          # OCR — read text from screenshots
-    ydotool            # Wayland input injection (mouse/keyboard control)
+    chromium # Chromium browser for OpenClaw browser control (CDP)
+    easyeffects # Audio effects/EQ (PipeWire compatible)
+    tesseract # OCR — read text from screenshots
+    ydotool # Wayland input injection (mouse/keyboard control)
     git
     gh
     htop
     lazygit
     pciutils
-    pulsemixer         # Terminal audio mixer
+    pulsemixer # Terminal audio mixer
     syncthing
     wget
     zip
