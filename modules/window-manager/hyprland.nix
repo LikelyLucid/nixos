@@ -1,4 +1,13 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  tuigreet = lib.getExe pkgs.tuigreet;
+  hyprland_session = lib.getExe' config.programs.hyprland.package "start-hyprland";
+in
 {
   ############################################
   # GRAPHICS & NVIDIA
@@ -37,7 +46,7 @@
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --greeting 'Welcome back Arthur!' --cmd ${pkgs.hyprland}/bin/start-hyprland";
+      command = "${tuigreet} --time --greeting 'Welcome back Arthur!' --cmd ${hyprland_session}";
       user = "greeter";
     };
   };
@@ -51,7 +60,10 @@
       xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
     ];
-    config.common.default = [ "hyprland" "gtk" ];
+    config.common.default = [
+      "hyprland"
+      "gtk"
+    ];
   };
 
   ############################################
@@ -73,25 +85,25 @@
   environment.systemPackages = with pkgs; [
     alsa-utils
     brightnessctl
-    blueman            # Bluetooth manager GUI
+    blueman # Bluetooth manager GUI
     bottom
-    cliphist           # Clipboard manager with history
+    cliphist # Clipboard manager with history
     dunst
     flameshot
-    ghostty            # Fast terminal emulator
+    ghostty # Fast terminal emulator
     grim
     grimblast
     hyprpolkitagent
     jq
     networkmanagerapplet # Network tray applet + connection editor
     networkmanager_dmenu
-    nwg-displays       # Monitor config GUI
-    pavucontrol        # Audio mixer
-    playerctl          # Media player controls
+    nwg-displays # Monitor config GUI
+    pavucontrol # Audio mixer
+    playerctl # Media player controls
     rofi-bluetooth
     slurp
-    swappy             # Screenshot annotation
+    swappy # Screenshot annotation
     wl-clipboard
-    wlr-randr         # Monitor config CLI
+    wlr-randr # Monitor config CLI
   ];
 }
