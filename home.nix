@@ -75,24 +75,6 @@ in
   };
 
   ############################################
-  # CURSOR THEME
-  ############################################
-  xdg.dataFile."icons/CursorConceptLight" = lib.mkIf (!isWsl) {
-    source = "${dotfiles}/cursors/CursorConceptLight";
-    recursive = true;
-  };
-
-  gtk.cursorTheme = lib.mkIf (!isWsl) {
-    name = "CursorConceptLight";
-    size = 32;
-  };
-
-  home.sessionVariables = lib.mkIf (!isWsl) {
-    XCURSOR_THEME = "CursorConceptLight";
-    XCURSOR_SIZE = "32";
-  };
-
-  ############################################
   # HOME PACKAGES
   # Organised by category for easy maintenance
   ############################################
@@ -221,6 +203,16 @@ in
     enable = true;
     indicator = true;
   };
+
+  xdg.configFile."kdeconnect/4f91b463981d4e788fe49fb277df446e/kdeconnect_share/config" =
+    lib.mkIf (!isWsl)
+      {
+        force = true;
+        text = ''
+          [General]
+          incoming_path=${home_dir}/Desktop
+        '';
+      };
 
   ############################################
   # FONT CONFIGURATION

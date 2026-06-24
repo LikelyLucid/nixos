@@ -61,8 +61,7 @@
   };
 
   outputs =
-    inputs@{
-      self,
+    {
       nixpkgs,
       nixos-hardware,
       home-manager,
@@ -78,6 +77,7 @@
       nix-openclaw,
       helium-browser,
       hyprland-canvas,
+      ...
     }:
     let
       inherit (nixpkgs.lib) nixosSystem;
