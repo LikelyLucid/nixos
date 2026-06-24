@@ -480,11 +480,11 @@
     "pi-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1782341688,
-        "narHash": "sha256-jK00KmYET77UUlIoVGw8YCr/78nULH/6E9+6eVPNxjw=",
+        "lastModified": 1782342827,
+        "narHash": "sha256-dHchMv9U6fcRCfJHgj7n4jXLBDlubwStE5P+JW8jlKo=",
         "owner": "LikelyLucid",
         "repo": "pi-config",
-        "rev": "791812b9140a7c4524ffa859d7269995e5e24d5a",
+        "rev": "3a4c2fcaa163437bd4b35c68b7aab0d5b67e3532",
         "type": "github"
       },
       "original": {

@@ -16,6 +16,7 @@ in
     ".pi/agent/settings.json".source = mk_link "${pi-config}/settings.json";
     ".pi/agent/README.md".source = mk_link "${pi-config}/README.md";
     ".pi/agent/extensions".source = mk_link "${pi-config}/extensions";
+    ".pi/agent/prompts".source = mk_link "${pi-config}/prompts";
     ".pi/agent/themes/terminal-wallust.json".source = ../modules/pi-terminal-wallust-theme.json;
   };
 }
