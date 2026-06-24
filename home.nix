@@ -69,9 +69,64 @@ in
     };
   };
 
-  # Nemo as default file manager
-  xdg.mimeApps.defaultApplications = lib.mkIf (!isWsl) {
-    "inode/directory" = "nemo.desktop";
+  # Nemo as default file manager; terminal Neovim for text-like files.
+  xdg.desktopEntries.nvim = lib.mkIf (!isWsl) {
+    name = "Neovim";
+    genericName = "Text Editor";
+    exec = "ghostty -e nvim %F";
+    terminal = false;
+    mimeType = [
+      "application/json"
+      "application/toml"
+      "application/x-shellscript"
+      "application/x-yaml"
+      "text/markdown"
+      "text/plain"
+      "text/x-markdown"
+      "text/x-c"
+      "text/x-c++"
+      "text/x-go"
+      "text/x-lua"
+      "text/x-nix"
+      "text/x-python"
+      "text/x-rust"
+    ];
+    categories = [
+      "Development"
+      "TextEditor"
+    ];
+  };
+
+  xdg.mimeApps = lib.mkIf (!isWsl) {
+    enable = true;
+    defaultApplications = {
+      "inode/directory" = "nemo.desktop";
+
+      "application/json" = "nvim.desktop";
+      "application/toml" = "nvim.desktop";
+      "application/x-shellscript" = "nvim.desktop";
+      "application/x-yaml" = "nvim.desktop";
+      "text/markdown" = "nvim.desktop";
+      "text/plain" = "nvim.desktop";
+      "text/x-markdown" = "nvim.desktop";
+      "text/x-c" = "nvim.desktop";
+      "text/x-c++" = "nvim.desktop";
+      "text/x-go" = "nvim.desktop";
+      "text/x-lua" = "nvim.desktop";
+      "text/x-nix" = "nvim.desktop";
+      "text/x-python" = "nvim.desktop";
+      "text/x-rust" = "nvim.desktop";
+
+      "application/gzip" = "org.gnome.FileRoller.desktop";
+      "application/vnd.rar" = "org.gnome.FileRoller.desktop";
+      "application/x-7z-compressed" = "org.gnome.FileRoller.desktop";
+      "application/x-bzip2" = "org.gnome.FileRoller.desktop";
+      "application/x-compressed-tar" = "org.gnome.FileRoller.desktop";
+      "application/x-tar" = "org.gnome.FileRoller.desktop";
+      "application/x-xz" = "org.gnome.FileRoller.desktop";
+      "application/zstd" = "org.gnome.FileRoller.desktop";
+      "application/zip" = "org.gnome.FileRoller.desktop";
+    };
   };
 
   ############################################
@@ -111,6 +166,9 @@ in
       hyperfine # Command benchmarking tool
       trash-cli # Safe terminal trash instead of permanent rm
       tealdeer # Fast tldr command examples
+      zip
+      unzip
+      p7zip
 
       ########################################
       # NIX TOOLING
@@ -153,6 +211,7 @@ in
           nemo-seahorse
         ];
       })
+      file-roller
       libnotify
       pavucontrol
       rofi
