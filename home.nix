@@ -166,6 +166,12 @@ in
       hyperfine # Command benchmarking tool
       trash-cli # Safe terminal trash instead of permanent rm
       tealdeer # Fast tldr command examples
+      file
+      tree
+      rsync
+      lsof
+      usbutils
+      strace
       zip
       unzip
       p7zip
@@ -185,6 +191,9 @@ in
       httpie # Human-friendly curl alternative
       doggo # DNS lookup utility
       websocat # WebSocket client
+      openssh # ssh/sftp/scp client tools
+      sshfs # KDE Connect remote filesystem mounts
+      whois
 
       ########################################
       # SYSTEM / MONITORING
