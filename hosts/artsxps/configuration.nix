@@ -68,6 +68,11 @@
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
+  # Disable USB autosuspend for Intel AX211 Bluetooth — prevents random disconnects
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0033", ATTR{power/control}="on"
+  '';
+
   ############################################
   # KDE CONNECT
   ############################################
