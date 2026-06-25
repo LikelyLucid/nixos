@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   homeDir = config.home.homeDirectory;
   stateDir = "${homeDir}/.openclaw";
@@ -21,10 +26,22 @@ let
             id = "OPENCODE_API_KEY";
           };
           models = [
-            { id = "mimo-v2.5"; name = "MiMo V2.5"; }
-            { id = "glm-5.2"; name = "GLM 5.2"; }
-            { id = "kimi-k2.7"; name = "Kimi K2.7"; }
-            { id = "deepseek-v4-pro"; name = "DeepSeek V4 Pro"; }
+            {
+              id = "mimo-v2.5";
+              name = "MiMo V2.5";
+            }
+            {
+              id = "glm-5.2";
+              name = "GLM 5.2";
+            }
+            {
+              id = "kimi-k2.7";
+              name = "Kimi K2.7";
+            }
+            {
+              id = "deepseek-v4-pro";
+              name = "DeepSeek V4 Pro";
+            }
           ];
         };
       };
@@ -123,23 +140,23 @@ in
   # SEED PERSISTENT FILES (not Nix-store symlinks)
   ############################################
   home.activation.openclaw-seed-persistent-files = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run --quiet ${pkgs.coreutils}/bin/mkdir -p "${workspaceDir}/memory"
+        run --quiet ${pkgs.coreutils}/bin/mkdir -p "${workspaceDir}/memory"
 
-    if [ ! -f "${workspaceDir}/HEARTBEAT.md" ]; then
-      run cat > "${workspaceDir}/HEARTBEAT.md" << 'EOF'
-# Heartbeat Checklist
+        if [ ! -f "${workspaceDir}/HEARTBEAT.md" ]; then
+          run cat > "${workspaceDir}/HEARTBEAT.md" << 'EOF'
+    # Heartbeat Checklist
 
-- [ ] Check `df -h /` — alert if >80%
-- [ ] Check `systemctl --user --failed` — report failures
-- [ ] Check `journalctl -p err --since "30 min ago"` — new errors?
-- [ ] Check Tailscale status: `tailscale status`
-- [ ] Update `system-state.md`
-EOF
-    fi
+    - [ ] Check `df -h /` — alert if >80%
+    - [ ] Check `systemctl --user --failed` — report failures
+    - [ ] Check `journalctl -p err --since "30 min ago"` — new errors?
+    - [ ] Check Tailscale status: `tailscale status`
+    - [ ] Update `system-state.md`
+    EOF
+        fi
 
-    if [ ! -f "${workspaceDir}/MEMORY.md" ]; then
-      run touch "${workspaceDir}/MEMORY.md"
-    fi
+        if [ ! -f "${workspaceDir}/MEMORY.md" ]; then
+          run touch "${workspaceDir}/MEMORY.md"
+        fi
   '';
 
   ############################################
@@ -201,44 +218,47 @@ EOF
   };
 
   ############################################
-  # SYSTEMD USER SERVICE
+  # SYSTEMD USER SERVICES
   ############################################
-  home.file.".config/systemd/user/openclaw-gateway.service".text = ''
-    [Unit]
-    Description=OpenClaw gateway
-    After=network.target sops-nix.service
-    Wants=sops-nix.service
-
-    [Service]
-    Type=simple
-    ExecStart=${openclawWrapper}/bin/openclaw-gateway-launch gateway --port 18789
-    WorkingDirectory=${stateDir}
-    Restart=always
-    RestartSec=5s
-    StandardOutput=journal
-    StandardError=journal
-
-    [Install]
-    WantedBy=default.target
-  '';
-
-  systemd.user.startServices = true;
+  systemd.user.services.openclaw-gateway = {
+    Unit = {
+      Description = "OpenClaw gateway";
+      After = [
+        "network.target"
+        "sops-nix.service"
+      ];
+      Wants = [ "sops-nix.service" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${openclawWrapper}/bin/openclaw-gateway-launch gateway --port 18789";
+      WorkingDirectory = "${stateDir}";
+      Restart = "always";
+      RestartSec = "5s";
+      StandardOutput = "journal";
+      StandardError = "journal";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
 
   ############################################
   # YDOTOOLD — Wayland input injection daemon
   ############################################
-  home.file.".config/systemd/user/ydotoold.service".text = ''
-    [Unit]
-    Description=ydotool daemon — Wayland input injection
-    After=default.target
-
-    [Service]
-    Type=simple
-    ExecStart=${pkgs.ydotool}/bin/ydotoold
-    Restart=on-failure
-    RestartSec=3
-
-    [Install]
-    WantedBy=default.target
-  '';
+  systemd.user.services.ydotoold = {
+    Unit = {
+      Description = "ydotool daemon — Wayland input injection";
+      After = [ "default.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.ydotool}/bin/ydotoold";
+      Restart = "on-failure";
+      RestartSec = "3";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
 }
