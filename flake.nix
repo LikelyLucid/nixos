@@ -159,7 +159,7 @@
         extra_special_args = { inherit zenBrowser codex-cli-nix; };
       };
 
-      nixosConfigurations.wsl = mkHost {
+      nixosConfigurations.nixos-wsl = mkHost {
         modules = [
           nixos-wsl.nixosModules.wsl
           sops-nix.nixosModules.sops
