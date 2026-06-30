@@ -86,18 +86,6 @@ let
     # 4. Fetch secrets
     ${secretFetches}
 
-    # 5. Post-fetch: write ollama key to pi auth.json
-    if [ -f "$SECRETS_DIR/ollama-api-key" ]; then
-      python3 -c "
-import json
-key = open('$SECRETS_DIR/ollama-api-key').read().strip()
-with open('/home/lucid/.pi/agent/auth.json', 'w') as f:
-    json.dump({'ollama-cloud': {'type': 'api_key', 'key': key}}, f)
-"
-      chmod 600 /home/lucid/.pi/agent/auth.json
-      echo "[bitwarden] Written ollama key to auth.json"
-    fi
-
     echo "[bitwarden] Secrets written to $SECRETS_DIR"
     '';
 in {

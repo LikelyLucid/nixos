@@ -100,6 +100,16 @@
   ];
 
   ############################################
+  # GIT AUTH - gh CLI as the GitHub credential helper
+  ############################################
+  # gh persists creds in ~/.config/gh (survives rebuilds); one system
+  # gitconfig line makes `git push` work after `gh auth login`.
+  environment.etc.gitconfig.text = ''
+    [credential "https://github.com"]
+      helper = !gh auth git-credential
+  '';
+
+  ############################################
   # NH (Nix Helper)
   ############################################
   programs.nh = {

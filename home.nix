@@ -413,17 +413,9 @@ in
   # Run 'wallust run' after rebuild to apply colors
 
   ############################################
-  # WSL: Ollama passthrough + dynamic Windows home detection
+  # WSL: dynamic Windows home detection
   ############################################
   programs.zsh.initExtra = lib.mkIf isWsl ''
-    # Point Ollama to Windows-hosted Ollama Cloud
-    export OLLAMA_HOST="http://$(grep nameserver /etc/resolv.conf | awk '{print $2}'):11434"
-
-    # Load Ollama Cloud API key if available
-    if [ -f /home/lucid/.config/ollama-api-key ]; then
-      export OLLAMA_API_KEY="$(cat /home/lucid/.config/ollama-api-key)"
-    fi
-
     # Detect Windows home directory dynamically (works for any Windows username)
     if [[ -z "$WIN_HOME" ]]; then
       export WIN_HOME=$(wslpath "$(powershell.exe -NoProfile -NonInteractive -Command Write-Output '$env:USERPROFILE' 2>/dev/null | tr -d '\\r\\n')" 2>/dev/null)
