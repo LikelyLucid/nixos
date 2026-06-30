@@ -1,6 +1,18 @@
 { config, lib, pkgs, ... }:
 let
   secretsDir = config.sops.secrets.ollama-api-key.path;
+  githubTokenFile = config.sops.secrets.github-token.path;
+  # Git credential helper that reads the decrypted token from /run/secrets.
+  git-credential-sops = pkgs.writeShellScriptBin "git-credential-sops" ''
+    case "$1" in
+      get)
+        printf 'username=LikelyLucid\n'
+        printf 'password=%s\n' "$(cat ${githubTokenFile})"
+        printf '\n'
+        ;;
+      # store/erase: no-op, the token lives in /run/secrets
+    esac
+  '';
 in {
   sops = {
     age.keyFile = "/home/lucid/.secrets/age.agekey";
@@ -9,12 +21,24 @@ in {
       ollama-api-key = {
         owner = "lucid";
       };
+      github-token = {
+        owner = "lucid";
+      };
     };
   };
 
   # Export OLLAMA_API_KEY from the decrypted sops secret in all shells
   environment.extraInit = ''
     export OLLAMA_API_KEY="$(cat ${secretsDir})"
+  '';
+
+  # Git credential helper backed by the sops github-token secret.
+  # System-wide so all repos on this host authenticate to GitHub without
+  # a manual `gh auth login` after each rebuild.
+  environment.systemPackages = [ git-credential-sops ];
+  environment.etc.gitconfig.text = ''
+    [credential "https://github.com"]
+      helper = git-credential-sops
   '';
 
   # Also write auth.json so pi works in non-login shells too
