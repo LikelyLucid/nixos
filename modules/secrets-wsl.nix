@@ -38,7 +38,7 @@ in {
   environment.systemPackages = [ git-credential-sops ];
   environment.etc.gitconfig.text = ''
     [credential "https://github.com"]
-      helper = git-credential-sops
+      helper = !git-credential-sops
   '';
 
   # Also write auth.json so pi works in non-login shells too
