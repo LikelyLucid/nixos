@@ -1,27 +1,12 @@
 { config, lib, pkgs, ... }:
 let
   secretsDir = config.sops.secrets.ollama-api-key.path;
-  githubTokenFile = config.sops.secrets.github-token.path;
-  # Git credential helper that reads the decrypted token from /run/secrets.
-  git-credential-sops = pkgs.writeShellScriptBin "git-credential-sops" ''
-    case "$1" in
-      get)
-        printf 'username=LikelyLucid\n'
-        printf 'password=%s\n' "$(cat ${githubTokenFile})"
-        printf '\n'
-        ;;
-      # store/erase: no-op, the token lives in /run/secrets
-    esac
-  '';
 in {
   sops = {
     age.keyFile = "/home/lucid/.secrets/age.agekey";
     defaultSopsFile = ../secrets/wsl-secrets.yaml;
     secrets = {
       ollama-api-key = {
-        owner = "lucid";
-      };
-      github-token = {
         owner = "lucid";
       };
     };
@@ -32,13 +17,12 @@ in {
     export OLLAMA_API_KEY="$(cat ${secretsDir})"
   '';
 
-  # Git credential helper backed by the sops github-token secret.
-  # System-wide so all repos on this host authenticate to GitHub without
-  # a manual `gh auth login` after each rebuild.
-  environment.systemPackages = [ git-credential-sops ];
+  # GitHub git auth: gh CLI already holds the credential in ~/.config/gh
+  # (persists across rebuilds). One system gitconfig line wires gh as the
+  # credential helper, so `git push` works with no manual config per repo.
   environment.etc.gitconfig.text = ''
     [credential "https://github.com"]
-      helper = !git-credential-sops
+      helper = !gh auth git-credential
   '';
 
   # Also write auth.json so pi works in non-login shells too
