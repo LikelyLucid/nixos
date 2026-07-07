@@ -49,6 +49,10 @@
       url = "github:schembriaiden/helium-browser-nix-flake";
     };
 
+    beeper = {
+      url = "github:hashcube-dev/beeperDesktopFlake";
+    };
+
     hyprland-canvas = {
       url = "github:zyrophix/hyprland-canvas";
       flake = false;
@@ -71,6 +75,7 @@
       codex-desktop-linux,
       codex-cli-nix,
       helium-browser,
+      beeper,
       hyprland-canvas,
       ...
     }:
@@ -130,6 +135,7 @@
                 pi.overlays.default
                 (final: prev: {
                   helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium;
+                  beeper = beeper.packages.${prev.stdenv.hostPlatform.system}.default;
                   cua-driver = prev.stdenv.mkDerivation {
                     pname = "cua-driver";
                     version = "0.6.8";

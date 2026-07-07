@@ -275,6 +275,7 @@ in
       wallust
       waybar
       hyprland-canvas-pkg
+      beeper
     ]
     ++ lib.optionals (isWsl) [
       # WSL-specific tooling
