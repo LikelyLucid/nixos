@@ -45,10 +45,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-openclaw = {
-      url = "github:openclaw/nix-openclaw";
-    };
-
     helium-browser = {
       url = "github:schembriaiden/helium-browser-nix-flake";
     };
@@ -74,7 +70,6 @@
       pi,
       codex-desktop-linux,
       codex-cli-nix,
-      nix-openclaw,
       helium-browser,
       hyprland-canvas,
       ...
@@ -133,7 +128,28 @@
             {
               nixpkgs.overlays = [
                 pi.overlays.default
-                (final: prev: { helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium; })
+                (final: prev: {
+                  helium = helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium;
+                  cua-driver = prev.stdenv.mkDerivation {
+                    pname = "cua-driver";
+                    version = "0.6.8";
+                    src = prev.fetchurl {
+                      url = "https://github.com/trycua/cua/releases/download/cua-driver-rs-v0.6.8/cua-driver-rs-0.6.8-linux-x86_64-binary.tar.gz";
+                      hash = "sha256-3ohcatgrXhDtAhO+RkLdp0tZIpkK1gAutbxIHV2JwFs=";
+                    };
+                    nativeBuildInputs = [ prev.autoPatchelfHook ];
+                    buildInputs = [
+                      prev.stdenv.cc.cc.lib
+                      prev.libx11
+                      prev.libxi
+                    ];
+                    dontUnpack = true;
+                    installPhase = ''
+                      tar -xzf $src
+                      install -m755 -D cua-driver $out/bin/cua-driver
+                    '';
+                  };
+                })
               ];
             }
             ./modules/nix-caches.nix
@@ -154,7 +170,7 @@
         ];
         home_module = mkHomeManagerModule {
           user_module = ./home.nix;
-          extra_special_args = { inherit zenBrowser nix-openclaw; };
+          extra_special_args = { inherit zenBrowser; };
         };
         extra_special_args = { inherit zenBrowser codex-cli-nix; };
       };

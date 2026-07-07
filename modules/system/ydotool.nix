@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   ############################################
   # YDOTOOLD — Wayland input injection support
@@ -7,11 +12,12 @@
   # managed by home-manager (agent.nix)
   ############################################
 
-  # User needs access to /dev/uinput for input injection
-  users.users.lucid.extraGroups = [ "input" ];
+  # Load the uinput kernel module at boot (required for /dev/uinput)
+  hardware.uinput.enable = true;
 
-  # udev rule: grant group 'input' access to /dev/uinput
-  services.udev.extraRules = ''
-    KERNEL=="uinput", GROUP="input", MODE="0660"
-  '';
+  # User needs access to /dev/uinput for input injection
+  users.users.lucid.extraGroups = [
+    "input"
+    "uinput"
+  ];
 }

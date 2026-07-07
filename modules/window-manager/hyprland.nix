@@ -13,7 +13,10 @@ in
   # GRAPHICS & NVIDIA
   ############################################
   services.xserver.enable = false;
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = [
+    "nvidia"
+    "displaylink"
+  ];
   hardware.graphics.enable = true;
 
   hardware.nvidia = {
@@ -42,6 +45,7 @@ in
   };
   programs.hyprlock.enable = true;
   services.hypridle.enable = true;
+  services.gnome.at-spi2-core.enable = true;
 
   services.greetd = {
     enable = true;
@@ -77,6 +81,7 @@ in
     XDG_SESSION_TYPE = "wayland";
     XDG_SESSION_DESKTOP = "Hyprland";
     QT_QPA_PLATFORM = "wayland";
+    CUA_DRIVER_RS_ENABLE_WAYLAND = "1";
   };
 
   ############################################

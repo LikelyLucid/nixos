@@ -2,7 +2,6 @@
   pkgs,
   lib,
   zenBrowser,
-  nix-openclaw,
   lazyvim-config,
   dotfiles,
   pi-config,
@@ -151,6 +150,25 @@ in
       pi-coding-agent # pi coding agent (from lukasl-dev/pi.nix overlay)
       aider-chat # AI pair programming in terminal
       opencode # Terminal UI for LLMs
+      cua-driver # Computer-Use Agent driver (prebuilt from trycua/cua)
+      (writeShellScriptBin "cua-x11" ''
+        if [ "$#" -eq 0 ]; then
+          echo "usage: cua-x11 <command> [args...]" >&2
+          exit 2
+        fi
+
+        unset WAYLAND_DISPLAY
+        export GDK_BACKEND=x11
+        export QT_QPA_PLATFORM=xcb
+        export SDL_VIDEODRIVER=x11
+        export CLUTTER_BACKEND=x11
+        export MOZ_ENABLE_WAYLAND=0
+        export NIXOS_OZONE_WL=0
+        export ELECTRON_OZONE_PLATFORM_HINT=x11
+        export OZONE_PLATFORM=x11
+
+        exec "$@"
+      '') # Launch apps under XWayland so cua-driver can target them
 
       ########################################
       # ENHANCED CLI TOOLS
@@ -224,7 +242,35 @@ in
       libnotify
       pavucontrol
       rofi
-      ncspot
+      (pkgs.ncspot.overrideAttrs (old: {
+        cargoDeps = pkgs.runCommand "ncspot-vendor-librespot-cdn-fallback" { } ''
+                    cp -R ${old.cargoDeps} $out
+                    chmod -R u+w $out
+                    file="$out/source-registry-0/librespot-audio-0.8.0/src/fetch/mod.rs"
+                    substituteInPlace "$file" \
+                      --replace-fail 'Ok(r) => {
+                              response_streamer_url = Some((r, streamer, url));
+                              break;
+                          }
+                          Err(e) => warn!("Fetching {url} failed with error {e:?}, trying next"),' 'Ok(r) if r.status() == StatusCode::PARTIAL_CONTENT => {
+                              response_streamer_url = Some((r, streamer, url));
+                              break;
+                          }
+                          Ok(r) => warn!(
+                              "Fetching {url} returned {} (expected 206 Partial Content), trying next",
+                              r.status()
+                          ),
+                          Err(e) => warn!("Fetching {url} failed with error {e:?}, trying next"),'
+                    substituteInPlace "$file" \
+                      --replace-fail '
+                  let code = response.status();
+                  if code != StatusCode::PARTIAL_CONTENT {
+                      debug!("Opening audio file expected partial content but got: {code}");
+                      return Err(AudioFileError::StatusCode(code).into());
+                  }
+          ' ""
+        '';
+      }))
       swaynotificationcenter
       wallust
       waybar
@@ -281,6 +327,14 @@ in
           incoming_path=${home_dir}/Desktop
         '';
       };
+
+  ############################################
+  # TAILSCALE SYSTRAY (desktop only)
+  ############################################
+  services.tailscale-systray = lib.mkIf (!isWsl) {
+    enable = true;
+    theme = "dark:nobg";
+  };
 
   ############################################
   # FONT CONFIGURATION

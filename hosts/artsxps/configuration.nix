@@ -68,9 +68,9 @@
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
-  # Disable USB autosuspend for Intel AX211 Bluetooth — prevents random disconnects
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0033", ATTR{power/control}="on"
+  # Disable btusb driver autosuspend so Intel AX211 doesn't drop connections
+  boot.extraModprobeConfig = ''
+    options btusb enable_autosuspend=N
   '';
 
   ############################################
@@ -95,17 +95,28 @@
   security.pam.services.greetd.howdy.enable = true;
 
   services.thermald.enable = true;
+  # Clamshell mode: don't suspend when lid closes (use external monitor)
+  services.logind.settings = {
+    Login = {
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitchDocked = "ignore";
+    };
+  };
+
   services.tlp = {
     enable = true;
     settings = {
       CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_SCALING_GOVERNOR_ON_BAT = "schedutil";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_performance";
       CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
       CPU_MIN_PERF_ON_AC = 0;
       CPU_MAX_PERF_ON_AC = 100;
       CPU_MIN_PERF_ON_BAT = 0;
-      CPU_MAX_PERF_ON_BAT = 20;
+      CPU_MAX_PERF_ON_BAT = 30;
+      # Prevent USB autosuspend of Bluetooth adapter — Buds2 Pro disconnect otherwise
+      USB_EXCLUDE_BTUSB = "1";
     };
   };
 
@@ -204,6 +215,9 @@
   ############################################
   # COMPATIBILITY UTILITIES
   ############################################
+  # nix-ld: provides /lib64/ld-linux-x86-64.so.2 for prebuilt binaries like exec_bridge
+  programs.nix-ld.enable = true;
+
   systemd.tmpfiles.rules = [
     "L /usr/bin/which - - - - ${pkgs.which}/bin/which"
   ];

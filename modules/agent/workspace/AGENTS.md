@@ -15,7 +15,7 @@
 
 ## Workspace
 
-- Your workspace is at ~/.openclaw/workspace
+- Your workspace is at ~/.config/agent/workspace
 - Git-track your workspace changes
 - Memory files: MEMORY.md (long-term), memory/YYYY-MM-DD.md (daily)
 
