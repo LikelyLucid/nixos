@@ -1,7 +1,7 @@
 { ... }:
 {
   homeManager.modules.desktop =
-    { lib, pkgs, ... }:
+    { pkgs, ... }:
     let
       hyprctl = "${pkgs.hyprland}/bin/hyprctl";
       jq = "${pkgs.jq}/bin/jq";

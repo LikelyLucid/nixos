@@ -8,3 +8,5 @@ mapfile -d '' files < <(git diff --cached --name-only --diff-filter=ACMR -z -- '
 
 nixfmt "${files[@]}"
 git add -- "${files[@]}"
+
+deadnix --fail .

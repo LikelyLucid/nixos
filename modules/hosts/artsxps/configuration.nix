@@ -5,12 +5,7 @@
 }:
 {
   nixos.modules.artsxps =
-    {
-      config,
-      lib,
-      pkgs,
-      ...
-    }:
+    { pkgs, ... }:
     {
       ############################################
       # BITWARDEN SECRETS (self-hosted Vaultwarden)
@@ -24,17 +19,6 @@
           item = "Tailscale Auth Key";
           field = "password";
         };
-      };
-
-      ############################################
-      # NIX SETTINGS
-      ############################################
-      nix.settings = {
-        experimental-features = [
-          "nix-command"
-          "flakes"
-        ];
-        auto-optimise-store = true;
       };
 
       ############################################
@@ -177,22 +161,14 @@
       ############################################
       # USERS
       ############################################
-      users.users.lucid = {
-        isNormalUser = true;
-        description = "Arthur Mckellar";
-        extraGroups = [
-          "networkmanager"
-          "wheel"
-        ];
-        shell = pkgs.zsh;
-      };
-      users.defaultUserShell = pkgs.zsh;
-      programs.zsh.enable = true;
+      users.users.lucid.extraGroups = [
+        "networkmanager"
+        "wheel"
+      ];
 
       ############################################
       # PACKAGES & PROGRAMS
       ############################################
-      nixpkgs.config.allowUnfree = true;
       environment.systemPackages = with pkgs; [
         easyeffects # Audio effects/EQ (PipeWire compatible)
         ydotool # Wayland input injection (mouse/keyboard control)
@@ -204,7 +180,6 @@
         pulsemixer # Terminal audio mixer
         syncthing
         wget
-        zip
       ];
 
       ############################################
@@ -216,13 +191,6 @@
       systemd.tmpfiles.rules = [
         "L /usr/bin/which - - - - ${pkgs.which}/bin/which"
       ];
-      programs.nh = {
-        enable = true;
-        clean.enable = true;
-        clean.extraArgs = "--keep-since 5d --keep 5";
-        flake = "/home/lucid/nixos";
-      };
-
       ############################################
       # FONTS
       ############################################

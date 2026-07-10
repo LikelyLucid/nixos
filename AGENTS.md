@@ -20,6 +20,7 @@ modules/
 ├── module-options.nix
 ├── home-manager.nix
 ├── home.nix
+├── home/{desktop,wsl}.nix
 ├── overlays.nix
 ├── hosts/
 │   ├── artsxps/{configuration,hardware}.nix
@@ -35,6 +36,7 @@ Use these groups unless a feature needs a genuinely distinct reusable module:
 - `nixos.modules.wsl`
 - `homeManager.modules.common`
 - `homeManager.modules.desktop`
+- `homeManager.modules.wsl`
 
 Importing a named module enables it. Avoid `enable` options for repository-local
 composition unless a module must be imported while disabled.
@@ -72,11 +74,19 @@ Before claiming success:
 
 ```bash
 nixfmt --check $(find . -type f -name '*.nix' -not -path './.git/*')
+statix check .
+deadnix --fail .
 nix flake check --no-warn-dirty
 sudo nixos-rebuild build --flake /home/lucid/nixos#artsxps
 ```
 
+The pre-commit hook formats staged Nix files and runs `deadnix`; the pre-push
+hook runs `statix`, `deadnix`, and `nix flake check`.
+
 For WSL-only work, also evaluate or dry-run `nixosConfigurations.nixos-wsl`.
+
+The R workstation is available through `nix develop .#r` rather than the global
+Home Manager profile.
 
 ## Git checkpoints
 

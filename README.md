@@ -18,6 +18,9 @@ modules/
 ├── module-options.nix          # nixos.modules, homeManager.modules, configurations
 ├── home-manager.nix            # Nested Home Manager integration
 ├── home.nix                    # Shared lucid Home Manager configuration
+├── home/
+│   ├── desktop.nix             # Desktop-only Home Manager configuration
+│   └── wsl.nix                 # WSL-only Home Manager configuration
 ├── overlays.nix                # Shared package overlays
 ├── sops.nix                    # sops-nix integration
 ├── hosts/
@@ -43,6 +46,7 @@ module.
 | `nixos.modules.wsl`           | WSL-specific settings                     |
 | `homeManager.modules.common`  | Home configuration shared by both systems |
 | `homeManager.modules.desktop` | Desktop-only home configuration           |
+| `homeManager.modules.wsl`     | WSL-only home configuration               |
 
 Optional modules such as Firefox, Pandoc, and Plasma have their own names and
 are not imported by either host.
@@ -91,12 +95,32 @@ over that input in the deferred module instead of adding `specialArgs` or
 Do not add import-only aggregator files. Deferred modules with the same group
 name merge automatically.
 
+## R workstation
+
+The R workstation is intentionally kept out of the global Home Manager profile
+to reduce normal system rebuilds. Enter it on demand:
+
+```bash
+nix develop .#r
+rstudio
+```
+
+For automatic project activation, add `use flake /home/lucid/nixos#r` to the
+project's `.envrc`, then run `direnv allow`.
+
 ## Validation
 
-Run these before applying changes:
+The configured Git hooks automate validation:
+
+- pre-commit formats staged Nix files and runs `deadnix`
+- pre-push runs `statix`, `deadnix`, and `nix flake check`
+
+Run the full checks manually before applying changes:
 
 ```bash
 nixfmt --check $(find . -type f -name '*.nix' -not -path './.git/*')
+statix check .
+deadnix --fail .
 nix flake check --no-warn-dirty
 sudo nixos-rebuild build --flake /home/lucid/nixos#artsxps
 ```

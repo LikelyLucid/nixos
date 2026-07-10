@@ -1,6 +1,8 @@
 { ... }:
 {
-  homeManager.modules.desktop =
+  systems = [ "x86_64-linux" ];
+
+  perSystem =
     { pkgs, ... }:
     let
       r_workspace_packages = with pkgs.rPackages; [
@@ -44,15 +46,12 @@
       };
     in
     {
-      ############################################
-      # R WORKSTATION
-      ############################################
-      home.packages = with pkgs; [
-        rstudio_with_workspace_packages
-        R # R CLI for R language server and scripting
-      ];
+      devShells.r = pkgs.mkShell {
+        packages = [
+          rstudio_with_workspace_packages
+          pkgs.R
+        ];
 
-      home.sessionVariables = {
         QT_QPA_PLATFORM = "wayland";
         QT_SCALE_FACTOR = "1";
       };

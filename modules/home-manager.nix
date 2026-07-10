@@ -19,4 +19,8 @@
   nixos.modules.desktop = {
     home-manager.users.lucid.imports = [ config.homeManager.modules.desktop ];
   };
+
+  nixos.modules.wsl = {
+    home-manager.users.lucid.imports = [ config.homeManager.modules.wsl ];
+  };
 }

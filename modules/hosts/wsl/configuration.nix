@@ -5,7 +5,7 @@
 }:
 {
   nixos.modules.wsl =
-    { pkgs, lib, ... }:
+    { pkgs, ... }:
     {
       ############################################
       # WSL
@@ -24,24 +24,6 @@
       wsl.wslConf.automount.options = "metadata,umask=22,fmask=11";
 
       ############################################
-      # NIX SETTINGS
-      ############################################
-      nix.settings.experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-
-      # Automatic garbage collection
-      nix.gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 7d";
-      };
-
-      # Auto-optimise store
-      nix.settings.auto-optimise-store = true;
-
-      ############################################
       # HOSTNAME & NETWORKING
       ############################################
       networking.hostName = "nixos-wsl";
@@ -49,17 +31,10 @@
       ############################################
       # USERS
       ############################################
-      users.users.lucid = {
-        isNormalUser = true;
-        description = "Arthur Mckellar";
-        extraGroups = [
-          "wheel"
-          "docker"
-        ];
-        shell = pkgs.zsh;
-      };
-      users.defaultUserShell = pkgs.zsh;
-      programs.zsh.enable = true;
+      users.users.lucid.extraGroups = [
+        "wheel"
+        "docker"
+      ];
 
       ############################################
       # DOCKER (native Linux containers, great for WSL)
@@ -78,31 +53,14 @@
       ############################################
       # PACKAGES
       ############################################
-      nixpkgs.config.allowUnfree = true;
-
       environment.systemPackages = with pkgs; [
-        # Core tools
         curl
         git
         gh
         htop
-        jq
         lazygit
-        tree
-        unzip
         wget
-        zip
-
-        # Development essentials
         docker-compose
-        file
-        fzf
-        ripgrep
-        tmux
-
-        # Monitoring
-        btop
-        doggo
       ];
 
       ############################################
@@ -114,16 +72,6 @@
         [credential "https://github.com"]
           helper = !gh auth git-credential
       '';
-
-      ############################################
-      # NH (Nix Helper)
-      ############################################
-      programs.nh = {
-        enable = true;
-        clean.enable = true;
-        clean.extraArgs = "--keep-since 5d --keep 5";
-        flake = "/home/lucid/nixos";
-      };
 
       ############################################
       # STATE VERSION

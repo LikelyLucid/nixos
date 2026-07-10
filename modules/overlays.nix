@@ -4,7 +4,7 @@
     nixpkgs.overlays = [
       inputs.pi.overlays.default
       (
-        final: prev:
+        _final: prev:
         let
           py_pkgs = prev.python3Packages;
         in
