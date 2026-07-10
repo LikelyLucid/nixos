@@ -72,7 +72,7 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
       echo "    Then restart Ollama"
     fi
   else
-    echo -e "  ${Warning}⚠${Reset} OLLAMA_HOST not set — restart shell or check ~/nixos/home.nix"
+    echo -e "  ${Warning}⚠${Reset} OLLAMA_HOST not set — restart shell or check ~/nixos/modules/home.nix"
   fi
 fi
 

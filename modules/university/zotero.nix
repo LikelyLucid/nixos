@@ -1,4 +1,8 @@
-{ pkgs, ... }:
+{ ... }:
 {
-  home.packages = with pkgs; [ zotero ];
+  homeManager.modules.desktop =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [ zotero ];
+    };
 }

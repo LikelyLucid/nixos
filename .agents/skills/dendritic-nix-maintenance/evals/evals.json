@@ -1,0 +1,23 @@
+{
+  "skill_name": "dendritic-nix-maintenance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Update only home-manager in my flake lock, verify both hosts, and prepare a safe commit without switching.",
+      "expected_output": "The workflow preserves the dirty baseline, updates only the named input, validates both hosts, and does not switch.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "nix flake check says homeManager does not exist after I added a new module-options.nix file.",
+      "expected_output": "The workflow reproduces the failure, checks whether the untracked file is excluded from the Git flake source, stages only intended files, and re-runs the failing command.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Move the WSL host configuration and update anything that still refers to the old path.",
+      "expected_output": "The workflow updates dendritic host composition, searches documentation and scripts for stale paths, then formats and checks the flake.",
+      "files": []
+    }
+  ]
+}

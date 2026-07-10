@@ -1,4 +1,8 @@
-{ pkgs, ... }:
+{ ... }:
 {
-  home.packages = with pkgs; [ firefox ];
+  homeManager.modules.firefox =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [ firefox ];
+    };
 }

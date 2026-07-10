@@ -1,16 +1,20 @@
-{ config, pkgs, ... }:
+{ ... }:
 {
-  ############################################
-  # TAILSCALE
-  ############################################
-  services.tailscale = {
-    enable = true;
-    package = pkgs.tailscale;
-    authKeyFile = config.sops.secrets.tailscale-auth-key.path;
-    extraSetFlags = [
-      "--ssh"
-      "--operator=lucid"
-    ];
-    useRoutingFeatures = "client";
-  };
+  nixos.modules.desktop =
+    { config, pkgs, ... }:
+    {
+      ############################################
+      # TAILSCALE
+      ############################################
+      services.tailscale = {
+        enable = true;
+        package = pkgs.tailscale;
+        authKeyFile = config.sops.secrets.tailscale-auth-key.path;
+        extraSetFlags = [
+          "--ssh"
+          "--operator=lucid"
+        ];
+        useRoutingFeatures = "client";
+      };
+    };
 }

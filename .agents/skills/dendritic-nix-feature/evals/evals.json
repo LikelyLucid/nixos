@@ -1,0 +1,23 @@
+{
+  "skill_name": "dendritic-nix-feature",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add ripgrep-all to both the artsxps and WSL Home Manager package sets without changing unrelated packages.",
+      "expected_output": "A top-level module contribution to homeManager.modules.common, followed by formatting and flake validation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a desktop-only flake input that provides a Home Manager module and enable it for lucid.",
+      "expected_output": "The input is declared in flake.nix and closed over by a homeManager.modules.desktop contribution without extraSpecialArgs.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Enable the existing Plasma module on artsxps while keeping Hyprland available.",
+      "expected_output": "The response inspects the named disabled module and host composition, avoids automatic global enablement, and calls out display-manager conflicts before changing behavior.",
+      "files": []
+    }
+  ]
+}

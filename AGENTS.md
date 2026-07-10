@@ -1,101 +1,102 @@
-# Nix Configuration Code Style Guidelines
+# Nix configuration guidelines
 
-## Directory Structure
+## Architecture
 
-```plaintext
-└── likelylucid-nixos/
-    ├── configuration.nix
-    ├── flake.lock
-    ├── flake.nix
-    ├── hardware-configuration.nix
-    ├── home.nix
-    └── modules/
-        ├── browsers/
-        │   ├── browsers.nix
-        │   ├── firefox.nix
-        │   └── zen.nix
-        ├── dev/
-        │   ├── developer.nix
-        │   ├── neovim.nix
-        │   └── tmux.nix
-        ├── notes/
-        │   ├── notes.nix
-        │   ├── obsidian.nix
-        │   └── pandoc.nix
-        └── window-manager/
-            ├── hyprland.nix
-            ├── plasma.nix
-            └── window-manager.nix
-````
+This repository follows the
+[dendritic pattern](https://github.com/mightyiam/dendritic).
 
-## 1. Indentation
+- `flake.nix` is the only Nix entry point.
+- Every `modules/**/*.nix` file is a top-level flake-parts module.
+- `import-tree` imports the module tree automatically.
+- Features merge into deferred modules declared in `modules/module-options.nix`.
+- Hosts compose named modules in `modules/hosts/`.
+- Do not introduce `specialArgs`, `extraSpecialArgs`, or import-only
+  aggregators. Top-level modules can close over `inputs` and other top-level
+  configuration values.
 
-* Use **2 spaces** for indentation.
-
-## 2. Naming Conventions
-
-* Use **snake\_case** for variable and function names.
-* Use **PascalCase** for module names.
-
-## 3. Section Comments
-
-Use ASCII comments to separate sections:
-
-```nix
-############################################
-# SYSTEM CONFIGURATION
-############################################
-
-# Set the hostname for the system
-networking.hostName = "my-server";
-
-############################################
-# HARDWARE CONFIGURATION
-############################################
-
-# Enable network manager
-networking.networkmanager.enable = true;
+```text
+flake.nix
+modules/
+├── module-options.nix
+├── home-manager.nix
+├── home.nix
+├── overlays.nix
+├── hosts/
+│   ├── artsxps/{configuration,hardware}.nix
+│   └── wsl/configuration.nix
+└── <feature>/*.nix
 ```
 
-## 4. Keep Configurations DRY
+Use these groups unless a feature needs a genuinely distinct reusable module:
 
-* Avoid repeating settings. Create reusable functions or variables where necessary.
+- `nixos.modules.common`
+- `nixos.modules.desktop`
+- `nixos.modules.artsxps`
+- `nixos.modules.wsl`
+- `homeManager.modules.common`
+- `homeManager.modules.desktop`
 
-## 5. Git Checkpoints
+Importing a named module enables it. Avoid `enable` options for repository-local
+composition unless a module must be imported while disabled.
 
-**Commit and push after every logical change.** The `nh` / `nixos-rebuild` commands apply the working tree as-is — uncommitted changes get built into the system but have no safety net. If a rebuild goes wrong, you can't `git revert` your way out of something you never committed.
+## Style
 
-Two repos to keep in sync:
+- Use 2-space indentation and run `nixfmt`.
+- Use `snake_case` for local variables and functions.
+- Keep one feature per file.
+- Keep file paths feature-oriented; do not organize files by module class.
+- Prefer a small deferred-module contribution over a new abstraction.
+- Preserve existing section comments when changing established modules.
 
-* `~/nixos/` — the flake config (system + home-manager)
-* `~/dotfiles/` — wallust templates, rofi, waybar, etc. (pulled from GitHub on rebuild)
+## Adding a feature
 
-Both must be pushed before they're durable.
+```nix
+{ inputs, ... }:
+{
+  homeManager.modules.desktop =
+    { pkgs, ... }:
+    {
+      imports = [ inputs.example.homeModules.default ];
+      home.packages = [ pkgs.example ];
+    };
+}
+```
 
-## 6. Dotfiles Workflow
+Merge into an existing group when all hosts in that group should receive the
+feature. Create a distinct named module only when hosts need to opt into it
+independently.
 
-**Changes to `~/dotfiles/` must be committed + pushed to GitHub before a NixOS rebuild.**
+## Verification
 
-The `dotfiles` flake input points to `github:LikelyLucid/dotfiles`, so Nix fetches the pinned commit — local changes won't survive unless pushed.
-
-Workflow:
+Before claiming success:
 
 ```bash
-# 1. Make changes in ~/dotfiles/ (wallust templates, rofi, waybar, etc.)
+nixfmt --check $(find . -type f -name '*.nix' -not -path './.git/*')
+nix flake check --no-warn-dirty
+sudo nixos-rebuild build --flake /home/lucid/nixos#artsxps
+```
 
-# 2. Run wallust to generate colors (if applicable)
-wallust run ~/dotfiles/media/wallpapers/wallpaper.jpg
+For WSL-only work, also evaluate or dry-run `nixosConfigurations.nixos-wsl`.
 
-# 3. Commit and push
+## Git checkpoints
+
+Commit and push after every logical change. Rebuilds apply the working tree
+as-is, so an uncommitted rebuild has no durable rollback point.
+
+## Dotfiles workflow
+
+Changes to `~/dotfiles/` must be committed and pushed before a NixOS rebuild
+because the `dotfiles` input is pinned in `flake.lock`.
+
+```bash
 cd ~/dotfiles
+wallust run ~/dotfiles/media/wallpapers/wallpaper.jpg  # when applicable
 git add -A
-git commit -m "what changed"
+git commit -m "describe the change"
 git push
 
-# 4. Update flake lock (optional, if dotfiles main branch advanced)
 cd ~/nixos
 nix flake lock --update-input dotfiles
-
-# 5. Rebuild
+nix flake check --no-warn-dirty
 sudo nixos-rebuild switch --flake /home/lucid/nixos#artsxps
 ```
