@@ -6,6 +6,33 @@
 {
   nixos.modules.artsxps =
     { pkgs, ... }:
+    let
+      apply_battery_brightness = pkgs.writeShellApplication {
+        name = "apply-battery-brightness";
+        runtimeInputs = [ pkgs.brightnessctl ];
+        text = ''
+          state_file=/run/artsxps-ac-brightness
+          max_brightness=$(brightnessctl --device=intel_backlight max)
+          current_brightness=$(brightnessctl --device=intel_backlight get)
+
+          if [[ $(< /sys/class/power_supply/AC/online) == 1 ]]; then
+            if [[ -r $state_file ]]; then
+              saved_brightness=$(< "$state_file")
+              if (( saved_brightness > 0 && saved_brightness <= max_brightness )); then
+                brightnessctl --quiet --device=intel_backlight set "$saved_brightness"
+              fi
+              rm -f "$state_file"
+            fi
+          else
+            battery_cap=$((max_brightness * 35 / 100))
+            if (( current_brightness > battery_cap )); then
+              printf '%s\n' "$current_brightness" > "$state_file"
+              brightnessctl --quiet --device=intel_backlight set "$battery_cap"
+            fi
+          fi
+        '';
+      };
+    in
     {
       ############################################
       # BITWARDEN SECRETS (self-hosted Vaultwarden)
@@ -83,6 +110,19 @@
         };
       };
 
+      systemd.services.battery-display-brightness = {
+        description = "Apply battery-aware display brightness";
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = "${apply_battery_brightness}/bin/apply-battery-brightness";
+        };
+      };
+
+      services.udev.extraRules = ''
+        ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="AC", RUN+="${apply_battery_brightness}/bin/apply-battery-brightness"
+      '';
+
       services.tlp = {
         enable = true;
         settings = {
@@ -101,6 +141,7 @@
           PLATFORM_PROFILE_ON_AC = "performance";
           PLATFORM_PROFILE_ON_BAT = "quiet";
           PCIE_ASPM_ON_BAT = "powersupersave";
+          DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
           # Prevent USB autosuspend of Bluetooth adapter — Buds2 Pro disconnect otherwise
           USB_EXCLUDE_BTUSB = "1";
         };
