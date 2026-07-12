@@ -1,9 +1,10 @@
 # LikelyLucid NixOS configuration
 
-This flake manages two systems:
+This flake manages three systems:
 
 - `artsxps` — the main NixOS desktop
 - `nixos-wsl` — the WSL development environment
+- `generic` — a hardware-neutral base for new NixOS installations
 
 It uses the [dendritic pattern](https://github.com/mightyiam/dendritic): every
 Nix file except `flake.nix` is a top-level flake-parts module. Feature files
@@ -27,6 +28,9 @@ modules/
 │   ├── artsxps/
 │   │   ├── configuration.nix   # artsxps module and host composition
 │   │   └── hardware.nix        # artsxps hardware contribution
+│   ├── generic/
+│   │   ├── configuration.nix          # hardware-neutral base host
+│   │   └── hardware-configuration.nix # replaceable hardware placeholder
 │   └── wsl/
 │       └── configuration.nix   # WSL module and host composition
 └── <feature>/                  # One feature per top-level module
@@ -135,6 +139,15 @@ Evaluate the WSL configuration with:
 
 ```bash
 nix build .#nixosConfigurations.nixos-wsl.config.system.build.toplevel --dry-run
+```
+
+For a new hardware installation, generate hardware support with the installer
+and replace the placeholder definitions in
+`modules/hosts/generic/hardware-configuration.nix` before building:
+
+```bash
+nixos-generate-config --show-hardware-config
+nix build .#nixosConfigurations.generic.config.system.build.toplevel --dry-run
 ```
 
 ## Repository workflow
