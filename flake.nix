@@ -49,6 +49,11 @@
 
     pi.url = "github:lukasl-dev/pi.nix";
 
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
     codex-cli-nix = {
