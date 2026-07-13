@@ -37,25 +37,7 @@
         pi-coding-agent # pi coding agent (from lukasl-dev/pi.nix overlay)
         aider-chat # AI pair programming in terminal
         opencode # Terminal UI for LLMs
-        cua-driver # Computer-Use Agent driver (prebuilt from trycua/cua)
-        (writeShellScriptBin "cua-x11" ''
-          if [ "$#" -eq 0 ]; then
-            echo "usage: cua-x11 <command> [args...]" >&2
-            exit 2
-          fi
-
-          unset WAYLAND_DISPLAY
-          export GDK_BACKEND=x11
-          export QT_QPA_PLATFORM=xcb
-          export SDL_VIDEODRIVER=x11
-          export CLUTTER_BACKEND=x11
-          export MOZ_ENABLE_WAYLAND=0
-          export NIXOS_OZONE_WL=0
-          export ELECTRON_OZONE_PLATFORM_HINT=x11
-          export OZONE_PLATFORM=x11
-
-          exec "$@"
-        '') # Launch apps under XWayland so cua-driver can target them
+        computer-use-linux # Native Wayland computer-use MCP
 
         ########################################
         # ENHANCED CLI TOOLS

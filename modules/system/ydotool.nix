@@ -17,4 +17,21 @@
       "uinput"
     ];
   };
+
+  homeManager.modules.desktop =
+    { pkgs, ... }:
+    {
+      systemd.user.services.ydotool = {
+        Unit = {
+          Description = "Wayland input injection daemon";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session-pre.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.ydotool}/bin/ydotoold";
+          Restart = "on-failure";
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+    };
 }

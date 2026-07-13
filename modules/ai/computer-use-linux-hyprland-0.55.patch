@@ -1,0 +1,23 @@
+diff --git a/src/windowing/backends/hyprland.rs b/src/windowing/backends/hyprland.rs
+index a726684..716291c 100644
+--- a/src/windowing/backends/hyprland.rs
++++ b/src/windowing/backends/hyprland.rs
+@@ -86 +86,8 @@ pub fn activate_window(window_id: u64) -> Result<()> {
+-    let output = hyprctl_output(&["dispatch", "focuswindow", &address])
++    let lua_dispatch = format!("hl.dsp.focus({{ window = \"{address}\" }})");
++    let lua_output = hyprctl_output(&["dispatch", &lua_dispatch])
++        .with_context(|| format!("failed to run Hyprland Lua focus dispatcher for {address}"))?;
++    if lua_output.status.success() {
++        return Ok(());
++    }
++
++    let legacy_output = hyprctl_output(&["dispatch", "focuswindow", &address])
+@@ -88 +95 @@ pub fn activate_window(window_id: u64) -> Result<()> {
+-    if output.status.success() {
++    if legacy_output.status.success() {
+@@ -92,2 +99,3 @@ pub fn activate_window(window_id: u64) -> Result<()> {
+-            "hyprctl dispatch focuswindow {address} failed: {}",
+-            String::from_utf8_lossy(&output.stderr).trim()
++            "Hyprland window focus failed for {address}; Lua dispatcher: {}; legacy dispatcher: {}",
++            String::from_utf8_lossy(&lua_output.stderr).trim(),
++            String::from_utf8_lossy(&legacy_output.stderr).trim()

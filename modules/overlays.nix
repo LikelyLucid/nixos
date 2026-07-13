@@ -22,24 +22,27 @@
             doCheck = false;
           };
 
-          cua-driver = prev.stdenv.mkDerivation {
-            pname = "cua-driver";
-            version = "0.6.8";
-            src = prev.fetchurl {
-              url = "https://github.com/trycua/cua/releases/download/cua-driver-rs-v0.6.8/cua-driver-rs-0.6.8-linux-x86_64-binary.tar.gz";
-              hash = "sha256-3ohcatgrXhDtAhO+RkLdp0tZIpkK1gAutbxIHV2JwFs=";
+          computer-use-linux = prev.rustPlatform.buildRustPackage {
+            pname = "computer-use-linux";
+            version = "0.3.1-unstable-2026-07-13";
+
+            src = prev.fetchFromGitHub {
+              owner = "agent-sh";
+              repo = "computer-use-linux";
+              rev = "e338582b1f96024b24a8c188a2a2092239af95d5";
+              hash = "sha256-q5YrSOTRa6zcmZpNxr8ZSbwMHrF0TlIxlUGS25Pm1ls=";
             };
-            nativeBuildInputs = [ prev.autoPatchelfHook ];
-            buildInputs = [
-              prev.stdenv.cc.cc.lib
-              prev.libx11
-              prev.libxi
+
+            patches = [
+              ./ai/computer-use-linux-hyprland-0.55.patch
+              ./ai/computer-use-linux-schema.patch
             ];
-            dontUnpack = true;
-            installPhase = ''
-              tar -xzf $src
-              install -m755 -D cua-driver $out/bin/cua-driver
-            '';
+            cargoHash = "sha256-BQqTTLdwdQLg+d1ColcR+JrtZmWBtL4Wq3eXWnipkno=";
+            nativeBuildInputs = [ prev.pkg-config ];
+            buildInputs = [
+              prev.dbus
+              prev.systemd
+            ];
           };
         }
       )

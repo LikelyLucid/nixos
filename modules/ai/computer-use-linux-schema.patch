@@ -1,0 +1,51 @@
+diff --git a/src/server.rs b/src/server.rs
+index 659862a..024bfe7 100644
+--- a/src/server.rs
++++ b/src/server.rs
+@@ -68,0 +69,44 @@ pub struct ComputerUseLinux {
++fn sanitize_unsigned_integer_formats(value: &mut serde_json::Value) {
++    let serde_json::Value::Object(object) = value else {
++        return;
++    };
++
++    let has_unsigned_format = matches!(
++        object.get("format").and_then(serde_json::Value::as_str),
++        Some("uint" | "uint8" | "uint16" | "uint32" | "uint64" | "usize")
++    );
++    if has_unsigned_format {
++        object.remove("format");
++    }
++
++    for nested in object.values_mut() {
++        match nested {
++            serde_json::Value::Object(_) => sanitize_unsigned_integer_formats(nested),
++            serde_json::Value::Array(items) => {
++                for item in items {
++                    sanitize_unsigned_integer_formats(item);
++                }
++            }
++            _ => {}
++        }
++    }
++}
++
++impl ComputerUseLinux {
++    fn mcp_tool_router(&self) -> rmcp::handler::server::router::tool::ToolRouter<Self> {
++        let mut router = Self::tool_router();
++        for route in router.map.values_mut() {
++            let input_schema = Arc::make_mut(&mut route.attr.input_schema);
++            for value in input_schema.values_mut() {
++                sanitize_unsigned_integer_formats(value);
++            }
++            if let Some(output_schema) = route.attr.output_schema.as_mut() {
++                for value in Arc::make_mut(output_schema).values_mut() {
++                    sanitize_unsigned_integer_formats(value);
++                }
++            }
++        }
++        router
++    }
++}
++
+@@ -1289,0 +1334 @@ impl ComputerUseLinux {
++    router = self.mcp_tool_router(),
