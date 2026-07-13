@@ -10,7 +10,48 @@
         in
         {
           helium = inputs.helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium;
-          beeper = inputs.beeper.packages.${prev.stdenv.hostPlatform.system}.default;
+
+          # Beeper's current AppImage stores its AI2 marker at offset 1024,
+          # while nixpkgs' appimage-exec reads it from the ELF header.
+          beeper =
+            let
+              upstream = inputs.beeper.packages.${prev.stdenv.hostPlatform.system}.default;
+              pname = upstream.pname;
+              version = upstream.version;
+              src = prev.runCommand "${pname}-${version}-appimage-patched" { } ''
+                cp ${upstream.src} $out
+                chmod u+w $out
+                printf '\x41\x49\x02' | dd of=$out bs=1 seek=8 conv=notrunc
+              '';
+              appimageContents = prev.appimageTools.extract {
+                inherit pname version src;
+              };
+            in
+            prev.appimageTools.wrapAppImage rec {
+              inherit pname version;
+              src = appimageContents;
+              pkgs = prev;
+              nativeBuildInputs = [ prev.copyDesktopItems ];
+              desktopItem = prev.makeDesktopItem {
+                name = "beeper";
+                desktopName = "Beeper";
+                exec = "${pname} %u";
+                icon = "beepertexts.png";
+                type = "Application";
+                terminal = false;
+                comment = "The ultimate messaging app";
+                categories = [
+                  "Network"
+                  "Chat"
+                ];
+                mimeTypes = [ "x-scheme-handler/beeper" ];
+              };
+              extraInstallCommands = ''
+                mkdir -p $out/share/applications
+                cp ${desktopItem}/share/applications/*.desktop $out/share/applications/
+                cp -r ${appimageContents}/usr/share/icons $out/share
+              '';
+            };
 
           hyprland-canvas = py_pkgs.buildPythonPackage {
             pname = "hyprland-canvas";
