@@ -1,8 +1,23 @@
 { inputs, ... }:
 {
-  homeManager.modules.common =
-    { pkgs, ... }:
+  nixos.modules.desktop =
+    { config, ... }:
     {
-      home.packages = [ inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default ];
+      imports = [ inputs.hermes-agent.nixosModules.default ];
+
+      sops.secrets.hermes-env = {
+        owner = "hermes";
+        group = "hermes";
+      };
+
+      services.hermes-agent = {
+        enable = true;
+        addToSystemPackages = true;
+        environmentFiles = [ config.sops.secrets.hermes-env.path ];
+        settings.model = {
+          default = "kimi-k2.7-code";
+          provider = "opencode-go";
+        };
+      };
     };
 }
