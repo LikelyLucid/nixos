@@ -80,8 +80,8 @@
 
         hl.config({
           general = {
-            gaps_in = 5,
-            gaps_out = 20,
+            gaps_in = 6,
+            gaps_out = 18,
             border_size = 2,
             col = {
               active_border = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
@@ -92,21 +92,21 @@
             layout = "dwindle",
           },
           decoration = {
-            rounding = 10,
+            rounding = 8,
             rounding_power = 2,
             active_opacity = 1.0,
-            inactive_opacity = 0.9,
+            inactive_opacity = 0.94,
             shadow = {
               enabled = true,
-              range = 4,
+              range = 10,
               render_power = 3,
               color = "rgba(1a1a1aee)",
             },
             blur = {
               enabled = true,
-              size = 5,
+              size = 6,
               passes = 2,
-              vibrancy = 0.1696,
+              vibrancy = 0.12,
             },
           },
           animations = { enabled = true },
@@ -140,8 +140,8 @@
         hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
         hl.animation({ leaf = "border", enabled = true, speed = 5.39, bezier = "easeOutQuint" })
         hl.animation({ leaf = "windows", enabled = true, speed = 4.79, bezier = "easeOutQuint" })
-        hl.animation({ leaf = "windowsIn", enabled = true, speed = 4.1, bezier = "easeOutQuint", style = "popin 87%" })
-        hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.49, bezier = "linear", style = "popin 87%" })
+        hl.animation({ leaf = "windowsIn", enabled = true, speed = 4.1, bezier = "easeOutQuint", style = "popin 94%" })
+        hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.8, bezier = "quick", style = "popin 94%" })
         hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.73, bezier = "almostLinear" })
         hl.animation({ leaf = "fadeOut", enabled = true, speed = 1.46, bezier = "almostLinear" })
         hl.animation({ leaf = "fade", enabled = true, speed = 3.03, bezier = "quick" })
@@ -373,22 +373,24 @@
             path = ${wallpaper_path}
             blur_passes = 3
             blur_size = 8
+            vibrancy = 0.12
           }
 
           input-field {
             monitor =
-            size = 300, 60
+            size = 320, 56
             outline_thickness = 2
-            dots_size = 0.2
-            dots_spacing = 0.35
+            rounding = 8
+            dots_size = 0.18
+            dots_spacing = 0.32
             outer_color = $wallust_accent
             inner_color = $wallust_bg_clear
             font_color = $wallust_fg
             fade_on_empty = false
-            placeholder_text = <i>password</i>
-            fail_text = <i>try again</i>
+            placeholder_text = <span>    password</span>
+            fail_text = <span>  authentication failed</span>
             fail_color = $wallust_fail
-            position = 0, -80
+            position = 0, -70
             halign = center
             valign = center
           }
@@ -406,13 +408,35 @@
 
           label {
             monitor =
-            text = Welcome back, Arthur
+            text = cmd[update:60000] date +"%A  ·  %d %B"
             color = $wallust_accent
-            font_size = 20
+            font_size = 16
             font_family = JetBrains Mono Nerd Font
-            position = 0, 45
+            position = 0, 48
             halign = center
             valign = center
+          }
+
+          label {
+            monitor =
+            text =   Arthur
+            color = $wallust_fg
+            font_size = 14
+            font_family = JetBrains Mono Nerd Font
+            position = 0, -135
+            halign = center
+            valign = center
+          }
+
+          label {
+            monitor =
+            text = cmd[update:5000] sh -c 'printf "󰁹  %s%%" "$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo --)"'
+            color = $wallust_fg
+            font_size = 14
+            font_family = JetBrains Mono Nerd Font
+            position = -28, -24
+            halign = right
+            valign = top
           }
         '';
 

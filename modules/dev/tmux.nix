@@ -23,17 +23,29 @@
         # Reload config
         bind r source-file ~/.tmux.conf
 
-        # Status bar
-        set -g status-style "bg=#1e1e2e,fg=#cdd6f4"
-        set -g status-left "#[fg=#89b4fa,bold] #S "
-        set -g status-right "#[fg=#a6e3a1] %H:%M #[fg=#cba6f7]#(curl -s wttr.in/?format='%t') "
+        # Status bar: compact blocks matching Waybar
+        set -g status-position bottom
+        set -g status-interval 5
+        set -g status-left-length 30
+        set -g status-right-length 80
+        set -g status-style "bg=default,fg=#dfe9f6"
+        set -g status-left "#[bg=#00000d,fg=#dfe9f6,bold]  #S  #[default]"
+        set -g status-right "#[bg=#00000d,fg=#dfe9f6]   #(whoami)@#h  󰁹 #(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || printf -- '--')%%   %I:%M %p   %a %d %b  #[default]"
+
+        set -g window-status-separator " "
+        set -g window-status-format "#[bg=#00000d,fg=#dfe9f6]  #I #W#{?window_zoomed_flag, 󰊓,}  #[default]"
+        set -g window-status-current-format "#[bg=#89b4fa,fg=#00000d,bold]  #I #W#{?window_zoomed_flag, 󰊓,}  #[default]"
+        set -g window-status-activity-style "bg=#00000d,fg=#89b4fa,bold"
 
         # Pane borders
-        set -g pane-border-style "fg=#45475a"
+        set -g pane-border-style "fg=#00000d"
         set -g pane-active-border-style "fg=#89b4fa"
+        set -g pane-border-status off
 
-        # Messages
-        set -g message-style "bg=#313244,fg=#cdd6f4"
+        # Prompts and copy mode
+        set -g message-style "bg=#00000d,fg=#dfe9f6"
+        set -g message-command-style "bg=#89b4fa,fg=#00000d,bold"
+        set -g mode-style "bg=#89b4fa,fg=#00000d,bold"
 
         # Enable true color
         set -ga terminal-overrides ",xterm-256color:Tc"
