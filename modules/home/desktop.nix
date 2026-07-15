@@ -104,35 +104,7 @@
         libnotify
         pavucontrol
         rofi
-        (pkgs.ncspot.overrideAttrs (old: {
-          cargoDeps = pkgs.runCommand "ncspot-vendor-librespot-cdn-fallback" { } ''
-                      cp -R ${old.cargoDeps} $out
-                      chmod -R u+w $out
-                      file="$out/source-registry-0/librespot-audio-0.8.0/src/fetch/mod.rs"
-                      substituteInPlace "$file" \
-                        --replace-fail 'Ok(r) => {
-                                response_streamer_url = Some((r, streamer, url));
-                                break;
-                            }
-                            Err(e) => warn!("Fetching {url} failed with error {e:?}, trying next"),' 'Ok(r) if r.status() == StatusCode::PARTIAL_CONTENT => {
-                                response_streamer_url = Some((r, streamer, url));
-                                break;
-                            }
-                            Ok(r) => warn!(
-                                "Fetching {url} returned {} (expected 206 Partial Content), trying next",
-                                r.status()
-                            ),
-                            Err(e) => warn!("Fetching {url} failed with error {e:?}, trying next"),'
-                      substituteInPlace "$file" \
-                        --replace-fail '
-                    let code = response.status();
-                    if code != StatusCode::PARTIAL_CONTENT {
-                        debug!("Opening audio file expected partial content but got: {code}");
-                        return Err(AudioFileError::StatusCode(code).into());
-                    }
-            ' ""
-          '';
-        }))
+        spotify-player
         swaynotificationcenter
         wallust
         waybar
@@ -216,28 +188,13 @@
             "timeout-critical": 0,
             "fit-to-screen": true,
             "keyboard-shortcuts": true,
-            "image-radius": 12,
-            "scripts": {
-              "kdeconnect-strip-br": {
-                "exec": "~/.config/swaync/scripts/kdeconnect-strip-br.sh",
-                "app-name": "KDE Connect"
-              }
-            }
+            "image-radius": 12
           }
         '';
       };
 
       home.file.".local/bin/notify-send" = {
         source = "${pkgs.libnotify}/bin/notify-send";
-        executable = true;
-      };
-
-      home.file.".config/swaync/scripts/kdeconnect-strip-br.sh" = {
-        text = ''
-          #!/bin/bash
-          # Strip <br> tags from KDE Connect notifications (swaync renders them as literal text)
-          echo "$3" | sed 's/<br>/\n/gi; s/<br\/>/\n/gi; s/<br \/>/\n/gi'
-        '';
         executable = true;
       };
 
