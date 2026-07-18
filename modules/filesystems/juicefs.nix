@@ -65,11 +65,7 @@
       systemd.services.juicefs = {
         description = "JuiceFS mount";
         wantedBy = [ "multi-user.target" ];
-        requires = [ "sops-install-secrets.service" ];
-        after = [
-          "network-online.target"
-          "sops-install-secrets.service"
-        ];
+        after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
 
         serviceConfig = {
