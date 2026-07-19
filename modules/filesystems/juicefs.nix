@@ -3,39 +3,34 @@
   nixos.modules.artsxps =
     {
       config,
-      lib,
       pkgs,
       ...
     }:
     let
-      juicefs = pkgs.stdenvNoCC.mkDerivation {
-        pname = "juicefs";
+      juicefs = pkgs.juicefs.overrideAttrs (_: {
         version = "1.4.0";
 
-        src = pkgs.fetchurl {
-          url = "https://github.com/juicedata/juicefs/releases/download/v1.4.0/juicefs-1.4.0-linux-amd64.tar.gz";
-          hash = "sha256-be3XMEh+fawbEcWAFoKolpLy5rl4kLr3rJQ0B1ALhas=";
+        src = pkgs.fetchFromGitHub {
+          owner = "juicedata";
+          repo = "juicefs";
+          rev = "v1.4.0";
+          hash = "sha256-H9NUEzhMd+EdfJXbww0k9aOv3oTbUoGddWrQl72raDQ=";
         };
 
-        dontUnpack = true;
-        installPhase = ''
-          runHook preInstall
+        vendorHash = "sha256-JoWsoUFbP2v9g2RUBp5wK/TdguWcYPwhH8hqatzyBew=";
 
-          tar -xzf "$src"
-          install -Dm755 juicefs "$out/bin/juicefs"
-          ln -s juicefs "$out/bin/mount.juicefs"
-
-          runHook postInstall
+        # Fix the /dev/fuse descriptor leak that deadlocks on Linux 7.1.3.
+        postPatch = ''
+          substituteInPlace pkg/fuse/device_linux.go \
+            --replace-fail 'os.Open("/dev/fuse")' 'os.Stat("/dev/fuse")'
         '';
 
-        meta = {
-          description = "Distributed POSIX file system built on top of Redis and S3";
-          homepage = "https://www.juicefs.com/";
-          license = lib.licenses.asl20;
-          mainProgram = "juicefs";
-          platforms = [ "x86_64-linux" ];
-        };
-      };
+        ldflags = [
+          "-s"
+          "-w"
+          "-X github.com/juicedata/juicefs/pkg/version.version=1.4.0"
+        ];
+      });
 
       mount_juicefs = pkgs.writeShellApplication {
         name = "mount-juicefs";
