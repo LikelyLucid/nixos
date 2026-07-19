@@ -61,12 +61,17 @@
         '';
       };
 
-      cleanup_juicefs = pkgs.writeShellApplication {
-        name = "cleanup-juicefs";
-        runtimeInputs = [ pkgs.util-linux ];
+      unmount_juicefs = pkgs.writeShellApplication {
+        name = "unmount-juicefs";
+        runtimeInputs = [
+          pkgs.fuse
+          pkgs.util-linux
+        ];
         text = ''
           if findmnt --mountpoint /mnt/juicefs >/dev/null; then
-            umount --lazy /mnt/juicefs
+            if ! ${juicefs}/bin/juicefs umount --force /mnt/juicefs; then
+              umount --lazy /mnt/juicefs || true
+            fi
           fi
         '';
       };
@@ -96,13 +101,13 @@
           Type = "simple";
           ExecStartPre = "${prepare_juicefs}/bin/prepare-juicefs";
           ExecStart = "${mount_juicefs}/bin/mount-juicefs";
-          ExecStop = "${juicefs}/bin/juicefs umount /mnt/juicefs";
-          ExecStopPost = "${cleanup_juicefs}/bin/cleanup-juicefs";
+          ExecStop = "${unmount_juicefs}/bin/unmount-juicefs";
+          ExecStopPost = "${unmount_juicefs}/bin/unmount-juicefs";
           CacheDirectory = "juicefs";
           CacheDirectoryMode = "0700";
           Restart = "on-failure";
           RestartSec = 5;
-          TimeoutStopSec = 60;
+          TimeoutStopSec = 15;
         };
       };
     };
