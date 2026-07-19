@@ -99,6 +99,12 @@ over that input in the deferred module instead of adding `specialArgs` or
 Do not add import-only aggregator files. Deferred modules with the same group
 name merge automatically.
 
+## Backups
+
+The desktop includes a dormant encrypted Restic backup job that activates once
+an off-device repository and sops-managed password are provisioned. Setup and
+restore verification are documented in [`docs/backups.md`](docs/backups.md).
+
 ## R workstation
 
 The R workstation is intentionally kept out of the global Home Manager profile
