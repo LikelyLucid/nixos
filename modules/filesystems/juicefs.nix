@@ -46,6 +46,7 @@
             redis://redis.likelylucid.com:6379/2 \
             /mnt/juicefs \
             --cache-dir /var/cache/juicefs \
+            --umask 000 \
             -o allow_other
         '';
       };
