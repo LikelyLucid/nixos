@@ -169,6 +169,7 @@
         hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
         hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
         hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(controlCenter))
+        hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("night-light-toggle"))
         hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
 
@@ -312,6 +313,7 @@
                 "System Monitor") resources ;;
                 "Passwords & Keys") seahorse ;;
                 "Color Management") gcm-viewer ;;
+                "Night Light") night-light-toggle ;;
                 "Screenshot Area") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
                 "Screenshot Full Screen") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
@@ -340,6 +342,7 @@
                 "System Monitor" \
                 "Passwords & Keys" \
                 "Color Management" \
+                "Night Light" \
                 "Screenshot Area" \
                 "Screenshot Full Screen" \
                 "Clipboard" \
@@ -476,6 +479,7 @@
             Super + Q    terminal        Super + E    file manager
             Super + F    file search     Super + R    app launcher
             Super + X    control center  Super + S    scratchpad
+            Super Shift + N              toggle night light
             Super + /    show this cheatsheet
 
           CANVAS:
@@ -493,14 +497,15 @@
       systemd.user.services.waybar = {
         Unit = {
           Description = "Waybar status bar";
-          PartOf = [ "graphical-session.target" ];
-          After = [ "graphical-session.target" ];
+          PartOf = [ config.wayland.systemd.target ];
+          After = [ config.wayland.systemd.target ];
         };
         Service = {
           ExecStart = "${pkgs.waybar}/bin/waybar";
           ExecReload = "${pkgs.coreutils}/bin/kill -SIGUSR2 $MAINPID";
           Restart = "on-failure";
         };
+        Install.WantedBy = [ config.wayland.systemd.target ];
       };
 
       services.playerctld.enable = true;
