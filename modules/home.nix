@@ -35,9 +35,7 @@
         # AI / AGENT DEVELOPMENT TOOLS
         ########################################
         pi-coding-agent # pi coding agent (from lukasl-dev/pi.nix overlay)
-        aider-chat # AI pair programming in terminal
         opencode # Terminal UI for LLMs
-        computer-use-linux # Native Wayland computer-use MCP
 
         ########################################
         # ENHANCED CLI TOOLS
@@ -57,7 +55,6 @@
         tree
         rsync
         lsof
-        usbutils
         strace
         zip
         unzip
@@ -90,12 +87,6 @@
         procs # Modern `ps` replacement
         dust # `du` replacement — disk usage visualised
         duf # `df` replacement — disk free with better output
-
-        ########################################
-        # FONTS
-        ########################################
-        noto-fonts
-        noto-fonts-cjk-sans
       ];
 
       ############################################
@@ -122,47 +113,6 @@
 
         # AI tools
         pi = "pi";
-        aider = "aider";
-
-      };
-
-      ############################################
-      # FONT CONFIGURATION
-      ############################################
-      fonts.fontconfig.defaultFonts.sansSerif = [ "Noto Sans" ];
-
-      ############################################
-      # SYNCTHING
-      ############################################
-      services.syncthing = {
-        enable = true;
-        package = pkgs.syncthing;
-        guiAddress = "127.0.0.1:8384";
-        overrideDevices = true;
-        overrideFolders = true;
-        settings = {
-          devices = {
-            lucid-server = {
-              id = "6XWWGNN-R7HBLRL-CHGQSTV-BYLYWXP-YTIXXLG-EEXRZLN-2EDHEAF-JSRIDAP";
-              name = "lucid-server";
-            };
-            bigboy = {
-              id = "XHF4Y4B-QZM2XII-R7W5IG2-DXGQONP-DHPYDJH-OEGHNVR-7S6MXIL-R5LFQAY";
-              name = "bigboy";
-            };
-          };
-          folders."Vault-V2" = {
-            id = "Vault-V2";
-            path = "${home_dir}/Documents/Vault";
-            label = "Vault-V2 - Obsidian";
-            devices = [ "lucid-server" ];
-            versioning = {
-              type = "simple";
-              params.keep = 10;
-            };
-          };
-          gui.theme = "black";
-        };
       };
 
       ############################################
