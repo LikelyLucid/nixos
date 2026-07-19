@@ -52,7 +52,10 @@
       };
     in
     {
-      environment.systemPackages = [ juicefs ];
+      environment.systemPackages = [
+        juicefs
+        pkgs.fuse
+      ];
 
       programs.fuse.userAllowOther = true;
 
@@ -71,6 +74,7 @@
 
         serviceConfig = {
           Type = "simple";
+          ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn ${pkgs.fuse}/bin/fusermount /bin/fusermount";
           ExecStart = "${mount_juicefs}/bin/mount-juicefs";
           ExecStop = "${juicefs}/bin/juicefs umount /mnt/juicefs";
           CacheDirectory = "juicefs";
