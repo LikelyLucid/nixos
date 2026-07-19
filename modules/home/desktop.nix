@@ -212,6 +212,7 @@
         text = ''
           {
             "$schema": "/etc/xdg/swaync/config.json",
+            "ignore-gtk-theme": true,
             "positionX": "right",
             "positionY": "top",
             "layer": "overlay",
@@ -221,6 +222,8 @@
             "control-center-margin-left": 0,
             "notification-2fa-action": true,
             "notification-inline-replies": true,
+            "control-center-width": 420,
+            "control-center-height": 640,
             "notification-window-width": 420,
             "notification-window-height": -1,
             "timeout": 5,
@@ -228,7 +231,29 @@
             "timeout-critical": 0,
             "fit-to-screen": true,
             "keyboard-shortcuts": true,
-            "image-radius": 12
+            "image-radius": 12,
+            "transition-time": 160,
+            "hide-on-clear": false,
+            "hide-on-action": true,
+            "text-empty": "You're all caught up",
+            "widgets": [
+              "title",
+              "dnd",
+              "notifications"
+            ],
+            "widget-config": {
+              "notifications": {
+                "vexpand": true
+              },
+              "title": {
+                "text": "Notifications",
+                "clear-all-button": true,
+                "button-text": "Clear"
+              },
+              "dnd": {
+                "text": "Do Not Disturb"
+              }
+            }
           }
         '';
       };

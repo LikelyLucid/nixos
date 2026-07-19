@@ -3,7 +3,10 @@
   nixos.modules.desktop =
     { pkgs, ... }:
     {
-      fonts.packages = [ pkgs.inter ];
+      fonts.packages = with pkgs; [
+        jetbrains-mono
+        nerd-fonts.jetbrains-mono
+      ];
     };
 
   homeManager.modules.desktop =
@@ -18,7 +21,7 @@
       gtk = {
         enable = true;
         font = {
-          name = "Inter";
+          name = "JetBrains Mono";
           size = 11;
         };
         theme = gtk_theme;
@@ -32,10 +35,9 @@
           size = 24;
         };
         gtk3.extraConfig.gtk-application-prefer-dark-theme = true;
-        gtk4 = {
-          theme = gtk_theme;
-          extraConfig.gtk-application-prefer-dark-theme = true;
-        };
+        # Libadwaita applications follow the dconf color scheme directly;
+        # injecting a GTK 4 theme or legacy dark-theme key causes warnings.
+        gtk4.theme = null;
       };
 
       qt = {

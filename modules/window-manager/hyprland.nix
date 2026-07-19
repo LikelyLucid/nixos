@@ -76,7 +76,7 @@
         bottom
         fuse3 # Required by xdg-document-portal for native file pickers
         ghostty # Fast terminal emulator
-        kdePackages.spectacle # GUI screenshots, annotation, and screen recording
+        grim # Native Wayland screenshots
         hyprpolkitagent
         jq
         networkmanagerapplet # Network tray applet + connection editor
@@ -85,6 +85,8 @@
         pavucontrol # Audio mixer
         playerctl # Media player controls
         rofi-bluetooth
+        slurp # Interactive screenshot region selection
+        swappy # Screenshot annotation
         wl-clipboard
         wlr-randr # Monitor config CLI
       ];

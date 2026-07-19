@@ -217,8 +217,8 @@
         hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("canvas-ctl toggle"))
 
         hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd('cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy'))
-        hl.bind("Print", hl.dsp.exec_cmd("spectacle --region"))
-        hl.bind("SHIFT + Print", hl.dsp.exec_cmd("spectacle --fullscreen"))
+        hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+        hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"))
 
         hl.bind(mainMod .. " + comma", hl.dsp.focus({ workspace = "e-1" }))
         hl.bind(mainMod .. " + period", hl.dsp.focus({ workspace = "e+1" }))
@@ -303,8 +303,8 @@
                 "WiFi Quick Connect") pkill -x rofi 2>/dev/null; (networkmanager_dmenu) & ;;
                 "Audio") pavucontrol ;;
                 "Monitors") nwg-displays ;;
-                "Screenshot (area)") pkill -x rofi 2>/dev/null; (spectacle --region) & ;;
-                "Screenshot (full)") pkill -x rofi 2>/dev/null; (spectacle --fullscreen) & ;;
+                "Screenshot (area)") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
+                "Screenshot (full)") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
                 "Lock Screen") hyprlock ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
                 "Do Not Disturb") swaync-client -d ;;
