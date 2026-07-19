@@ -56,16 +56,17 @@
           return text
         end
 
-        local function rgba(text, name, fallback)
-          return text:match("%$" .. name .. "%s*=%s*(rgba%([^)]+%))") or fallback
+        local function rgba(text, name)
+          return text:match("%$" .. name .. "%s*=%s*(rgba%([^)]+%))")
         end
 
         local function apply_wallust()
           local text = read(os.getenv("HOME") .. "/.config/hypr/wallust-colors.conf")
-          local bg = rgba(text, "wallust_bg", "rgba(1a1a1aee)")
-          local accent = rgba(text, "wallust_accent", "rgba(33ccffee)")
-          local accent2 = rgba(text, "wallust_accent2", "rgba(00ff99ee)")
-          local inactive = text:match("col%.inactive_border%s*=%s*(rgba%([^)]+%))") or "rgba(595959aa)"
+          local bg = rgba(text, "wallust_bg")
+          local accent = rgba(text, "wallust_accent")
+          local accent2 = rgba(text, "wallust_accent2")
+          local inactive = text:match("col%.inactive_border%s*=%s*(rgba%([^)]+%))")
+          if not (bg and accent and accent2 and inactive) then return end
 
           hl.config({
             general = {
@@ -83,10 +84,6 @@
             gaps_in = 6,
             gaps_out = 18,
             border_size = 2,
-            col = {
-              active_border = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
-              inactive_border = "rgba(595959aa)",
-            },
             resize_on_border = true,
             allow_tearing = false,
             layout = "dwindle",
@@ -100,7 +97,6 @@
               enabled = true,
               range = 10,
               render_power = 3,
-              color = "rgba(1a1a1aee)",
             },
             blur = {
               enabled = true,
