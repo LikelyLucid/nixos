@@ -157,18 +157,10 @@
         hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
         hl.device({ name = "epic-mouse-v1", sensitivity = -0.5 })
 
+        -- UWSM owns the graphical session lifecycle; session services are
+        -- declarative Home Manager units rather than compositor child processes.
         hl.on("hyprland.start", function()
           hl.exec_cmd("~/.config/hypr/scripts/wallust-apply.sh")
-          hl.exec_cmd("hyprpaper")
-          hl.exec_cmd("nm-applet")
-          hl.exec_cmd("blueman-applet")
-          hl.exec_cmd("systemctl --user restart swaync.service")
-          hl.exec_cmd("systemctl --user start tray.target")
-          hl.exec_cmd("systemctl --user restart kdeconnect-indicator.service")
-          hl.exec_cmd("kdeconnectd")
-          hl.exec_cmd("wl-paste --watch cliphist store")
-          hl.exec_cmd("sh -lc 'sleep 1; systemctl --user restart waybar.service'")
-          hl.exec_cmd("canvasd")
         end)
 
         hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
@@ -225,8 +217,8 @@
         hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("canvas-ctl toggle"))
 
         hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd('cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy'))
-        hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
-        hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | swappy -f -"))
+        hl.bind("Print", hl.dsp.exec_cmd("spectacle --region"))
+        hl.bind("SHIFT + Print", hl.dsp.exec_cmd("spectacle --fullscreen"))
 
         hl.bind(mainMod .. " + comma", hl.dsp.focus({ workspace = "e-1" }))
         hl.bind(mainMod .. " + period", hl.dsp.focus({ workspace = "e+1" }))
@@ -311,8 +303,8 @@
                 "WiFi Quick Connect") pkill -x rofi 2>/dev/null; (networkmanager_dmenu) & ;;
                 "Audio") pavucontrol ;;
                 "Monitors") nwg-displays ;;
-                "Screenshot (area)") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
-                "Screenshot (full)") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
+                "Screenshot (area)") pkill -x rofi 2>/dev/null; (spectacle --region) & ;;
+                "Screenshot (full)") pkill -x rofi 2>/dev/null; (spectacle --fullscreen) & ;;
                 "Lock Screen") hyprlock ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
                 "Do Not Disturb") swaync-client -d ;;

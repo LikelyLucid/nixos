@@ -8,41 +8,22 @@
     }:
     let
       tuigreet = lib.getExe pkgs.tuigreet;
-      hyprland_session = "start-hyprland";
+      hyprland_session = "uwsm start -S -F /run/current-system/sw/bin/Hyprland";
     in
     {
       ############################################
-      # GRAPHICS & NVIDIA
+      # GRAPHICS
       ############################################
       services.xserver.enable = false;
-      services.xserver.videoDrivers = [
-        "nvidia"
-        "displaylink"
-      ];
+      services.xserver.videoDrivers = [ "displaylink" ];
       hardware.graphics.enable = true;
-
-      hardware.nvidia = {
-        modesetting.enable = true;
-        powerManagement = {
-          enable = true;
-          finegrained = true;
-        };
-        open = false;
-        prime = {
-          offload = {
-            enable = true;
-            enableOffloadCmd = true;
-          };
-          intelBusId = "PCI:0:2:0";
-          nvidiaBusId = "PCI:1:0:0";
-        };
-      };
 
       ############################################
       # HYPRLAND
       ############################################
       programs.hyprland = {
         enable = true;
+        withUWSM = true;
         xwayland.enable = true;
       };
       programs.hyprlock.enable = true;
@@ -76,7 +57,6 @@
       # ENVIRONMENT VARIABLES
       ############################################
       environment.sessionVariables = {
-        __GLX_VENDOR_LIBRARY_NAME = "nvidia";
         ELECTRON_ENABLE_WAYLAND = "1";
         OZONE_PLATFORM = "wayland";
         XDG_CURRENT_DESKTOP = "Hyprland";
@@ -94,12 +74,9 @@
         brightnessctl
         blueman # Bluetooth manager GUI
         bottom
-        cliphist # Clipboard manager with history
-        dunst
-        flameshot
+        fuse3 # Required by xdg-document-portal for native file pickers
         ghostty # Fast terminal emulator
-        grim
-        grimblast
+        kdePackages.spectacle # GUI screenshots, annotation, and screen recording
         hyprpolkitagent
         jq
         networkmanagerapplet # Network tray applet + connection editor
@@ -108,8 +85,6 @@
         pavucontrol # Audio mixer
         playerctl # Media player controls
         rofi-bluetooth
-        slurp
-        swappy # Screenshot annotation
         wl-clipboard
         wlr-randr # Monitor config CLI
       ];
