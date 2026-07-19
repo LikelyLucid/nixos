@@ -3,7 +3,6 @@
   nixos.modules.desktop =
     {
       config,
-      lib,
       pkgs,
       ...
     }:
@@ -27,7 +26,5 @@
         useRoutingFeatures = "client";
       };
 
-      # Authentication continues in the background instead of gating multi-user.target.
-      systemd.services.tailscaled-autoconnect.serviceConfig.Type = lib.mkForce "exec";
     };
 }
