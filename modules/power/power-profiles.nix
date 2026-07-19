@@ -10,9 +10,10 @@
         description = "TLP power profiles daemon";
         documentation = [ "man:tlp-pd(8)" ];
         wantedBy = [ "graphical.target" ];
+        before = [ "tlp.service" ];
         after = [
+          "display-manager.target"
           "multi-user.target"
-          "tlp.service"
         ];
         serviceConfig = {
           Type = "dbus";

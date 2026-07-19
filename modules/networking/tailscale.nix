@@ -1,7 +1,12 @@
 { ... }:
 {
   nixos.modules.desktop =
-    { config, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     {
       ############################################
       # TAILSCALE
@@ -21,5 +26,8 @@
         ];
         useRoutingFeatures = "client";
       };
+
+      # Authentication continues in the background instead of gating multi-user.target.
+      systemd.services.tailscaled-autoconnect.serviceConfig.Type = lib.mkForce "exec";
     };
 }
