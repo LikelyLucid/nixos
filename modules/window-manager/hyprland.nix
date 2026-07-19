@@ -1,7 +1,17 @@
 { ... }:
 {
   nixos.modules.desktop =
-    { pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    let
+      tuigreet = lib.getExe pkgs.tuigreet;
+      uwsm = lib.getExe pkgs.uwsm;
+      hyprland_session = "${uwsm} start -e -D Hyprland -g -1 ${config.programs.hyprland.package}/share/wayland-sessions/hyprland.desktop";
+    in
     {
       ############################################
       # GRAPHICS
@@ -21,6 +31,14 @@
       programs.hyprlock.enable = true;
       services.hypridle.enable = true;
       services.gnome.at-spi2-core.enable = true;
+
+      services.greetd = {
+        enable = true;
+        settings.default_session = {
+          command = "${tuigreet} --time --greeting 'Welcome back Arthur!' --cmd ${lib.escapeShellArg hyprland_session}";
+          user = "greeter";
+        };
+      };
 
       ############################################
       # XDG PORTAL
