@@ -49,6 +49,27 @@
             -o allow_other
         '';
       };
+
+      prepare_juicefs = pkgs.writeShellApplication {
+        name = "prepare-juicefs";
+        runtimeInputs = [ pkgs.util-linux ];
+        text = ''
+          if findmnt --mountpoint /mnt/juicefs >/dev/null; then
+            umount --lazy /mnt/juicefs
+          fi
+          ${pkgs.coreutils}/bin/ln -sfn ${pkgs.fuse}/bin/fusermount /bin/fusermount
+        '';
+      };
+
+      cleanup_juicefs = pkgs.writeShellApplication {
+        name = "cleanup-juicefs";
+        runtimeInputs = [ pkgs.util-linux ];
+        text = ''
+          if findmnt --mountpoint /mnt/juicefs >/dev/null; then
+            umount --lazy /mnt/juicefs
+          fi
+        '';
+      };
     in
     {
       environment.systemPackages = [
@@ -73,9 +94,10 @@
 
         serviceConfig = {
           Type = "simple";
-          ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn ${pkgs.fuse}/bin/fusermount /bin/fusermount";
+          ExecStartPre = "${prepare_juicefs}/bin/prepare-juicefs";
           ExecStart = "${mount_juicefs}/bin/mount-juicefs";
           ExecStop = "${juicefs}/bin/juicefs umount /mnt/juicefs";
+          ExecStopPost = "${cleanup_juicefs}/bin/cleanup-juicefs";
           CacheDirectory = "juicefs";
           CacheDirectoryMode = "0700";
           Restart = "on-failure";
