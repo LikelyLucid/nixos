@@ -1,7 +1,7 @@
 { ... }:
 {
   homeManager.modules.common =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     {
       programs.tmux = {
         enable = true;
@@ -63,8 +63,25 @@
           bind -N "Swap pane forward" > swap-pane -D
           bind -N "Create a named session" N command-prompt -p "new session:" "new-session -A -s '%%'"
 
-          # Useful popups keep the main layout intact
-          bind -N "Open scratch terminal" Space display-popup -d "#{pane_current_path}" -w "90%" -h "90%" -E
+          # A centered command palette keeps common actions discoverable.
+          bind -N "Open command palette" Space display-menu -T " tmux · #S " -x C -y C \
+            "New window" c "new-window -c '#{pane_current_path}'" \
+            "Split right" "|" "split-window -h -c '#{pane_current_path}'" \
+            "Split below" "-" "split-window -v -c '#{pane_current_path}'" \
+            "" \
+            "Scratch terminal" t "display-popup -d '#{pane_current_path}' -w '90%' -h '90%' -E" \
+            "Lazygit" g "display-popup -d '#{pane_current_path}' -w '95%' -h '95%' -E lazygit" \
+            "" \
+            "Browse sessions" s "choose-tree -Zs" \
+            "Browse windows" w "choose-tree -Zw" \
+            "" \
+            "Key bindings" ? "display-popup -T ' tmux key bindings ' -w '85%' -h '85%' -E 'tmux list-keys -N | sort | less -R'" \
+            "Reload configuration" R "source-file ~/.config/tmux/tmux.conf; display-message 'tmux configuration reloaded'" \
+            "Detach" d "detach-client" \
+            "Close pane" x "confirm-before -p 'Close pane? (y/n)' kill-pane"
+
+          # Useful popups keep the main layout intact.
+          bind -N "Open scratch terminal" t display-popup -d "#{pane_current_path}" -w "90%" -h "90%" -E
           bind -N "Open lazygit" g if-shell 'command -v lazygit >/dev/null 2>&1' 'display-popup -d "#{pane_current_path}" -w "95%" -h "95%" -E lazygit' 'display-message "lazygit is not installed"'
           bind -N "Show key bindings" ? display-popup -T " tmux key bindings " -w "85%" -h "85%" -E "tmux list-keys -N | sort | less -R"
 
@@ -97,6 +114,14 @@
           set -g window-status-activity-style "fg=colour12,bold"
           set -g window-status-bell-style "fg=colour9,bold"
 
+          # Quiet attention signals: status activity plus desktop bell alerts.
+          set -g activity-action other
+          set -g bell-action other
+          set -g visual-activity off
+          set -g visual-bell off
+          set -g monitor-activity on
+          set-hook -g alert-bell 'run-shell -b "${pkgs.libnotify}/bin/notify-send --app-name=tmux --urgency=normal --icon=utilities-terminal \"tmux · #{session_name}:#{window_name}\" \"An application needs attention\" >/dev/null 2>&1 || true"'
+
           # Focus, prompts, menus, and popups share one accent
           set -g pane-border-status off
           set -g pane-border-style "fg=colour8"
@@ -117,5 +142,62 @@
           if-shell 'test -f ~/.config/tmux/wallust.conf' 'source-file ~/.config/tmux/wallust.conf'
         '';
       };
+
+      # LazyVim-style completion notices: only for long commands when the
+      # originating pane is no longer focused.
+      programs.zsh.initContent = lib.mkAfter ''
+        if [[ -n "$TMUX" && -o interactive ]]; then
+          zmodload zsh/datetime
+          autoload -Uz add-zsh-hook
+
+          typeset -gi TMUX_COMMAND_STARTED=0
+          typeset -gi TMUX_NOTIFY_THRESHOLD=10
+
+          function _tmux_notify_preexec() {
+            TMUX_COMMAND_STARTED=$EPOCHSECONDS
+          }
+
+          function _tmux_notify_precmd() {
+            local command_status=$?
+            local started=$TMUX_COMMAND_STARTED
+            TMUX_COMMAND_STARTED=0
+
+            (( started == 0 )) && return
+
+            local elapsed=$(( EPOCHSECONDS - started ))
+            (( elapsed < TMUX_NOTIFY_THRESHOLD )) && return
+            [[ -z "$TMUX_PANE" ]] && return
+
+            local pane_state
+            pane_state=$(tmux display-message -p -t "$TMUX_PANE" -F '#{client_active}:#{window_active}:#{pane_active}' 2>/dev/null) || return
+            [[ "$pane_state" == "1:1:1" ]] && return
+
+            local target
+            target=$(tmux display-message -p -t "$TMUX_PANE" -F '#{session_name}:#{window_name}' 2>/dev/null) || target="session"
+
+            local summary urgency
+            if (( command_status == 0 )); then
+              summary="Finished successfully"
+              urgency="low"
+            else
+              summary="Failed with status $command_status"
+              urgency="normal"
+            fi
+
+            ${pkgs.libnotify}/bin/notify-send \
+              --app-name=tmux \
+              --urgency="$urgency" \
+              --icon=utilities-terminal \
+              "tmux · $target" \
+              "$summary after $elapsed seconds" \
+              >/dev/null 2>&1 || true
+          }
+
+          add-zsh-hook -d preexec _tmux_notify_preexec 2>/dev/null
+          add-zsh-hook -d precmd _tmux_notify_precmd 2>/dev/null
+          add-zsh-hook preexec _tmux_notify_preexec
+          add-zsh-hook precmd _tmux_notify_precmd
+        fi
+      '';
     };
 }
