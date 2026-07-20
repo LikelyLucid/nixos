@@ -2,6 +2,22 @@
 {
   homeManager.modules.common =
     { pkgs, ... }:
+    let
+      yazi_open_nvim = pkgs.writeShellApplication {
+        name = "yazi-open-nvim";
+        runtimeInputs = with pkgs; [
+          neovim
+          tmux
+        ];
+        text = ''
+          if [[ -n ''${TMUX:-} ]]; then
+            tmux new-window -c "$PWD" -n nvim -- nvim "$@"
+          else
+            exec nvim "$@"
+          fi
+        '';
+      };
+    in
     {
       programs.yazi = {
         enable = true;
@@ -72,6 +88,15 @@
             image_filter = "lanczos3";
             image_quality = 85;
           };
+
+          opener.edit = [
+            {
+              run = "${yazi_open_nvim}/bin/yazi-open-nvim %s";
+              desc = "Open in Neovim";
+              block = true;
+              for = "unix";
+            }
+          ];
 
           opener.extract = [
             {
