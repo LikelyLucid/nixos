@@ -93,11 +93,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1784510013,
-        "narHash": "sha256-Bgk8hBIIJy3RZhvPQYzizkH3GX5A/T7D4qk+weGG32I=",
+        "lastModified": 1784510063,
+        "narHash": "sha256-CLdcz27YCp46oc920Bfb3WelEY5f1appahZw+gpZrmM=",
         "owner": "LikelyLucid",
         "repo": "dotfiles",
-        "rev": "84a9dc2ff16b7e13f16bea16125affebce468852",
+        "rev": "448a1e6d64be52183fe0931b6ce9fa26b882e785",
         "type": "github"
       },
       "original": {
