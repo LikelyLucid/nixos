@@ -12,7 +12,6 @@
         gnugrep
         marksman # markdown LSP (mason binary can't run on NixOS)
         neovim
-        yazi
         zig
       ];
 
