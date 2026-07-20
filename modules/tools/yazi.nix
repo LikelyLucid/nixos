@@ -6,7 +6,7 @@
       programs.yazi = {
         enable = true;
         enableZshIntegration = true;
-        shellWrapperName = "y";
+        shellWrapperName = "yazi";
 
         extraPackages = with pkgs; [
           bat
@@ -16,6 +16,7 @@
           ouch
           udisks2
           util-linux
+          wl-clipboard
         ];
 
         plugins = with pkgs.yaziPlugins; {
@@ -40,6 +41,8 @@
             piper
             smart-enter
             smart-filter
+            smart-paste
+            toggle-pane
             ;
         };
 
@@ -65,6 +68,7 @@
             tab_size = 2;
             max_width = 1800;
             max_height = 1800;
+            image_delay = 0;
             image_filter = "lanczos3";
             image_quality = 85;
           };
@@ -121,14 +125,30 @@
 
         keymap.mgr.prepend_keymap = [
           {
+            on = "!";
+            run = ''shell "$SHELL" --block'';
+            desc = "Open a shell here";
+            for = "unix";
+          }
+          {
             on = "l";
             run = "plugin smart-enter";
             desc = "Enter directory or open file";
           }
           {
+            on = "p";
+            run = "plugin smart-paste";
+            desc = "Paste into hovered directory or CWD";
+          }
+          {
             on = "F";
             run = "plugin smart-filter";
             desc = "Smart filter";
+          }
+          {
+            on = "T";
+            run = "plugin toggle-pane max-preview";
+            desc = "Maximize or restore preview";
           }
           {
             on = "C";
@@ -139,6 +159,14 @@
             on = "M";
             run = "plugin mount";
             desc = "Manage mounted drives";
+          }
+          {
+            on = "y";
+            run = [
+              ''shell -- if [ -n "$WAYLAND_DISPLAY" ]; then for path in %s; do printf "file://%s\\n" "$path"; done | wl-copy -t text/uri-list; fi''
+              "yank"
+            ];
+            desc = "Yank and copy file URIs";
           }
           {
             on = [
@@ -163,6 +191,14 @@
             ];
             run = "plugin projects load_last";
             desc = "Load the last project";
+          }
+          {
+            on = [
+              "g"
+              "r"
+            ];
+            run = ''shell -- ya emit cd "$(git rev-parse --show-toplevel)"'';
+            desc = "Go to Git repository root";
           }
           {
             on = [
@@ -197,6 +233,12 @@
             desc = "Go to Obsidian vault";
           }
           {
+            on = "<C-w>";
+            run = "shell -- ~/.local/bin/set-wallpaper %h";
+            desc = "Set hovered image as wallpaper";
+            for = "unix";
+          }
+          {
             on = "<F3>";
             run = "plugin mediainfo -- toggle-metadata";
             desc = "Toggle media metadata";
@@ -207,6 +249,16 @@
             desc = "Toggle media preview";
           }
         ];
+
+        keymap.input.prepend_keymap = [
+          {
+            on = "<Esc>";
+            run = "close";
+            desc = "Cancel input";
+          }
+        ];
       };
+
+      programs.zsh.shellAliases.y = "yazi";
     };
 }
