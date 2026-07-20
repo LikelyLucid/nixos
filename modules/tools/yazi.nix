@@ -31,6 +31,7 @@
           projects = {
             package = projects;
             setup = true;
+            settings.notify.enable = true;
           };
           inherit
             mediainfo
