@@ -249,6 +249,14 @@
           suppress_event = "maximize",
         })
 
+        -- Chromium's Wayland confirmation dialogs are clipped to narrow parent
+        -- surfaces, hiding their action buttons in the canvas layout.
+        hl.window_rule({
+          name = "helium-dialog-minimum-width",
+          match = { class = "^helium$" },
+          min_size = { 700, 0 },
+        })
+
         hl.window_rule({
           name = "fix-xwayland-drags",
           match = {
@@ -307,12 +315,12 @@
                 "Displays") nwg-displays ;;
                 "Power Mode") power-profile-menu ;;
                 "Power & Battery") power-profile-details ;;
+                "Tailscale Route") tailscale-route-menu ;;
                 "Printers") system-config-printer ;;
                 "Storage") gnome-disks ;;
                 "Disk Usage") baobab ;;
                 "System Monitor") resources ;;
                 "Passwords & Keys") seahorse ;;
-                "Color Management") gcm-viewer ;;
                 "Night Light") night-light-toggle ;;
                 "Screenshot Area") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
                 "Screenshot Full Screen") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
@@ -336,12 +344,12 @@
                 "Displays" \
                 "Power Mode" \
                 "Power & Battery" \
+                "Tailscale Route" \
                 "Printers" \
                 "Storage" \
                 "Disk Usage" \
                 "System Monitor" \
                 "Passwords & Keys" \
-                "Color Management" \
                 "Night Light" \
                 "Screenshot Area" \
                 "Screenshot Full Screen" \
@@ -518,13 +526,18 @@
         enable = true;
         settings = {
           general = {
-            lock_cmd = "hyprlock";
-            before_sleep_cmd = "hyprlock";
+            lock_cmd = "pidof hyprlock || hyprlock";
+            before_sleep_cmd = "loginctl lock-session";
           };
           listener = [
             {
               timeout = 300;
-              on-timeout = "hyprlock";
+              on-timeout = "loginctl lock-session";
+            }
+            {
+              timeout = 330;
+              on-timeout = "hyprctl dispatch dpms off";
+              on-resume = "hyprctl dispatch dpms on";
             }
             {
               timeout = 600;

@@ -1,0 +1,1786 @@
+{
+  "version": {
+    "minor": 12,
+    "patch": 4,
+    "api_prerelease": false,
+    "api_level": 14,
+    "major": 0,
+    "api_compatible": 0,
+    "build": null
+  },
+  "keymaps": [
+    {
+      "desc": "Toggle Flash Search",
+      "mode": "c",
+      "lhs": "<C-S>"
+    },
+    {
+      "desc": "Redirect Cmdline",
+      "mode": "c",
+      "lhs": "<S-CR>"
+    },
+    {
+      "desc": "Scroll Backward",
+      "mode": "i",
+      "lhs": "<C-B>"
+    },
+    {
+      "desc": "Scroll Forward",
+      "mode": "i",
+      "lhs": "<C-F>"
+    },
+    {
+      "desc": "vim.lsp.buf.signature_help()",
+      "mode": "i",
+      "lhs": "<C-S>"
+    },
+    {
+      "desc": ":help i_CTRL-U-default",
+      "rhs": "<C-G>u<C-U>",
+      "mode": "i",
+      "lhs": "<C-U>"
+    },
+    {
+      "desc": ":help i_CTRL-W-default",
+      "rhs": "<C-G>u<C-W>",
+      "mode": "i",
+      "lhs": "<C-W>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <S-Tab>",
+      "mode": "i",
+      "lhs": "<S-Tab>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <Tab>",
+      "mode": "i",
+      "lhs": "<Tab>"
+    },
+    {
+      "desc": "Find Files (Root Dir)",
+      "mode": "n",
+      "lhs": "  "
+    },
+    {
+      "desc": "Switch Buffer",
+      "rhs": "<Cmd>Telescope buffers sort_mru=true sort_lastused=true<CR>",
+      "mode": "n",
+      "lhs": " ,"
+    },
+    {
+      "desc": "Toggle Scratch Buffer",
+      "mode": "n",
+      "lhs": " ."
+    },
+    {
+      "desc": "Grep (Root Dir)",
+      "mode": "n",
+      "lhs": " /"
+    },
+    {
+      "desc": "Command History",
+      "rhs": "<Cmd>Telescope command_history<CR>",
+      "mode": "n",
+      "lhs": " :"
+    },
+    {
+      "desc": "Buffer Keymaps (which-key)",
+      "mode": "n",
+      "lhs": " ?"
+    },
+    {
+      "desc": "Explorer NeoTree (cwd)",
+      "mode": "n",
+      "lhs": " E"
+    },
+    {
+      "desc": "Select Scratch Buffer",
+      "mode": "n",
+      "lhs": " S"
+    },
+    {
+      "desc": "+ai",
+      "rhs": "",
+      "mode": "n",
+      "lhs": " a"
+    },
+    {
+      "desc": "Toggle (CopilotChat)",
+      "mode": "n",
+      "lhs": " aa"
+    },
+    {
+      "desc": "Prompt Actions (CopilotChat)",
+      "mode": "n",
+      "lhs": " ap"
+    },
+    {
+      "desc": "Quick Chat (CopilotChat)",
+      "mode": "n",
+      "lhs": " aq"
+    },
+    {
+      "desc": "Clear (CopilotChat)",
+      "mode": "n",
+      "lhs": " ax"
+    },
+    {
+      "desc": "Delete Non-Pinned Buffers",
+      "mode": "n",
+      "lhs": " bP"
+    },
+    {
+      "desc": "Buffer Explorer",
+      "mode": "n",
+      "lhs": " be"
+    },
+    {
+      "desc": "Pick Buffer",
+      "mode": "n",
+      "lhs": " bj"
+    },
+    {
+      "desc": "Delete Buffers to the Left",
+      "mode": "n",
+      "lhs": " bl"
+    },
+    {
+      "desc": "Toggle Pin",
+      "mode": "n",
+      "lhs": " bp"
+    },
+    {
+      "desc": "Delete Buffers to the Right",
+      "mode": "n",
+      "lhs": " br"
+    },
+    {
+      "desc": "Format Injected Langs",
+      "mode": "n",
+      "lhs": " cF"
+    },
+    {
+      "desc": "LSP references/definitions/... (Trouble)",
+      "mode": "n",
+      "lhs": " cS"
+    },
+    {
+      "desc": "Mason",
+      "mode": "n",
+      "lhs": " cm"
+    },
+    {
+      "desc": "Symbols (Trouble)",
+      "mode": "n",
+      "lhs": " cs"
+    },
+    {
+      "desc": "Profiler Scratch Buffer",
+      "mode": "n",
+      "lhs": " dps"
+    },
+    {
+      "desc": "Explorer NeoTree (Root Dir)",
+      "mode": "n",
+      "lhs": " e"
+    },
+    {
+      "desc": "Buffers (all)",
+      "rhs": "<Cmd>Telescope buffers<CR>",
+      "mode": "n",
+      "lhs": " fB"
+    },
+    {
+      "desc": "Explorer NeoTree (cwd)",
+      "mode": "n",
+      "lhs": " fE"
+    },
+    {
+      "desc": "Find Files (cwd)",
+      "mode": "n",
+      "lhs": " fF"
+    },
+    {
+      "desc": "Recent (cwd)",
+      "mode": "n",
+      "lhs": " fR"
+    },
+    {
+      "desc": "Buffers",
+      "rhs": "<Cmd>Telescope buffers sort_mru=true sort_lastused=true ignore_current_buffer=true<CR>",
+      "mode": "n",
+      "lhs": " fb"
+    },
+    {
+      "desc": "Find Config File",
+      "mode": "n",
+      "lhs": " fc"
+    },
+    {
+      "desc": "Explorer NeoTree (Root Dir)",
+      "mode": "n",
+      "lhs": " fe"
+    },
+    {
+      "desc": "Find Files (Root Dir)",
+      "mode": "n",
+      "lhs": " ff"
+    },
+    {
+      "desc": "Find Files (git-files)",
+      "rhs": "<Cmd>Telescope git_files<CR>",
+      "mode": "n",
+      "lhs": " fg"
+    },
+    {
+      "desc": "Recent",
+      "rhs": "<Cmd>Telescope oldfiles<CR>",
+      "mode": "n",
+      "lhs": " fr"
+    },
+    {
+      "desc": "Git Stash",
+      "rhs": "<Cmd>Telescope git_stash<CR>",
+      "mode": "n",
+      "lhs": " gS"
+    },
+    {
+      "desc": "Commits",
+      "rhs": "<Cmd>Telescope git_commits<CR>",
+      "mode": "n",
+      "lhs": " gc"
+    },
+    {
+      "desc": "Git Explorer",
+      "mode": "n",
+      "lhs": " ge"
+    },
+    {
+      "desc": "Commits",
+      "rhs": "<Cmd>Telescope git_commits<CR>",
+      "mode": "n",
+      "lhs": " gl"
+    },
+    {
+      "desc": "Status",
+      "rhs": "<Cmd>Telescope git_status<CR>",
+      "mode": "n",
+      "lhs": " gs"
+    },
+    {
+      "desc": "Notification History",
+      "mode": "n",
+      "lhs": " n"
+    },
+    {
+      "desc": "Open Yank History",
+      "mode": "n",
+      "lhs": " p"
+    },
+    {
+      "desc": "Select Session",
+      "mode": "n",
+      "lhs": " qS"
+    },
+    {
+      "desc": "Don't Save Current Session",
+      "mode": "n",
+      "lhs": " qd"
+    },
+    {
+      "desc": "Restore Last Session",
+      "mode": "n",
+      "lhs": " ql"
+    },
+    {
+      "desc": "Restore Session",
+      "mode": "n",
+      "lhs": " qs"
+    },
+    {
+      "desc": "+refactor",
+      "rhs": "",
+      "mode": "n",
+      "lhs": " r"
+    },
+    {
+      "desc": "Extract Function To File",
+      "mode": "n",
+      "lhs": " rF"
+    },
+    {
+      "desc": "Debug Print Location",
+      "mode": "n",
+      "lhs": " rP"
+    },
+    {
+      "desc": "Debug Cleanup",
+      "mode": "n",
+      "lhs": " rc"
+    },
+    {
+      "desc": "Extract Function",
+      "mode": "n",
+      "lhs": " rf"
+    },
+    {
+      "desc": "Inline Variable",
+      "mode": "n",
+      "lhs": " ri"
+    },
+    {
+      "desc": "Debug Print Variable",
+      "mode": "n",
+      "lhs": " rp"
+    },
+    {
+      "desc": "Select Refactor",
+      "mode": "n",
+      "lhs": " rs"
+    },
+    {
+      "desc": "Extract Variable",
+      "mode": "n",
+      "lhs": " rx"
+    },
+    {
+      "desc": "Registers",
+      "rhs": "<Cmd>Telescope registers<CR>",
+      "mode": "n",
+      "lhs": " s\""
+    },
+    {
+      "desc": "Search History",
+      "rhs": "<Cmd>Telescope search_history<CR>",
+      "mode": "n",
+      "lhs": " s/"
+    },
+    {
+      "desc": "Commands",
+      "rhs": "<Cmd>Telescope commands<CR>",
+      "mode": "n",
+      "lhs": " sC"
+    },
+    {
+      "desc": "Buffer Diagnostics",
+      "rhs": "<Cmd>Telescope diagnostics bufnr=0<CR>",
+      "mode": "n",
+      "lhs": " sD"
+    },
+    {
+      "desc": "Grep (cwd)",
+      "mode": "n",
+      "lhs": " sG"
+    },
+    {
+      "desc": "Search Highlight Groups",
+      "rhs": "<Cmd>Telescope highlights<CR>",
+      "mode": "n",
+      "lhs": " sH"
+    },
+    {
+      "desc": "Man Pages",
+      "rhs": "<Cmd>Telescope man_pages<CR>",
+      "mode": "n",
+      "lhs": " sM"
+    },
+    {
+      "desc": "Resume",
+      "rhs": "<Cmd>Telescope resume<CR>",
+      "mode": "n",
+      "lhs": " sR"
+    },
+    {
+      "desc": "Goto Symbol (Workspace)",
+      "mode": "n",
+      "lhs": " sS"
+    },
+    {
+      "desc": "Todo/Fix/Fixme",
+      "mode": "n",
+      "lhs": " sT"
+    },
+    {
+      "desc": "Word (cwd)",
+      "mode": "n",
+      "lhs": " sW"
+    },
+    {
+      "desc": "Auto Commands",
+      "rhs": "<Cmd>Telescope autocommands<CR>",
+      "mode": "n",
+      "lhs": " sa"
+    },
+    {
+      "desc": "Buffer Lines",
+      "rhs": "<Cmd>Telescope current_buffer_fuzzy_find<CR>",
+      "mode": "n",
+      "lhs": " sb"
+    },
+    {
+      "desc": "Command History",
+      "rhs": "<Cmd>Telescope command_history<CR>",
+      "mode": "n",
+      "lhs": " sc"
+    },
+    {
+      "desc": "Diagnostics",
+      "rhs": "<Cmd>Telescope diagnostics<CR>",
+      "mode": "n",
+      "lhs": " sd"
+    },
+    {
+      "desc": "Grep (Root Dir)",
+      "mode": "n",
+      "lhs": " sg"
+    },
+    {
+      "desc": "Help Pages",
+      "rhs": "<Cmd>Telescope help_tags<CR>",
+      "mode": "n",
+      "lhs": " sh"
+    },
+    {
+      "desc": "Jumplist",
+      "rhs": "<Cmd>Telescope jumplist<CR>",
+      "mode": "n",
+      "lhs": " sj"
+    },
+    {
+      "desc": "Key Maps",
+      "rhs": "<Cmd>Telescope keymaps<CR>",
+      "mode": "n",
+      "lhs": " sk"
+    },
+    {
+      "desc": "Location List",
+      "rhs": "<Cmd>Telescope loclist<CR>",
+      "mode": "n",
+      "lhs": " sl"
+    },
+    {
+      "desc": "Jump to Mark",
+      "rhs": "<Cmd>Telescope marks<CR>",
+      "mode": "n",
+      "lhs": " sm"
+    },
+    {
+      "desc": "+noice",
+      "rhs": "",
+      "mode": "n",
+      "lhs": " sn"
+    },
+    {
+      "desc": "Noice All",
+      "mode": "n",
+      "lhs": " sna"
+    },
+    {
+      "desc": "Dismiss All",
+      "mode": "n",
+      "lhs": " snd"
+    },
+    {
+      "desc": "Noice History",
+      "mode": "n",
+      "lhs": " snh"
+    },
+    {
+      "desc": "Noice Last Message",
+      "mode": "n",
+      "lhs": " snl"
+    },
+    {
+      "desc": "Noice Picker (Telescope/FzfLua)",
+      "mode": "n",
+      "lhs": " snt"
+    },
+    {
+      "desc": "Options",
+      "rhs": "<Cmd>Telescope vim_options<CR>",
+      "mode": "n",
+      "lhs": " so"
+    },
+    {
+      "desc": "Quickfix List",
+      "rhs": "<Cmd>Telescope quickfix<CR>",
+      "mode": "n",
+      "lhs": " sq"
+    },
+    {
+      "desc": "Search and Replace",
+      "mode": "n",
+      "lhs": " sr"
+    },
+    {
+      "desc": "Goto Symbol",
+      "mode": "n",
+      "lhs": " ss"
+    },
+    {
+      "desc": "Todo",
+      "mode": "n",
+      "lhs": " st"
+    },
+    {
+      "desc": "Word (Root Dir)",
+      "mode": "n",
+      "lhs": " sw"
+    },
+    {
+      "desc": "Colorscheme with Preview",
+      "mode": "n",
+      "lhs": " uC"
+    },
+    {
+      "desc": "Dismiss All Notifications",
+      "mode": "n",
+      "lhs": " un"
+    },
+    {
+      "desc": "UV Sync All Extras, Groups and Packages",
+      "rhs": "<Cmd>lua require('uv').run_command('uv sync --all-extras --all-packages --all-groups')<CR>",
+      "mode": "n",
+      "lhs": " xC"
+    },
+    {
+      "desc": "Location List (Trouble)",
+      "mode": "n",
+      "lhs": " xL"
+    },
+    {
+      "desc": "Quickfix List (Trouble)",
+      "mode": "n",
+      "lhs": " xQ"
+    },
+    {
+      "desc": "Todo/Fix/Fixme (Trouble)",
+      "mode": "n",
+      "lhs": " xT"
+    },
+    {
+      "desc": "UV Commands (Telescope)",
+      "rhs": "<Cmd>lua require('uv').pick_uv_commands()<CR>",
+      "mode": "n",
+      "lhs": " x"
+    },
+    {
+      "desc": "Buffer Diagnostics (Trouble)",
+      "mode": "n",
+      "lhs": " xX"
+    },
+    {
+      "desc": "UV Add Package",
+      "rhs": "<Cmd>lua vim.ui.input({prompt = 'Enter package name: '}, function(input) if input and input ~= '' then require('uv').run_command('uv add ' .. input) end end)<CR>",
+      "mode": "n",
+      "lhs": " xa"
+    },
+    {
+      "desc": "UV Sync Packages",
+      "rhs": "<Cmd>lua require('uv').run_command('uv sync')<CR>",
+      "mode": "n",
+      "lhs": " xc"
+    },
+    {
+      "desc": "UV Remove Package",
+      "rhs": "<Cmd>lua require('uv').remove_package()<CR>",
+      "mode": "n",
+      "lhs": " xd"
+    },
+    {
+      "desc": "UV Environment (Telescope)",
+      "rhs": "<Cmd>lua require('uv').pick_uv_venv()<CR>",
+      "mode": "n",
+      "lhs": " xe"
+    },
+    {
+      "desc": "UV Run Function",
+      "rhs": "<Cmd>UVRunFunction<CR>",
+      "mode": "n",
+      "lhs": " xf"
+    },
+    {
+      "desc": "UV Init",
+      "rhs": "<Cmd>UVInit<CR>",
+      "mode": "n",
+      "lhs": " xi"
+    },
+    {
+      "desc": "UV Run Current File",
+      "rhs": "<Cmd>UVRunFile<CR>",
+      "mode": "n",
+      "lhs": " xr"
+    },
+    {
+      "desc": "Todo (Trouble)",
+      "mode": "n",
+      "lhs": " xt"
+    },
+    {
+      "desc": "Diagnostics (Trouble)",
+      "mode": "n",
+      "lhs": " xx"
+    },
+    {
+      "desc": ":help &-default",
+      "rhs": ":&&<CR>",
+      "mode": "n",
+      "lhs": "&"
+    },
+    {
+      "desc": "Scroll Backward",
+      "mode": "n",
+      "lhs": "<C-B>"
+    },
+    {
+      "desc": "Scroll Forward",
+      "mode": "n",
+      "lhs": "<C-F>"
+    },
+    {
+      "desc": ":help CTRL-L-default",
+      "rhs": "<Cmd>nohlsearch|diffupdate|normal! <C-L><CR>",
+      "mode": "n",
+      "lhs": "<C-L>"
+    },
+    {
+      "desc": "Treesitter Incremental Selection",
+      "mode": "n",
+      "lhs": "<C-Space>"
+    },
+    {
+      "desc": "Window Hydra Mode (which-key)",
+      "mode": "n",
+      "lhs": "<C-W> "
+    },
+    {
+      "desc": "Show diagnostics under the cursor",
+      "rhs": "<C-W>d",
+      "mode": "n",
+      "lhs": "<C-W><C-D>"
+    },
+    {
+      "desc": "Show diagnostics under the cursor",
+      "mode": "n",
+      "lhs": "<C-W>d"
+    },
+    {
+      "desc": "Put Before and Indent Left",
+      "mode": "n",
+      "lhs": "<lt>P"
+    },
+    {
+      "desc": "Put and Indent Left",
+      "mode": "n",
+      "lhs": "<lt>p"
+    },
+    {
+      "desc": "Put Before Applying a Filter",
+      "mode": "n",
+      "lhs": "=P"
+    },
+    {
+      "desc": "Put After Applying a Filter",
+      "mode": "n",
+      "lhs": "=p"
+    },
+    {
+      "desc": "Put Before and Indent Right",
+      "mode": "n",
+      "lhs": ">P"
+    },
+    {
+      "desc": "Put and Indent Right",
+      "mode": "n",
+      "lhs": ">p"
+    },
+    {
+      "desc": "Prev Buffer",
+      "mode": "n",
+      "lhs": "H"
+    },
+    {
+      "desc": "Next Buffer",
+      "mode": "n",
+      "lhs": "L"
+    },
+    {
+      "desc": "Put Text Before Cursor",
+      "mode": "n",
+      "lhs": "P"
+    },
+    {
+      "desc": "Flash Treesitter",
+      "mode": "n",
+      "lhs": "S"
+    },
+    {
+      "desc": ":help Y-default",
+      "rhs": "y$",
+      "mode": "n",
+      "lhs": "Y"
+    },
+    {
+      "desc": "Add empty line above cursor",
+      "mode": "n",
+      "lhs": "[ "
+    },
+    {
+      "desc": ":lpfile",
+      "mode": "n",
+      "lhs": "[<C-L>"
+    },
+    {
+      "desc": ":cpfile",
+      "mode": "n",
+      "lhs": "[<C-Q>"
+    },
+    {
+      "desc": ":ptprevious",
+      "mode": "n",
+      "lhs": "[<C-T>"
+    },
+    {
+      "desc": ":rewind",
+      "mode": "n",
+      "lhs": "[A"
+    },
+    {
+      "desc": "Move buffer prev",
+      "mode": "n",
+      "lhs": "[B"
+    },
+    {
+      "desc": "Jump to the first diagnostic in the current buffer",
+      "mode": "n",
+      "lhs": "[D"
+    },
+    {
+      "desc": ":lrewind",
+      "mode": "n",
+      "lhs": "[L"
+    },
+    {
+      "desc": "Put Indented Before Cursor (Linewise)",
+      "mode": "n",
+      "lhs": "[P"
+    },
+    {
+      "desc": ":crewind",
+      "mode": "n",
+      "lhs": "[Q"
+    },
+    {
+      "desc": ":trewind",
+      "mode": "n",
+      "lhs": "[T"
+    },
+    {
+      "desc": ":previous",
+      "mode": "n",
+      "lhs": "[a"
+    },
+    {
+      "desc": "Prev Buffer",
+      "mode": "n",
+      "lhs": "[b"
+    },
+    {
+      "desc": "Jump to the previous diagnostic in the current buffer",
+      "mode": "n",
+      "lhs": "[d"
+    },
+    {
+      "desc": ":lprevious",
+      "mode": "n",
+      "lhs": "[l"
+    },
+    {
+      "desc": "Put Indented Before Cursor (Linewise)",
+      "mode": "n",
+      "lhs": "[p"
+    },
+    {
+      "desc": "Previous Trouble/Quickfix Item",
+      "mode": "n",
+      "lhs": "[q"
+    },
+    {
+      "desc": "Previous Todo Comment",
+      "mode": "n",
+      "lhs": "[t"
+    },
+    {
+      "desc": "Cycle Forward Through Yank History",
+      "mode": "n",
+      "lhs": "[y"
+    },
+    {
+      "desc": "Add empty line below cursor",
+      "mode": "n",
+      "lhs": "] "
+    },
+    {
+      "desc": ":lnfile",
+      "mode": "n",
+      "lhs": "]<C-L>"
+    },
+    {
+      "desc": ":cnfile",
+      "mode": "n",
+      "lhs": "]<C-Q>"
+    },
+    {
+      "desc": ":ptnext",
+      "mode": "n",
+      "lhs": "]<C-T>"
+    },
+    {
+      "desc": ":last",
+      "mode": "n",
+      "lhs": "]A"
+    },
+    {
+      "desc": "Move buffer next",
+      "mode": "n",
+      "lhs": "]B"
+    },
+    {
+      "desc": "Jump to the last diagnostic in the current buffer",
+      "mode": "n",
+      "lhs": "]D"
+    },
+    {
+      "desc": ":llast",
+      "mode": "n",
+      "lhs": "]L"
+    },
+    {
+      "desc": "Put Indented After Cursor (Linewise)",
+      "mode": "n",
+      "lhs": "]P"
+    },
+    {
+      "desc": ":clast",
+      "mode": "n",
+      "lhs": "]Q"
+    },
+    {
+      "desc": ":tlast",
+      "mode": "n",
+      "lhs": "]T"
+    },
+    {
+      "desc": ":next",
+      "mode": "n",
+      "lhs": "]a"
+    },
+    {
+      "desc": "Next Buffer",
+      "mode": "n",
+      "lhs": "]b"
+    },
+    {
+      "desc": "Jump to the next diagnostic in the current buffer",
+      "mode": "n",
+      "lhs": "]d"
+    },
+    {
+      "desc": ":lnext",
+      "mode": "n",
+      "lhs": "]l"
+    },
+    {
+      "desc": "Put Indented After Cursor (Linewise)",
+      "mode": "n",
+      "lhs": "]p"
+    },
+    {
+      "desc": "Next Trouble/Quickfix Item",
+      "mode": "n",
+      "lhs": "]q"
+    },
+    {
+      "desc": "Next Todo Comment",
+      "mode": "n",
+      "lhs": "]t"
+    },
+    {
+      "desc": "Cycle Backward Through Yank History",
+      "mode": "n",
+      "lhs": "]y"
+    },
+    {
+      "desc": "vim.lsp.buf.document_symbol()",
+      "mode": "n",
+      "lhs": "gO"
+    },
+    {
+      "desc": "Put Text Before Selection",
+      "mode": "n",
+      "lhs": "gP"
+    },
+    {
+      "desc": "Toggle comment",
+      "mode": "n",
+      "lhs": "gc"
+    },
+    {
+      "desc": "Toggle comment line",
+      "mode": "n",
+      "lhs": "gcc"
+    },
+    {
+      "desc": "Put Text After Selection",
+      "mode": "n",
+      "lhs": "gp"
+    },
+    {
+      "desc": "vim.lsp.buf.code_action()",
+      "mode": "n",
+      "lhs": "gra"
+    },
+    {
+      "desc": "vim.lsp.buf.implementation()",
+      "mode": "n",
+      "lhs": "gri"
+    },
+    {
+      "desc": "vim.lsp.buf.rename()",
+      "mode": "n",
+      "lhs": "grn"
+    },
+    {
+      "desc": "vim.lsp.buf.references()",
+      "mode": "n",
+      "lhs": "grr"
+    },
+    {
+      "desc": "vim.lsp.buf.type_definition()",
+      "mode": "n",
+      "lhs": "grt"
+    },
+    {
+      "desc": "vim.lsp.codelens.run()",
+      "mode": "n",
+      "lhs": "grx"
+    },
+    {
+      "desc": "Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)",
+      "mode": "n",
+      "lhs": "gx"
+    },
+    {
+      "desc": "Put Text After Cursor",
+      "mode": "n",
+      "lhs": "p"
+    },
+    {
+      "desc": "Flash",
+      "mode": "n",
+      "lhs": "s"
+    },
+    {
+      "desc": "Yank Text",
+      "mode": "n",
+      "lhs": "y"
+    },
+    {
+      "desc": "Treesitter Incremental Selection",
+      "mode": "o",
+      "lhs": "<C-Space>"
+    },
+    {
+      "desc": "Treesitter Search",
+      "mode": "o",
+      "lhs": "R"
+    },
+    {
+      "desc": "Flash Treesitter",
+      "mode": "o",
+      "lhs": "S"
+    },
+    {
+      "desc": "Select parent (outer) node",
+      "mode": "o",
+      "lhs": "an"
+    },
+    {
+      "desc": "Comment textobject",
+      "mode": "o",
+      "lhs": "gc"
+    },
+    {
+      "desc": "Select child (inner) node",
+      "mode": "o",
+      "lhs": "in"
+    },
+    {
+      "desc": "Remote Flash",
+      "mode": "o",
+      "lhs": "r"
+    },
+    {
+      "desc": "Flash",
+      "mode": "o",
+      "lhs": "s"
+    },
+    {
+      "desc": "UV Commands (Telescope)",
+      "rhs": ":<C-U>lua require('uv').pick_uv_commands()<CR>",
+      "mode": "s",
+      "lhs": " x"
+    },
+    {
+      "desc": "UV Run Selection",
+      "rhs": ":<C-U>UVRunSelection<CR>",
+      "mode": "s",
+      "lhs": " xs"
+    },
+    {
+      "desc": "Scroll Backward",
+      "mode": "s",
+      "lhs": "<C-B>"
+    },
+    {
+      "desc": "Scroll Forward",
+      "mode": "s",
+      "lhs": "<C-F>"
+    },
+    {
+      "desc": "vim.lsp.buf.signature_help()",
+      "mode": "s",
+      "lhs": "<C-S>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <S-Tab>",
+      "mode": "s",
+      "lhs": "<S-Tab>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <Tab>",
+      "mode": "s",
+      "lhs": "<Tab>"
+    },
+    {
+      "desc": "+ai",
+      "rhs": "",
+      "mode": "v",
+      "lhs": " a"
+    },
+    {
+      "desc": "Toggle (CopilotChat)",
+      "mode": "v",
+      "lhs": " aa"
+    },
+    {
+      "desc": "Prompt Actions (CopilotChat)",
+      "mode": "v",
+      "lhs": " ap"
+    },
+    {
+      "desc": "Quick Chat (CopilotChat)",
+      "mode": "v",
+      "lhs": " aq"
+    },
+    {
+      "desc": "Clear (CopilotChat)",
+      "mode": "v",
+      "lhs": " ax"
+    },
+    {
+      "desc": "Format Injected Langs",
+      "mode": "v",
+      "lhs": " cF"
+    },
+    {
+      "desc": "Open Yank History",
+      "mode": "v",
+      "lhs": " p"
+    },
+    {
+      "desc": "+refactor",
+      "rhs": "",
+      "mode": "v",
+      "lhs": " r"
+    },
+    {
+      "desc": "Extract Function To File",
+      "mode": "v",
+      "lhs": " rF"
+    },
+    {
+      "desc": "Extract Function",
+      "mode": "v",
+      "lhs": " rf"
+    },
+    {
+      "desc": "Inline Variable",
+      "mode": "v",
+      "lhs": " ri"
+    },
+    {
+      "desc": "Debug Print Variable",
+      "mode": "v",
+      "lhs": " rp"
+    },
+    {
+      "desc": "Select Refactor",
+      "mode": "v",
+      "lhs": " rs"
+    },
+    {
+      "desc": "Extract Variable",
+      "mode": "v",
+      "lhs": " rx"
+    },
+    {
+      "desc": "Selection (cwd)",
+      "mode": "v",
+      "lhs": " sW"
+    },
+    {
+      "desc": "Search and Replace",
+      "mode": "v",
+      "lhs": " sr"
+    },
+    {
+      "desc": "Selection (Root Dir)",
+      "mode": "v",
+      "lhs": " sw"
+    },
+    {
+      "desc": "UV Commands (Telescope)",
+      "rhs": ":<C-U>lua require('uv').pick_uv_commands()<CR>",
+      "mode": "v",
+      "lhs": " x"
+    },
+    {
+      "desc": "UV Run Selection",
+      "rhs": ":<C-U>UVRunSelection<CR>",
+      "mode": "v",
+      "lhs": " xs"
+    },
+    {
+      "desc": ":help v_#-default",
+      "mode": "v",
+      "lhs": "#"
+    },
+    {
+      "desc": ":help v_star-default",
+      "mode": "v",
+      "lhs": "*"
+    },
+    {
+      "desc": "Scroll Backward",
+      "mode": "v",
+      "lhs": "<C-B>"
+    },
+    {
+      "desc": "Scroll Forward",
+      "mode": "v",
+      "lhs": "<C-F>"
+    },
+    {
+      "desc": "vim.lsp.buf.signature_help()",
+      "mode": "v",
+      "lhs": "<C-S>"
+    },
+    {
+      "desc": "Treesitter Incremental Selection",
+      "mode": "v",
+      "lhs": "<C-Space>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <S-Tab>",
+      "mode": "v",
+      "lhs": "<S-Tab>"
+    },
+    {
+      "desc": "vim.snippet.jump if active, otherwise <Tab>",
+      "mode": "v",
+      "lhs": "<Tab>"
+    },
+    {
+      "desc": ":help v_@-default",
+      "rhs": "mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'",
+      "mode": "v",
+      "lhs": "@"
+    },
+    {
+      "desc": "Put Text Before Cursor",
+      "mode": "v",
+      "lhs": "P"
+    },
+    {
+      "desc": ":help v_Q-default",
+      "rhs": "mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'",
+      "mode": "v",
+      "lhs": "Q"
+    },
+    {
+      "desc": "Treesitter Search",
+      "mode": "v",
+      "lhs": "R"
+    },
+    {
+      "desc": "Flash Treesitter",
+      "mode": "v",
+      "lhs": "S"
+    },
+    {
+      "desc": "Select previous sibling node",
+      "mode": "v",
+      "lhs": "[N"
+    },
+    {
+      "desc": "Select previous node",
+      "mode": "v",
+      "lhs": "[n"
+    },
+    {
+      "desc": "Select next sibling node",
+      "mode": "v",
+      "lhs": "]N"
+    },
+    {
+      "desc": "Select next node",
+      "mode": "v",
+      "lhs": "]n"
+    },
+    {
+      "desc": "Select parent (outer) node",
+      "mode": "v",
+      "lhs": "an"
+    },
+    {
+      "desc": "Put Text Before Selection",
+      "mode": "v",
+      "lhs": "gP"
+    },
+    {
+      "desc": "Toggle comment",
+      "mode": "v",
+      "lhs": "gc"
+    },
+    {
+      "desc": "Put Text After Selection",
+      "mode": "v",
+      "lhs": "gp"
+    },
+    {
+      "desc": "vim.lsp.buf.code_action()",
+      "mode": "v",
+      "lhs": "gra"
+    },
+    {
+      "desc": "Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)",
+      "mode": "v",
+      "lhs": "gx"
+    },
+    {
+      "desc": "Select child (inner) node",
+      "mode": "v",
+      "lhs": "in"
+    },
+    {
+      "desc": "Put Text After Cursor",
+      "mode": "v",
+      "lhs": "p"
+    },
+    {
+      "desc": "Flash",
+      "mode": "v",
+      "lhs": "s"
+    },
+    {
+      "desc": "Yank Text",
+      "mode": "v",
+      "lhs": "y"
+    },
+    {
+      "desc": "+ai",
+      "rhs": "",
+      "mode": "x",
+      "lhs": " a"
+    },
+    {
+      "desc": "Toggle (CopilotChat)",
+      "mode": "x",
+      "lhs": " aa"
+    },
+    {
+      "desc": "Prompt Actions (CopilotChat)",
+      "mode": "x",
+      "lhs": " ap"
+    },
+    {
+      "desc": "Quick Chat (CopilotChat)",
+      "mode": "x",
+      "lhs": " aq"
+    },
+    {
+      "desc": "Clear (CopilotChat)",
+      "mode": "x",
+      "lhs": " ax"
+    },
+    {
+      "desc": "Format Injected Langs",
+      "mode": "x",
+      "lhs": " cF"
+    },
+    {
+      "desc": "Open Yank History",
+      "mode": "x",
+      "lhs": " p"
+    },
+    {
+      "desc": "+refactor",
+      "rhs": "",
+      "mode": "x",
+      "lhs": " r"
+    },
+    {
+      "desc": "Extract Function To File",
+      "mode": "x",
+      "lhs": " rF"
+    },
+    {
+      "desc": "Extract Function",
+      "mode": "x",
+      "lhs": " rf"
+    },
+    {
+      "desc": "Inline Variable",
+      "mode": "x",
+      "lhs": " ri"
+    },
+    {
+      "desc": "Debug Print Variable",
+      "mode": "x",
+      "lhs": " rp"
+    },
+    {
+      "desc": "Select Refactor",
+      "mode": "x",
+      "lhs": " rs"
+    },
+    {
+      "desc": "Extract Variable",
+      "mode": "x",
+      "lhs": " rx"
+    },
+    {
+      "desc": "Selection (cwd)",
+      "mode": "x",
+      "lhs": " sW"
+    },
+    {
+      "desc": "Search and Replace",
+      "mode": "x",
+      "lhs": " sr"
+    },
+    {
+      "desc": "Selection (Root Dir)",
+      "mode": "x",
+      "lhs": " sw"
+    },
+    {
+      "desc": "UV Commands (Telescope)",
+      "rhs": ":<C-U>lua require('uv').pick_uv_commands()<CR>",
+      "mode": "x",
+      "lhs": " x"
+    },
+    {
+      "desc": "UV Run Selection",
+      "rhs": ":<C-U>UVRunSelection<CR>",
+      "mode": "x",
+      "lhs": " xs"
+    },
+    {
+      "desc": ":help v_#-default",
+      "mode": "x",
+      "lhs": "#"
+    },
+    {
+      "desc": ":help v_star-default",
+      "mode": "x",
+      "lhs": "*"
+    },
+    {
+      "desc": "Treesitter Incremental Selection",
+      "mode": "x",
+      "lhs": "<C-Space>"
+    },
+    {
+      "desc": ":help v_@-default",
+      "rhs": "mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'",
+      "mode": "x",
+      "lhs": "@"
+    },
+    {
+      "desc": "Put Text Before Cursor",
+      "mode": "x",
+      "lhs": "P"
+    },
+    {
+      "desc": ":help v_Q-default",
+      "rhs": "mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'",
+      "mode": "x",
+      "lhs": "Q"
+    },
+    {
+      "desc": "Treesitter Search",
+      "mode": "x",
+      "lhs": "R"
+    },
+    {
+      "desc": "Flash Treesitter",
+      "mode": "x",
+      "lhs": "S"
+    },
+    {
+      "desc": "Select previous sibling node",
+      "mode": "x",
+      "lhs": "[N"
+    },
+    {
+      "desc": "Select previous node",
+      "mode": "x",
+      "lhs": "[n"
+    },
+    {
+      "desc": "Select next sibling node",
+      "mode": "x",
+      "lhs": "]N"
+    },
+    {
+      "desc": "Select next node",
+      "mode": "x",
+      "lhs": "]n"
+    },
+    {
+      "desc": "Select parent (outer) node",
+      "mode": "x",
+      "lhs": "an"
+    },
+    {
+      "desc": "Put Text Before Selection",
+      "mode": "x",
+      "lhs": "gP"
+    },
+    {
+      "desc": "Toggle comment",
+      "mode": "x",
+      "lhs": "gc"
+    },
+    {
+      "desc": "Put Text After Selection",
+      "mode": "x",
+      "lhs": "gp"
+    },
+    {
+      "desc": "vim.lsp.buf.code_action()",
+      "mode": "x",
+      "lhs": "gra"
+    },
+    {
+      "desc": "Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)",
+      "mode": "x",
+      "lhs": "gx"
+    },
+    {
+      "desc": "Select child (inner) node",
+      "mode": "x",
+      "lhs": "in"
+    },
+    {
+      "desc": "Put Text After Cursor",
+      "mode": "x",
+      "lhs": "p"
+    },
+    {
+      "desc": "Flash",
+      "mode": "x",
+      "lhs": "s"
+    },
+    {
+      "desc": "Yank Text",
+      "mode": "x",
+      "lhs": "y"
+    }
+  ],
+  "plugins": [
+    "CopilotChat.nvim",
+    "LazyVim",
+    "R.nvim",
+    "SchemaStore.nvim",
+    "async.nvim",
+    "blink-copilot",
+    "blink.cmp",
+    "bufferline.nvim",
+    "catppuccin",
+    "conform.nvim",
+    "copilot.lua",
+    "crates.nvim",
+    "dressing.nvim",
+    "flash.nvim",
+    "friendly-snippets",
+    "gitsigns.nvim",
+    "grug-far.nvim",
+    "jupytext.nvim",
+    "lazy.nvim",
+    "lazydev.nvim",
+    "lualine.nvim",
+    "markdown-preview.nvim",
+    "mason-lspconfig.nvim",
+    "mason.nvim",
+    "mini.ai",
+    "mini.icons",
+    "mini.pairs",
+    "neo-tree.nvim",
+    "noice.nvim",
+    "nui.nvim",
+    "nvim-lint",
+    "nvim-lspconfig",
+    "nvim-treesitter",
+    "nvim-treesitter-textobjects",
+    "nvim-ts-autotag",
+    "persistence.nvim",
+    "plenary.nvim",
+    "refactoring.nvim",
+    "render-markdown.nvim",
+    "rustaceanvim",
+    "snacks.nvim",
+    "telescope.nvim",
+    "todo-comments.nvim",
+    "tokyonight.nvim",
+    "trouble.nvim",
+    "ts-comments.nvim",
+    "uv.nvim",
+    "venv-selector.nvim",
+    "which-key.nvim",
+    "yanky.nvim"
+  ],
+  "commands": {
+    "DoMatchParen": "call s:DoMatchParen()",
+    "GrugFar": "",
+    "EditQuery": "Edit treesitter query",
+    "Telescope": "",
+    "Copilot": "",
+    "Hexplore": "call netrw#Explore(<count>, 1, 2+<bang>0, <q-args>)",
+    "MarkdownPreview": "",
+    "Inspect": "Inspect highlights and extmarks at the cursor",
+    "InspectTree": "Inspect treesitter language tree for buffer",
+    "Lazy": "Lazy",
+    "Lexplore": "call netrw#Lexplore(<count>, <bang>0, <q-args>)",
+    "GrugFarWithin": "",
+    "Man": "",
+    "MatchDebug": "call matchit#Match_debug()",
+    "MarkdownPreviewStop": "",
+    "MatchDisable": ":call MatchDisable()",
+    "CopilotChat": "",
+    "MatchEnable": ":call MatchEnable()",
+    "ConformInfo": "",
+    "NetUserPass": "call netrw#NetUserPass(<f-args>)",
+    "LazyDev": "",
+    "Nexplore": "call netrw#Explore(-1, 0, 0, <q-args>)",
+    "UVRunFile": "",
+    "NoMatchParen": "call s:NoMatchParen()",
+    "Mason": "",
+    "Nread": "let s:svpos= winsaveview()|call netrw#NetRead(<count>,<f-args>)|call winrestview(s:svpos)",
+    "Trouble": "",
+    "Nsource": "let s:svpos= winsaveview()|call netrw#NetSource(<f-args>)|call winrestview(s:svpos)",
+    "MarkdownPreviewToggle": "",
+    "Ntree": "call netrw#SetTreetop(1,<q-args>)",
+    "UVRemovePackage": "",
+    "Nwrite": "let s:svpos= winsaveview()|<line1>,<line2>call netrw#NetWrite(<f-args>)|call winrestview(s:svpos)",
+    "Neotree": "",
+    "Open": "Open file with system default handler. See :help vim.ui.open()",
+    "TSUpdate": "",
+    "Pexplore": "call netrw#Explore(-2, 0, 0, <q-args>)",
+    "Tutor": "call tutor#TutorCmd(<q-args>)",
+    "PlenaryBustedDirectory": "lua require('plenary.test_harness').test_directory_command([[<args>]])",
+    "TodoTrouble": "",
+    "PlenaryBustedFile": "lua require('plenary.test_harness').test_file([[<args>]])",
+    "TSInstall": "",
+    "TSLog": "",
+    "TSUninstall": "",
+    "Texplore": "call netrw#Explore(<count>, 0, 6, <q-args>)",
+    "Sexplore": "call netrw#Explore(<count>, 1, 0+<bang>0, <q-args>)",
+    "UVAutoActivateToggleBuffer": "Toggle auto-activate venv for current buffer",
+    "TodoTelescope": "",
+    "UVAutoActivateToggle": "Toggle auto-activate venv globally",
+    "UpdateRemotePlugins": "call remote#host#UpdateRemotePlugins()",
+    "UVAddPackage": "",
+    "Vexplore": "call netrw#Explore(<count>, 1, 4+<bang>0, <q-args>)",
+    "UVRunFunction": "",
+    "UVRunSelection": "",
+    "UVInit": "",
+    "Explore": "call netrw#Explore(<count>, 0, 0+<bang>0, <q-args>)",
+    "VenvSelect": ""
+  },
+  "parsers": [
+    "bash",
+    "c",
+    "diff",
+    "git_config",
+    "git_rebase",
+    "gitattributes",
+    "gitcommit",
+    "gitignore",
+    "html",
+    "hyprlang",
+    "javascript",
+    "jsdoc",
+    "json",
+    "json5",
+    "jsonc",
+    "lua",
+    "luadoc",
+    "luap",
+    "markdown",
+    "markdown_inline",
+    "ninja",
+    "printf",
+    "python",
+    "query",
+    "r",
+    "rasi",
+    "regex",
+    "rnoweb",
+    "ron",
+    "rst",
+    "rust",
+    "toml",
+    "tsx",
+    "typescript",
+    "vim",
+    "vimdoc",
+    "xml",
+    "yaml"
+  ],
+  "options": {
+    "clipboard": "",
+    "wrap": false,
+    "laststatus": 0,
+    "smartcase": true,
+    "relativenumber": true,
+    "number": true,
+    "timeoutlen": 300,
+    "signcolumn": "yes",
+    "mouse": "a",
+    "confirm": true,
+    "termguicolors": true,
+    "foldexpr": "0",
+    "foldmethod": "indent",
+    "cursorline": true,
+    "completeopt": "menu,menuone,noselect",
+    "expandtab": true,
+    "foldlevel": 99,
+    "ignorecase": true,
+    "conceallevel": 2,
+    "scrolloff": 4,
+    "shiftwidth": 2,
+    "showmode": false,
+    "sidescrolloff": 8,
+    "splitbelow": true,
+    "splitright": true,
+    "tabstop": 2,
+    "undofile": true,
+    "updatetime": 200
+  },
+  "colorscheme": "tokyonight-moon",
+  "capabilities": {
+    "neo-tree": {
+      "available": true
+    },
+    "telescope": {
+      "available": true
+    },
+    "lualine": {
+      "available": true
+    },
+    "r": {
+      "available": true
+    },
+    "noice": {
+      "available": true
+    },
+    "blink.cmp": {
+      "available": true
+    },
+    "flash": {
+      "available": true
+    },
+    "bufferline": {
+      "available": true
+    },
+    "yanky": {
+      "available": true
+    },
+    "copilot": {
+      "available": true
+    },
+    "nvim-treesitter-textobjects": {
+      "available": true
+    },
+    "venv-selector": {
+      "available": true
+    },
+    "uv": {
+      "available": true
+    },
+    "lazydev": {
+      "available": true
+    },
+    "snacks": {
+      "available": true
+    },
+    "jupytext": {
+      "available": true
+    },
+    "gitsigns": {
+      "available": true
+    },
+    "trouble": {
+      "available": true
+    },
+    "grug-far": {
+      "available": true
+    },
+    "todo-comments": {
+      "available": true
+    },
+    "rustaceanvim": {
+      "available": true
+    },
+    "nvim-treesitter": {
+      "available": true
+    },
+    "CopilotChat": {
+      "available": true
+    },
+    "schemastore": {
+      "available": true
+    },
+    "crates": {
+      "available": true
+    },
+    "refactoring": {
+      "available": true
+    },
+    "which-key": {
+      "available": true
+    },
+    "persistence": {
+      "available": true
+    },
+    "render-markdown": {
+      "available": true
+    },
+    "conform": {
+      "available": true
+    }
+  }
+}

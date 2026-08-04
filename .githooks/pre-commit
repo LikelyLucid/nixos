@@ -3,10 +3,29 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-mapfile -d '' files < <(git diff --cached --name-only --diff-filter=ACMR -z -- '*.nix')
-((${#files[@]} == 0)) && exit 0
+for command in git nixfmt statix deadnix nix-instantiate python3 tar; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "pre-commit: required command not found: $command" >&2
+    exit 1
+  fi
+done
 
-nixfmt "${files[@]}"
-git add -- "${files[@]}"
+snapshot=$(mktemp -d)
+trap 'rm -rf "$snapshot"' EXIT
 
-deadnix --fail .
+# Validate exactly what will be committed. Working-tree-only edits must neither
+# influence the result nor be formatted and accidentally staged.
+tree=$(git write-tree)
+git archive "$tree" | tar -x -C "$snapshot"
+
+mapfile -d '' nix_files < <(find "$snapshot" -type f -name '*.nix' -print0)
+if ((${#nix_files[@]} > 0)); then
+  nixfmt --check "${nix_files[@]}"
+fi
+
+(
+  cd "$snapshot"
+  python3 scripts/check-dendritic.py .
+  statix check .
+  deadnix --fail .
+)

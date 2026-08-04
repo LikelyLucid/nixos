@@ -7,5 +7,18 @@ age_key.agekeyresult
 
 # Ignore local pi/GSD artefacts
 .pi/
+.pi-subagents/
+.ralph/
 pi-config/
 result
+
+# Ignore generated Python and benchmark artefacts
+__pycache__/
+*.py[cod]
+tests/kernel-benchmark/results/
+
+# Ignore generated Nixvim comparison artefacts
+tests/nixvim/candidate.*
+tests/nixvim/health.*
+tests/nixvim/parity.json
+tests/nixvim/vault-artifacts/

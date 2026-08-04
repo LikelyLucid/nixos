@@ -21,6 +21,26 @@
         };
       };
 
+      # Enable remote debugging for Hermes browser CDP connection
+      xdg.desktopEntries.helium = {
+        name = "Helium";
+        genericName = "Web Browser";
+        categories = [
+          "Network"
+          "WebBrowser"
+        ];
+        exec = "helium --remote-debugging-port=9222 %U";
+        mimeType = [
+          "text/html"
+          "text/xml"
+          "application/xhtml+xml"
+          "x-scheme-handler/http"
+          "x-scheme-handler/https"
+        ];
+        terminal = false;
+        type = "Application";
+      };
+
       # Set BROWSER env var for terminal tools
       home.sessionVariables.BROWSER = "helium";
     };

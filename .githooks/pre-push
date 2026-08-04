@@ -15,13 +15,9 @@ else
 fi
 
 mapfile -d '' files < <(git diff --name-only --diff-filter=ACMR -z "$base"...HEAD -- '*.nix')
-((${#files[@]} > 0)) && nixfmt "${files[@]}"
+((${#files[@]} > 0)) && nixfmt --check "${files[@]}"
 
-if ! git diff --quiet; then
-  echo "pre-push: formatted Nix files; commit the changes, then push again." >&2
-  exit 1
-fi
-
+python3 scripts/check-dendritic.py .
 statix check .
 deadnix --fail .
 nix flake check --no-warn-dirty

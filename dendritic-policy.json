@@ -1,0 +1,25 @@
+{
+  "homeManagerModuleGroups": [
+    "common",
+    "desktop",
+    "firefox",
+    "pandoc",
+    "wsl"
+  ],
+  "nixosModuleGroups": [
+    "artsxps",
+    "common",
+    "desktop",
+    "generic",
+    "plasma",
+    "wsl"
+  ],
+  "hosts": {
+    "artsxps": "artsxps",
+    "generic": "generic",
+    "nixos-wsl": "wsl"
+  },
+  "localOptionModules": [
+    "modules/bitwarden-secrets.nix"
+  ]
+}

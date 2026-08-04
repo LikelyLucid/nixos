@@ -7,9 +7,9 @@
     in
     {
       home.packages = with pkgs; [
-        fzf
         gcc # for compiling treesitter parsers if needed
         gnugrep
+        python3Packages.jupytext # required by jupytext.nvim for .ipynb files
         marksman # markdown LSP (mason binary can't run on NixOS)
         neovim
         zig

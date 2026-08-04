@@ -9,7 +9,8 @@ This flake manages three systems:
 It uses the [dendritic pattern](https://github.com/mightyiam/dendritic): every
 Nix file except `flake.nix` is a top-level flake-parts module. Feature files
 contribute deferred NixOS or Home Manager modules, and host files compose those
-modules into complete systems.
+modules into complete systems. `dendritic-policy.json` is the strict allowlist
+for module groups, hosts, and approved repository-local option modules.
 
 ## Architecture
 
@@ -47,6 +48,7 @@ module.
 | `nixos.modules.common`        | Imported by both systems                  |
 | `nixos.modules.desktop`       | Desktop NixOS features                    |
 | `nixos.modules.artsxps`       | Machine-specific hardware and settings    |
+| `nixos.modules.generic`       | Hardware-neutral installation template    |
 | `nixos.modules.wsl`           | WSL-specific settings                     |
 | `homeManager.modules.common`  | Home configuration shared by both systems |
 | `homeManager.modules.desktop` | Desktop-only home configuration           |
@@ -124,8 +126,23 @@ project's `.envrc`, then run `direnv allow`.
 
 The configured Git hooks automate validation:
 
-- pre-commit formats staged Nix files and runs `deadnix`
-- pre-push runs `statix`, `deadnix`, and `nix flake check`
+- pre-commit materializes the staged Git tree in isolation and rejects Nix
+  formatting drift, dendritic policy violations, Statix findings, and dead code
+- pre-push repeats the architecture and static checks, then runs
+  `nix flake check`
+
+The commit hook never formats or stages files, so unstaged hunks cannot leak into
+a commit. Install the hooks in a new clone with:
+
+```bash
+scripts/install-git-hooks.sh
+```
+
+The architecture checker is also available directly:
+
+```bash
+scripts/check-dendritic.py .
+```
 
 Run the full checks manually before applying changes:
 

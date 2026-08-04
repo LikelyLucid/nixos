@@ -41,7 +41,7 @@
             redis://redis.likelylucid.com:6379/2 \
             /mnt/juicefs \
             --cache-dir /var/cache/juicefs \
-            --all-squash 1000:100 \
+            --all-squash 544:544 \
             -o allow_other
         '';
       };

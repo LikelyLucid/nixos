@@ -18,14 +18,13 @@
           }
         ];
         initContent = ''
-          eval "$(starship init zsh)"
-          eval "$(zoxide init zsh)"
-          compinit
           bindkey '^L' clear-screen
         '';
         shellAliases = {
-          nixos = "git add . && git commit && nh os switch .";
-          spt = "ncspot";
+          nix-build = "nh os build /home/lucid/nixos";
+          nix-switch = "nh os switch /home/lucid/nixos";
+          nix-test = "nh os test /home/lucid/nixos";
+          spt = "spotify_player";
         };
       };
 

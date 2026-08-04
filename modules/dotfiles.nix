@@ -17,7 +17,6 @@
         "rofi" = "rofi";
         "waybar" = "waybar";
         "wallust" = "wallust";
-        "flameshot" = "flameshot";
       };
 
       # Common symlinks (from dotfiles flake input)

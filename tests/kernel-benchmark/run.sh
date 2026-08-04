@@ -16,16 +16,16 @@ mkdir -p "$out_dir" "$work_dir/tree"
 out_dir=$(realpath "$out_dir")
 
 if ! command -v hyperfine >/dev/null; then
-  echo "error: hyperfine is required" >&2
-  exit 1
+	echo "error: hyperfine is required" >&2
+	exit 1
 fi
 
 ac_online=unknown
 if [[ -r /sys/class/power_supply/AC/online ]]; then
-  ac_online=$(</sys/class/power_supply/AC/online)
+	ac_online=$(</sys/class/power_supply/AC/online)
 fi
 if [[ $ac_online != 1 ]]; then
-  echo "warning: AC power is not reported online; results may be noisy" >&2
+	echo "warning: AC power is not reported online; results may be noisy" >&2
 fi
 
 python3 - "$work_dir" "$fixture_size_mib" <<'PY'
@@ -94,19 +94,19 @@ EOF
 
 printf 'Benchmarking kernel %s; output: %s\n' "$kernel" "$out_dir"
 hyperfine --warmup "$warmup" --runs "$runs" --export-json "$out_dir/results.json" \
-  --command-name 'app-launch/process scheduling' \
-    "for i in \$(seq 1 150); do /run/current-system/sw/bin/bash -c :; done" \
-  --command-name 'browser-like JavaScript' \
-    "node '$work_dir/web-workload.js' '$work_dir/records.json'" \
-  --command-name 'application data/Python' \
-    "python3 '$work_dir/python-workload.py' '$work_dir/records.json'" \
-  --command-name 'document search' \
-    "grep -R -l '\"enabled\": true' '$work_dir/tree' | wc -l >/dev/null" \
-  --command-name 'archive compression' \
-    "tar -C '$work_dir' -cf - tree blob.bin | zstd -q -T1 -3 -c >/dev/null" \
-  --command-name 'archive listing' \
-    "zstd -q -d -c '$work_dir/fixture.tar.zst' | tar -tf - >/dev/null" \
-  --command-name 'NixOS evaluation' \
-    "nix eval --raw '.#nixosConfigurations.artsxps.config.boot.kernelPackages.kernel.version' >/dev/null"
+	--command-name 'app-launch/process scheduling' \
+	"for i in \$(seq 1 150); do /run/current-system/sw/bin/bash -c :; done" \
+	--command-name 'browser-like JavaScript' \
+	"node '$work_dir/web-workload.js' '$work_dir/records.json'" \
+	--command-name 'application data/Python' \
+	"python3 '$work_dir/python-workload.py' '$work_dir/records.json'" \
+	--command-name 'document search' \
+	"grep -R -l '\"enabled\": true' '$work_dir/tree' | wc -l >/dev/null" \
+	--command-name 'archive compression' \
+	"tar -C '$work_dir' -cf - tree blob.bin | zstd -q -T1 -3 -c >/dev/null" \
+	--command-name 'archive listing' \
+	"zstd -q -d -c '$work_dir/fixture.tar.zst' | tar -tf - >/dev/null" \
+	--command-name 'NixOS evaluation' \
+	"nix eval --raw '.#nixosConfigurations.artsxps.config.boot.kernelPackages.kernel.version' >/dev/null"
 
 printf '\nSaved %s and %s\n' "$out_dir/results.json" "$out_dir/metadata.txt"

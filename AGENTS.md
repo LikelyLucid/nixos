@@ -9,6 +9,8 @@ This repository follows the
 - Every `modules/**/*.nix` file is a top-level flake-parts module.
 - `import-tree` imports the module tree automatically.
 - Features merge into deferred modules declared in `modules/module-options.nix`.
+- `dendritic-policy.json` is the allowlist for module groups, hosts, and the rare
+  repository-local option module.
 - Hosts compose named modules in `modules/hosts/`.
 - Do not introduce `specialArgs`, `extraSpecialArgs`, or import-only
   aggregators. Top-level modules can close over `inputs` and other top-level
@@ -24,6 +26,7 @@ modules/
 ├── overlays.nix
 ├── hosts/
 │   ├── artsxps/{configuration,hardware}.nix
+│   ├── generic/{configuration,hardware-configuration}.nix
 │   └── wsl/configuration.nix
 └── <feature>/*.nix
 ```
@@ -33,6 +36,7 @@ Use these groups unless a feature needs a genuinely distinct reusable module:
 - `nixos.modules.common`
 - `nixos.modules.desktop`
 - `nixos.modules.artsxps`
+- `nixos.modules.generic`
 - `nixos.modules.wsl`
 - `homeManager.modules.common`
 - `homeManager.modules.desktop`
@@ -80,8 +84,11 @@ nix flake check --no-warn-dirty
 sudo nixos-rebuild build --flake /home/lucid/nixos#artsxps
 ```
 
-The pre-commit hook formats staged Nix files and runs `deadnix`; the pre-push
-hook runs `statix`, `deadnix`, and `nix flake check`.
+The pre-commit hook validates an isolated snapshot of the Git index. It rejects
+formatting drift, dendritic policy violations, Statix findings, and dead code
+without touching or staging unstaged edits. Install it in a new clone with
+`scripts/install-git-hooks.sh`. The pre-push hook repeats the architecture and
+static checks, then runs `nix flake check`.
 
 For WSL-only work, also evaluate or dry-run `nixosConfigurations.nixos-wsl`.
 

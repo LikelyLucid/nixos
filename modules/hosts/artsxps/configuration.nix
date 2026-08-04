@@ -41,12 +41,6 @@
       bitwarden.enable = false;
       bitwarden.serverUrl = "https://vaultwarden.likelylucid.com";
       bitwarden.auth.method = "api-key";
-      bitwarden.secrets = {
-        tailscale-auth-key = {
-          item = "Tailscale Auth Key";
-          field = "password";
-        };
-      };
 
       ############################################
       # BOOTLOADER
@@ -87,18 +81,7 @@
       ############################################
       # POWER MANAGEMENT
       ############################################
-      services.linux-enable-ir-emitter.enable = true;
       services.fwupd.enable = true;
-
-      services.howdy = {
-        enable = true;
-        control = "sufficient";
-        settings.video.dark_threshold = 100;
-      };
-
-      # Only use howdy for greetd (login screen), not sudo/polkit
-      security.pam.howdy.enable = false;
-      security.pam.services.greetd.howdy.enable = true;
 
       services.thermald.enable = true;
       # Clamshell mode: don't suspend when lid closes (use external monitor)
@@ -156,22 +139,6 @@
         alsa.enable = true;
         alsa.support32Bit = true;
         pulse.enable = true;
-
-        # Better audio quality settings
-        extraConfig.pipewire."92-high-quality" = {
-          "context.properties" = {
-            "default.clock.rate" = 48000;
-            "default.clock.allowed-rates" = [
-              44100
-              48000
-              88200
-              96000
-            ];
-            "default.clock.quantum" = 1024;
-            "default.clock.min-quantum" = 256;
-            "default.clock.max-quantum" = 2048;
-          };
-        };
       };
 
       ############################################
@@ -183,6 +150,7 @@
       # PERFORMANCE TUNING
       ############################################
       zramSwap.enable = true;
+      systemd.oomd.enableUserSlices = true;
 
       # SSD TRIM
       services.fstrim.enable = true;
@@ -194,8 +162,9 @@
       # No NixOS module needed — it comes with systemd
 
       boot.kernel.sysctl = {
-        # Lower swappiness = keep things in RAM longer, good for SSDs
-        "vm.swappiness" = 10;
+        # Prefer compressed-RAM swap over reclaiming hot filesystem cache.
+        "vm.swappiness" = 100;
+        "vm.page-cluster" = 0;
         # Keep more filesystem metadata cached
         "vm.vfs_cache_pressure" = 50;
         # Write dirty pages to disk sooner — less RAM tied up, less stutter

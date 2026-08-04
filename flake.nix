@@ -18,6 +18,18 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    handy.url = "github:cjpais/handy";
+
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     zenBrowser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -47,7 +59,10 @@
     nixos-wsl.url = "github:nix-community/nixos-wsl";
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
 
-    pi.url = "github:lukasl-dev/pi.nix";
+    pi = {
+      url = "github:lukasl-dev/pi.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
@@ -61,7 +76,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    helium-browser.url = "github:schembriaiden/helium-browser-nix-flake";
+    helium-browser = {
+      url = "github:schembriaiden/helium-browser-nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     beeper = {
       url = "github:hashcube-dev/beeperDesktopFlake";
@@ -70,6 +88,11 @@
 
     hyprland-canvas = {
       url = "github:zyrophix/hyprland-canvas";
+      flake = false;
+    };
+
+    omi = {
+      url = "github:BasedHardware/Omi";
       flake = false;
     };
   };

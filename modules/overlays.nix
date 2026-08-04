@@ -11,26 +11,27 @@
         {
           helium = inputs.helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium;
 
-          # Beeper's current AppImage stores its AI2 marker at offset 1024,
-          # while nixpkgs' appimage-exec reads it from the ELF header.
           beeper =
             let
-              upstream = inputs.beeper.packages.${prev.stdenv.hostPlatform.system}.default;
-              pname = upstream.pname;
-              version = upstream.version;
-              src = prev.runCommand "${pname}-${version}-appimage-patched" { } ''
-                cp ${upstream.src} $out
+              pname = "beeper";
+              version = "4.2.1004";
+              src = prev.fetchurl {
+                url = "https://beeper-desktop.download.beeper.com/builds/Beeper-${version}-x86_64.AppImage";
+                hash = "sha256-JmeD/gVBdj6Tb7Y9L43V2WoFgw3y9q1xiIjF723JmuQ=";
+              };
+              patchedSrc = prev.runCommand "${pname}-${version}-appimage-patched" { } ''
+                cp ${src} $out
                 chmod u+w $out
                 printf '\x41\x49\x02' | dd of=$out bs=1 seek=8 conv=notrunc
               '';
               appimageContents = prev.appimageTools.extract {
-                inherit pname version src;
+                inherit pname version;
+                src = patchedSrc;
               };
             in
             prev.appimageTools.wrapAppImage rec {
               inherit pname version;
               src = appimageContents;
-              pkgs = prev;
               nativeBuildInputs = [ prev.copyDesktopItems ];
               desktopItem = prev.makeDesktopItem {
                 name = "beeper";
@@ -65,20 +66,16 @@
 
           computer-use-linux = prev.rustPlatform.buildRustPackage {
             pname = "computer-use-linux";
-            version = "0.3.1-unstable-2026-07-13";
+            version = "0.4.0";
 
             src = prev.fetchFromGitHub {
               owner = "agent-sh";
               repo = "computer-use-linux";
-              rev = "e338582b1f96024b24a8c188a2a2092239af95d5";
-              hash = "sha256-q5YrSOTRa6zcmZpNxr8ZSbwMHrF0TlIxlUGS25Pm1ls=";
+              rev = "510a49a458dca550318bb7f6220163e0bd66c29b";
+              hash = "sha256-yYCLmmyIIrIHUzBHOjul00BI3VwLRuDq8vRyzSBa0kM=";
             };
 
-            patches = [
-              ./ai/computer-use-linux-hyprland-0.55.patch
-              ./ai/computer-use-linux-schema.patch
-            ];
-            cargoHash = "sha256-BQqTTLdwdQLg+d1ColcR+JrtZmWBtL4Wq3eXWnipkno=";
+            cargoHash = "sha256-WEdEbXjbFcVHBhTM0SmiGX8x1k6y6uS+ly5RKMtOwMA=";
             nativeBuildInputs = [ prev.pkg-config ];
             buildInputs = [
               prev.dbus

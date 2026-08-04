@@ -40,10 +40,7 @@
         ########################################
         # ENHANCED CLI TOOLS
         ########################################
-        bat # `cat` with syntax highlighting & git integration
-        eza # Modern `ls` replacement (colours, icons, tree view)
         fd # `find` replacement that's fast and intuitive
-        delta # Syntax-highlighted git diffs
         just # Command runner — like make but modern
         yq # YAML/JSON/XML processor (like jq for everything)
         jq # JSON processor
