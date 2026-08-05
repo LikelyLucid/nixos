@@ -69,6 +69,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    herdr = {
+      url = "github:herdrdev/herdr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    herdr-workspace-manager = {
+      url = "github:razajamil/herdr-plugin-workspace-manager/v0.6.0";
+      flake = false;
+    };
+
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
     codex-cli-nix = {
