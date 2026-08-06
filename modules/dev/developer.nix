@@ -3,7 +3,7 @@
   homeManager.modules.common =
     { pkgs, ... }:
     {
-      home.packages = [ pkgs.tuicr ];
+      home.packages = [ pkgs.hunk ];
 
       programs = {
         ############################################
