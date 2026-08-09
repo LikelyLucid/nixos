@@ -1,11 +1,33 @@
 { inputs, ... }:
 {
   nixos.modules.desktop =
-    { config, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    let
+      # The HUD window (chrome-free floating chat) shares the `hermes`/`Hermes`
+      # class+title with the main window, so Hyprland cannot target it with a
+      # window rule. Patch the bundled main process to give the HUD a distinct
+      # title; hyprland-config.nix then floats and pins it above everything.
+      hermesDesktop = inputs.hermes-agent.packages.${pkgs.system}.desktop.overrideAttrs (old: {
+        installPhase = old.installPhase + ''
+          substituteInPlace $out/share/hermes-desktop/dist/electron-main.mjs \
+            --replace-fail '...hudBounds(),' 'title: "Hermes HUD", ...hudBounds(),'
+
+          substituteInPlace $out/share/hermes-desktop/dist/electron-main.mjs \
+            --replace-fail \
+              '  startHudCursorFeed(win);' \
+              $'  startHudCursorFeed(win);\n  win.setTitle("Hermes HUD");\n  win.on("page-title-updated", (event) => event.preventDefault());'
+        '';
+      });
+    in
     {
       imports = [ inputs.hermes-agent.nixosModules.default ];
 
-      environment.systemPackages = [ inputs.hermes-agent.packages.${pkgs.system}.desktop ];
+      environment.systemPackages = [ hermesDesktop ];
 
       sops.secrets.hermes-env = {
         owner = "lucid";
@@ -58,12 +80,19 @@
         };
       };
 
+      # Keep the user config writable. The upstream activation script deep-merges
+      # declarative settings into it, so rebuilds preserve all other user choices.
+      system.activationScripts.hermes-agent-user-config = lib.stringAfter [ "hermes-agent-setup" ] ''
+        rm -f /var/lib/hermes/.hermes/.managed
+      '';
+
       systemd.services.hermes-agent.environment = {
         DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
         DISPLAY = ":0";
         WAYLAND_DISPLAY = "wayland-1";
         XDG_RUNTIME_DIR = "/run/user/1000";
         YDOTOOL_SOCKET = "/run/user/1000/.ydotool_socket";
+        HERMES_MANAGED = lib.mkForce "false";
       };
     };
 }

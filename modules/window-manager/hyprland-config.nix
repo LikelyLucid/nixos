@@ -269,6 +269,19 @@
           },
           no_focus = true,
         })
+
+        -- Hermes HUD (the app is patched in modules/ai/hermes-agent.nix to
+        -- give it a distinct title): always open as a popover — floating above
+        -- the layout and pinned so it stays visible on every workspace.
+        hl.window_rule({
+          name = "hermes-hud-popover",
+          match = {
+            class = "^hermes$",
+            title = "^Hermes HUD$",
+          },
+          float = true,
+          pin = true,
+        })
       '';
 
       # Rofi system mode script (switched via Ctrl+Tab inside rofi)
