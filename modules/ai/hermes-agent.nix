@@ -5,6 +5,8 @@
     {
       imports = [ inputs.hermes-agent.nixosModules.default ];
 
+      environment.systemPackages = [ inputs.hermes-agent.packages.${pkgs.system}.desktop ];
+
       sops.secrets.hermes-env = {
         owner = "lucid";
         group = "users";

@@ -18,7 +18,7 @@
         ".pi/agent/models.json".source = mk_link "${cfg}/models.json";
         ".pi/agent/extensions".source = mk_link "${cfg}/extensions";
         ".pi/agent/prompts".source = mk_link "${cfg}/prompts";
-        ".pi/agent/themes/terminal-wallust.json".source = ./pi-terminal-wallust-theme.json;
+        ".pi/agent/themes/midnight-glass.json".source = ./pi-midnight-glass-theme.json;
       };
     };
 }

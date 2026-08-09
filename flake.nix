@@ -79,6 +79,26 @@
       flake = false;
     };
 
+    herdr-worktree-setup = {
+      url = "github:tdi/herdr-worktree-setup/v0.2.0";
+      flake = false;
+    };
+
+    herdr-command-palette = {
+      url = "github:JanTvrdik/herdr-command-palette";
+      flake = false;
+    };
+
+    herdr-pluck = {
+      url = "github:rmarganti/herdr-pluck/v0.3.0";
+      flake = false;
+    };
+
+    vim-herdr-navigation = {
+      url = "github:paulbkim-dev/vim-herdr-navigation/v0.1.0";
+      flake = false;
+    };
+
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
     codex-cli-nix = {
