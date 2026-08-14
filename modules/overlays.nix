@@ -11,6 +11,19 @@
         {
           helium = inputs.helium-browser.packages.${prev.stdenv.hostPlatform.system}.helium;
 
+          pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+            (_python_final: python_prev: {
+              nanoemoji = python_prev.nanoemoji.overrideAttrs {
+                src = prev.fetchFromGitHub {
+                  owner = "googlefonts";
+                  repo = "nanoemoji";
+                  rev = "refs/tags/v0.16.0";
+                  hash = "sha256-FysyKC01XBnRiur5RR9fcsTxQqE8x0JJHSoe3q6JtKc=";
+                };
+              };
+            })
+          ];
+
           beeper =
             let
               pname = "beeper";
