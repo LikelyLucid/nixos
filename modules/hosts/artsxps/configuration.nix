@@ -139,6 +139,14 @@
         alsa.enable = true;
         alsa.support32Bit = true;
         pulse.enable = true;
+        wireplumber.extraConfig."disable-oppo-audio-autoconnect"."monitor.bluez.rules" = [
+          {
+            matches = [
+              { "device.name" = "bluez_card.9C_FB_77_8A_67_D0"; }
+            ];
+            actions.update-props."bluez5.auto-connect" = [ ];
+          }
+        ];
       };
 
       ############################################
