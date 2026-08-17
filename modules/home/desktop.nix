@@ -108,7 +108,7 @@
         libnotify
         pavucontrol
         rofi
-        spotify-player
+        (spotify-player.override { withAudioBackend = "pulseaudio"; })
         swaynotificationcenter
         wallust
         waybar
