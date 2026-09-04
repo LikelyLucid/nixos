@@ -8,26 +8,37 @@
       ...
     }:
     let
-      # The HUD window (chrome-free floating chat) shares the `hermes`/`Hermes`
-      # class+title with the main window, so Hyprland cannot target it with a
-      # window rule. Patch the bundled main process to give the HUD a distinct
-      # title; hyprland-config.nix then floats and pins it above everything.
-      hermesDesktop = inputs.hermes-agent.packages.${pkgs.system}.desktop.overrideAttrs (old: {
-        installPhase = old.installPhase + ''
-          substituteInPlace $out/share/hermes-desktop/dist/electron-main.mjs \
-            --replace-fail '...hudBounds(),' 'title: "Hermes HUD", ...hudBounds(),'
+      cua_driver_hermes = pkgs.writeShellScriptBin "cua-driver-hermes" ''
+        # Hermes 0.20 launches CUA as bare `mcp`; v0.22 requires an
+        # explicit daemon endpoint for native Wayland window discovery.
+        if [ "''${1:-}" = "mcp" ]; then
+          shift
+          exec ${pkgs.cua-driver}/bin/cua-driver mcp \
+            --socket /home/lucid/.cache/cua-driver/cua-driver.sock "$@"
+        fi
+        exec ${pkgs.cua-driver}/bin/cua-driver "$@"
+      '';
 
-          substituteInPlace $out/share/hermes-desktop/dist/electron-main.mjs \
-            --replace-fail \
-              '  startHudCursorFeed(win);' \
-              $'  startHudCursorFeed(win);\n  win.setTitle("Hermes HUD");\n  win.on("page-title-updated", (event) => event.preventDefault());'
-        '';
-      });
+      # Upstream desktop.nix hardcodes the electron-headers hash for their
+      # nixpkgs-unstable electron version. Our pinned nixpkgs ships a
+      # different electron 43.4.1 whose headers tarball has a different hash.
+      # Override just the desktop derivation's pkgs to fix the fetchurl.
+      hermes_desktop = inputs.hermes-agent.packages.${pkgs.system}.desktop.override {
+        pkgs = pkgs.extend (
+          _final: prev: {
+            fetchurl =
+              args: prev.fetchurl (args // { sha256 = "sha256-CyzcARd1+GhWr8ED7HBYW2MYD+tgetqZFMkaivaGvw0="; });
+          }
+        );
+      };
     in
     {
       imports = [ inputs.hermes-agent.nixosModules.default ];
 
-      environment.systemPackages = [ hermesDesktop ];
+      environment.systemPackages = [
+        cua_driver_hermes
+        hermes_desktop
+      ];
 
       sops.secrets.hermes-env = {
         owner = "lucid";
@@ -46,14 +57,18 @@
         user = "lucid";
         group = "users";
         createUser = false;
-        extraPackages = [ pkgs.computer-use-linux ];
+        extraPackages = [ pkgs.cua-driver ];
         environmentFiles = [ config.sops.secrets.hermes-env.path ];
         mcpServers.computer-use-linux = {
-          command = "${pkgs.computer-use-linux}/bin/computer-use-linux";
-          args = [ "mcp" ];
+          command = "${pkgs.cua-driver}/bin/cua-driver";
+          args = [
+            "mcp"
+            "--socket"
+            "/home/lucid/.cache/cua-driver/cua-driver.sock"
+          ];
           env = {
+            CUA_DRIVER_RS_ENABLE_WAYLAND = "1";
             DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-            DISPLAY = ":0";
             WAYLAND_DISPLAY = "wayland-1";
             XDG_RUNTIME_DIR = "/run/user/1000";
             YDOTOOL_SOCKET = "/run/user/1000/.ydotool_socket";
@@ -62,7 +77,7 @@
         settings = {
           agent.image_input_mode = "auto";
           approvals.mode = "smart";
-          browser.cdp_url = "http://127.0.0.1:9222";
+          computer_use.no_overlay = true;
           delegation.max_concurrent_children = 5;
           display.streaming = true;
           display.pet = {
@@ -87,12 +102,17 @@
       '';
 
       systemd.services.hermes-agent.environment = {
+        CUA_DRIVER_RS_ENABLE_WAYLAND = "1";
         DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-        DISPLAY = ":0";
+        HERMES_CUA_DRIVER_CMD = "${cua_driver_hermes}/bin/cua-driver-hermes";
         WAYLAND_DISPLAY = "wayland-1";
         XDG_RUNTIME_DIR = "/run/user/1000";
         YDOTOOL_SOCKET = "/run/user/1000/.ydotool_socket";
         HERMES_MANAGED = lib.mkForce "false";
       };
+
+      systemd.services.hermes-agent.serviceConfig.UnsetEnvironment = [ "DISPLAY" ];
+
+      environment.sessionVariables.HERMES_CUA_DRIVER_CMD = "${cua_driver_hermes}/bin/cua-driver-hermes";
     };
 }
