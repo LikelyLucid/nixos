@@ -9,8 +9,8 @@
     }:
     let
       cua_driver_hermes = pkgs.writeShellScriptBin "cua-driver-hermes" ''
-        # Hermes 0.20 launches CUA as bare `mcp`; v0.22 requires an
-        # explicit daemon endpoint for native Wayland window discovery.
+        # Hermes connects to the shared Cua Driver daemon so native Wayland
+        # discovery and driver state are owned by one long-lived process.
         if [ "''${1:-}" = "mcp" ]; then
           shift
           exec ${pkgs.cua-driver}/bin/cua-driver mcp \
@@ -19,15 +19,27 @@
         exec ${pkgs.cua-driver}/bin/cua-driver "$@"
       '';
 
-      # Upstream desktop.nix hardcodes the electron-headers hash for their
-      # nixpkgs-unstable electron version. Our pinned nixpkgs ships a
-      # different electron 43.4.1 whose headers tarball has a different hash.
-      # Override just the desktop derivation's pkgs to fix the fetchurl.
+      # Upstream desktop.nix hardcodes a stale electron-headers hash. Our
+      # pinned nixpkgs ships Electron 43.6.0 whose headers tarball has a
+      # different hash. Override only that URL: changing every fetchurl in the
+      # desktop package would corrupt unrelated source downloads.
       hermes_desktop = inputs.hermes-agent.packages.${pkgs.system}.desktop.override {
         pkgs = pkgs.extend (
           _final: prev: {
             fetchurl =
-              args: prev.fetchurl (args // { sha256 = "sha256-CyzcARd1+GhWr8ED7HBYW2MYD+tgetqZFMkaivaGvw0="; });
+              args:
+              prev.fetchurl (
+                args
+                //
+                  lib.optionalAttrs
+                    (
+                      (args.url or null)
+                      == "https://artifacts.electronjs.org/headers/dist/v43.6.0/node-v43.6.0-headers.tar.gz"
+                    )
+                    {
+                      sha256 = "sha256-xDgc5PpkcLpWHnlqVcjBD3SxJKtkUoSGLnJaSSrxJtI=";
+                    }
+              );
           }
         );
       };
@@ -71,26 +83,6 @@
             DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
             WAYLAND_DISPLAY = "wayland-1";
             XDG_RUNTIME_DIR = "/run/user/1000";
-            YDOTOOL_SOCKET = "/run/user/1000/.ydotool_socket";
-          };
-        };
-        settings = {
-          agent.image_input_mode = "auto";
-          approvals.mode = "smart";
-          computer_use.no_overlay = true;
-          delegation.max_concurrent_children = 5;
-          display.streaming = true;
-          display.pet = {
-            enabled = false;
-            slug = "nightly-fox";
-          };
-          model = {
-            default = "mimo-v2.5";
-            provider = "opencode-go";
-          };
-          auxiliary.vision = {
-            provider = "auto";
-            model = "auto";
           };
         };
       };
@@ -107,12 +99,37 @@
         HERMES_CUA_DRIVER_CMD = "${cua_driver_hermes}/bin/cua-driver-hermes";
         WAYLAND_DISPLAY = "wayland-1";
         XDG_RUNTIME_DIR = "/run/user/1000";
-        YDOTOOL_SOCKET = "/run/user/1000/.ydotool_socket";
         HERMES_MANAGED = lib.mkForce "false";
       };
 
       systemd.services.hermes-agent.serviceConfig.UnsetEnvironment = [ "DISPLAY" ];
 
       environment.sessionVariables.HERMES_CUA_DRIVER_CMD = "${cua_driver_hermes}/bin/cua-driver-hermes";
+    };
+
+  homeManager.modules.desktop =
+    { pkgs, ... }:
+    {
+      systemd.user.services.cua-driver = {
+        Unit = {
+          Description = "Cua Driver Wayland daemon";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /home/lucid/.cache/cua-driver";
+          ExecStart = "${pkgs.cua-driver}/bin/cua-driver serve --socket /home/lucid/.cache/cua-driver/cua-driver.sock --no-overlay";
+          Environment = [
+            "CUA_DRIVER_RS_ENABLE_WAYLAND=1"
+            "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
+            "WAYLAND_DISPLAY=wayland-1"
+            "XDG_RUNTIME_DIR=/run/user/1000"
+          ];
+          UnsetEnvironment = [ "DISPLAY" ];
+          Restart = "on-failure";
+          RestartSec = 2;
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
     };
 }

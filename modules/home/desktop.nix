@@ -1,7 +1,7 @@
 { ... }:
 {
   homeManager.modules.desktop =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     let
       home_dir = "/home/lucid";
     in
@@ -12,6 +12,31 @@
       # NEMO FILE MANAGER (riced with wallust)
       ############################################
       dconf.settings = {
+        "org/blueman/general" = {
+          # Keep Bluetooth auto-connect behavior without connection popups.
+          plugin-list = [
+            "!ConnectionNotifier"
+            "NetUsage"
+          ];
+        };
+        "org/blueman/plugins/autoconnect".services = map lib.hm.gvariant.mkTuple [
+          [
+            "3C:B0:ED:50:85:8A"
+            "00000000-0000-0000-0000-000000000000"
+          ]
+          [
+            "9C:FB:77:8A:67:D0"
+            "00000000-0000-0000-0000-000000000000"
+          ]
+          [
+            "EE:43:49:E1:10:8A"
+            "00000000-0000-0000-0000-000000000000"
+          ]
+          [
+            "24:11:53:F5:C8:DB"
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        ];
         "org/nemo/preferences" = {
           default-folder-viewer = "icon-view";
           show-location-entry = true;
@@ -92,7 +117,7 @@
       ############################################
       home.packages = with pkgs; [
         # Desktop Linux GUI packages
-        computer-use-linux # Native Wayland computer-use MCP
+        cua-driver # Native Wayland computer-use MCP
         noto-fonts
         noto-fonts-cjk-sans
         usbutils
@@ -112,6 +137,7 @@
         swaynotificationcenter
         wallust
         waybar
+        eww
         pkgs.hyprland-canvas
         beeper
       ];

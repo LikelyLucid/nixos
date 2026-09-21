@@ -95,6 +95,19 @@ For WSL-only work, also evaluate or dry-run `nixosConfigurations.nixos-wsl`.
 The R workstation is available through `nix develop .#r` rather than the global
 Home Manager profile.
 
+## Applying the configuration
+
+When asked to rebuild, apply, or switch the OS configuration:
+
+1. Build the target configuration first and confirm that the build succeeds.
+2. Open an interactive Herdr pane when running inside Herdr; otherwise open a
+   Ghostty terminal.
+3. Put the `sudo nixos-rebuild switch --flake ...` command in that terminal for
+   the human to run and complete the sudo prompt. Do not run the switch in the
+   agent's non-interactive shell.
+
+A successful build is required before offering the switch command.
+
 ## Git checkpoints
 
 Commit and push after every logical change. Rebuilds apply the working tree
@@ -115,5 +128,7 @@ git push
 cd ~/nixos
 nix flake lock --update-input dotfiles
 nix flake check --no-warn-dirty
+sudo nixos-rebuild build --flake /home/lucid/nixos#artsxps
+# Then open Herdr or Ghostty for the human to run:
 sudo nixos-rebuild switch --flake /home/lucid/nixos#artsxps
 ```

@@ -38,7 +38,12 @@
             {
               nixpkgs = {
                 source = inputs.nixpkgs;
-                config.allowUnfreePredicate = package: (package.pname or "") == "jupytext.nvim";
+                config.allowUnfreePredicate =
+                  package:
+                  builtins.elem (package.pname or "") [
+                    "jupytext.nvim"
+                    "copilot-language-server"
+                  ];
               };
 
               viAlias = true;
@@ -378,7 +383,7 @@
               extraFiles = {
                 "lua/lucid/config.lua".source = ./nixvim/config.lua;
                 "lua/lucid/theme.lua".source = ./nixvim/theme.lua;
-                "after/plugin/herdr_nav.lua".source = inputs.vim-herdr-navigation + "/editor/nvim.lua";
+                "lua/herdr-nvim".source = inputs.herdr-nvim + "/lua/herdr-nvim";
                 "queries/lua/highlights.scm".source = ./nixvim/queries/lua/highlights.scm;
                 "queries/vim/highlights.scm".source = ./nixvim/queries/vim/highlights.scm;
               };
@@ -386,6 +391,7 @@
               extraConfigLua = ''
                 require("lucid.theme")
                 require("lucid.config")
+                require("herdr-nvim").setup()
               '';
 
             }

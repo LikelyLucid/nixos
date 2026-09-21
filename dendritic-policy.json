@@ -7,6 +7,7 @@
     "wsl"
   ],
   "nixosModuleGroups": [
+    "artslaptop",
     "artsxps",
     "common",
     "desktop",
@@ -15,6 +16,7 @@
     "wsl"
   ],
   "hosts": {
+    "artslaptop": "artslaptop",
     "artsxps": "artsxps",
     "generic": "generic",
     "nixos-wsl": "wsl"

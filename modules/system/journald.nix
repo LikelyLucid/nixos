@@ -1,7 +1,7 @@
 { ... }:
 {
-  nixos.modules.common.services.journald.extraConfig = ''
-    SystemMaxUse=1G
-    MaxRetentionSec=1month
-  '';
+  nixos.modules.common.services.journald.settings.Journal = {
+    SystemMaxUse = "1G";
+    MaxRetentionSec = "1month";
+  };
 }

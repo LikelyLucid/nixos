@@ -231,6 +231,13 @@
         hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.move({ direction = "up" }))
         hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.move({ direction = "right" }))
 
+        -- Forward Hermes' HUD toggle globally, including while another app has
+        -- focus. Targeting by class lets the same bind close the visible HUD.
+        hl.bind(
+          "CTRL + SHIFT + H",
+          hl.dsp.send_shortcut({ mods = "CTRL SHIFT", key = "H", window = "class:^(hermes)$" })
+        )
+
         hl.bind(mainMod .. " + B", hl.dsp.submap("resize"))
         hl.define_submap("resize", function()
           hl.bind("h", hl.dsp.window.resize({ x = -40, y = 0, relative = true }), { repeating = true })
@@ -337,6 +344,7 @@
                 "System Monitor") resources ;;
                 "Passwords & Keys") seahorse ;;
                 "Night Light") night-light-toggle ;;
+                "Dark / Light Theme") desktop-theme-toggle ;;
                 "Screenshot Area") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
                 "Screenshot Full Screen") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
@@ -366,6 +374,7 @@
                 "System Monitor" \
                 "Passwords & Keys" \
                 "Night Light" \
+                "Dark / Light Theme" \
                 "Screenshot Area" \
                 "Screenshot Full Screen" \
                 "Clipboard" \
@@ -468,7 +477,7 @@
 
           label {
             monitor =
-            text = cmd[update:5000] sh -c 'printf "󰁹  %s%%" "$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo --)"'
+            text = cmd[update:5000] ${pkgs.runtimeShell} -c 'printf "󰁹  %s%%" "$(${pkgs.coreutils}/bin/cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo --)"'
             color = $wallust_fg
             font_size = 14
             font_family = JetBrains Mono Nerd Font

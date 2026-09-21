@@ -9,8 +9,8 @@
 
 ## Apps
 
-- Ghostty — terminal (yours, workspace 10)
-- Zen Browser — web (yours, workspace 10)
+- Ghostty — terminal
+- Zen Browser — web
 - Neovim — text editing
 
 ## Communication

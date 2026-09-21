@@ -101,11 +101,9 @@ over that input in the deferred module instead of adding `specialArgs` or
 Do not add import-only aggregator files. Deferred modules with the same group
 name merge automatically.
 
-## Backups
+## Security boundaries
 
-The desktop includes a dormant encrypted Restic backup job that activates once
-an off-device repository and sops-managed password are provisioned. Setup and
-restore verification are documented in [`docs/backups.md`](docs/backups.md).
+This configuration does not provision scheduled backups.
 Storage encryption and fingerprint-authentication boundaries are recorded in
 [`docs/security.md`](docs/security.md).
 

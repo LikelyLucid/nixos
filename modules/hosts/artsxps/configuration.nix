@@ -45,20 +45,149 @@
       ############################################
       # BOOTLOADER
       ############################################
-      boot.loader.systemd-boot = {
-        enable = true;
-        configurationLimit = 10;
-      };
+      boot.loader.systemd-boot.enable = false;
       boot.loader.efi.canTouchEfiVariables = true;
-      boot.loader.grub.default = 0;
+      boot.loader.timeout = 8;
+      boot.loader.grub = {
+        enable = true;
+        device = "nodev";
+        efiSupport = true;
+        efiInstallAsRemovable = false;
+        default = 0;
+        configurationLimit = 10;
+        # Keep NixOS first, Windows second, and the native generations submenu
+        # last. Do not rename generations: their dates/versions aid recovery.
+        extraEntriesBeforeNixOS = false;
+        useOSProber = false;
+        extraEntries = ''
+          menuentry "Windows" --class windows --id windows {
+            insmod part_gpt
+            insmod fat
+            insmod chain
+            search --no-floppy --fs-uuid --set=root 2EE8-4266
+            chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+          }
+          submenu "Firmware & power" --class submenu --id firmware-power {
+            menuentry "BIOS / UEFI settings" --id firmware-settings {
+              insmod efifwsetup
+              fwsetup
+            }
+            menuentry "Restart" --id restart {
+              reboot
+            }
+            menuentry "Shut down" --id shutdown {
+              halt
+            }
+          }
+        '';
+        gfxmodeEfi = "1920x1200,1920x1080,1280x800,1024x768,auto";
+        splashImage = null;
+        # Snapshot of the desktop's Wallust palette. Boot must not depend on
+        # mutable home-directory files or the Windows partition being mounted.
+        theme = pkgs.runCommand "lucid-grub-theme" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
+          mkdir -p "$out"
+          ${pkgs.grub2}/bin/grub-mkfont \
+            -n "JetBrains Mono" -s 24 \
+            -o "$out/jetbrains-mono-24.pf2" \
+            ${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Regular.ttf
+          # Use the pinned copy of the desktop wallpaper, darkened for contrast.
+          magick ${inputs.dotfiles}/media/wallpapers/wallpaper.jpg \
+            -resize '1920x1200^' -gravity center -extent 1920x1200 \
+            -fill '#00000b' -colorize 60 "$out/background.png"
+          for part in c n s e w nw ne sw se; do
+            magick -size 8x8 xc:'#182034' "$out/selected_$part.png"
+          done
+          cp ${pkgs.writeText "lucid-grub-theme.txt" ''
+            desktop-image: "background.png"
+            desktop-image-scale-method: "crop"
+            desktop-color: "#00000b"
+            title-text: ""
+            message-font: "JetBrains Mono Regular 24"
+            message-color: "#dfe9f6"
+            message-bg-color: "#00000b"
+            terminal-font: "JetBrains Mono Regular 24"
+            + label {
+              left = 10%
+              top = 18%
+              width = 80%
+              height = 40
+              text = "LUCID / BOOT"
+              font = "JetBrains Mono Regular 24"
+              color = "#7f91cd"
+            }
+            + label {
+              left = 10%
+              top = 26%
+              width = 80%
+              height = 35
+              text = "Choose your operating system"
+              font = "JetBrains Mono Regular 24"
+              color = "#dfe9f6"
+            }
+            + boot_menu {
+              left = 10%
+              top = 36%
+              width = 80%
+              height = 40%
+              item_font = "JetBrains Mono Regular 24"
+              selected_item_font = "JetBrains Mono Regular 24"
+              item_color = "#8c97a3"
+              selected_item_color = "#dfe9f6"
+              item_height = 54
+              item_padding = 12
+              item_spacing = 8
+              icon_width = 0
+              icon_height = 0
+              selected_item_pixmap_style = "selected_*.png"
+              scrollbar = false
+            }
+            + label {
+              left = 10%
+              top = 82%
+              width = 80%
+              height = 35
+              text = "Enter: boot / open    Esc: back    Arrows: select"
+              font = "JetBrains Mono Regular 24"
+              color = "#8c97a3"
+            }
+            + label {
+              id = "__timeout__"
+              left = 10%
+              top = 89%
+              width = 80%
+              height = 35
+              text = "Starting NixOS in %d seconds"
+              font = "JetBrains Mono Regular 24"
+              color = "#7f91cd"
+            }
+          ''} "$out/theme.txt"
+        '';
+      };
 
       ############################################
       # HOSTNAME & NETWORKING
       ############################################
       networking.hostName = "artsxps";
       networking.networkmanager.enable = true;
+      networking.networkmanager.dispatcherScripts = [
+        {
+          source = pkgs.writeShellScript "home-remote-access-dispatcher" ''
+            case "$2:$CONNECTION_ID" in
+              up:C4\ Remote\ Receiver|up:C4\ Remote\ Receiver\ 5g)
+                ${pkgs.systemd}/bin/systemctl start home-remote-access.service
+                ;;
+              down:C4\ Remote\ Receiver|down:C4\ Remote\ Receiver\ 5g)
+                ${pkgs.systemd}/bin/systemctl stop home-remote-access.service
+                ;;
+            esac
+          '';
+        }
+      ];
       networking.firewall = {
-        allowedTCPPorts = [ 22000 ];
+        allowedTCPPorts = [
+          22
+          22000
+        ];
         allowedUDPPorts = [
           21027
           22000
@@ -84,12 +213,21 @@
       services.fwupd.enable = true;
 
       services.thermald.enable = true;
-      # Clamshell mode: don't suspend when lid closes (use external monitor)
-      services.logind.settings = {
-        Login = {
-          HandleLidSwitch = "suspend";
-          HandleLidSwitchExternalPower = "ignore";
-          HandleLidSwitchDocked = "ignore";
+      # Suspend normally away from home; the NetworkManager dispatcher inhibits
+      # suspend and lid-close sleep while connected to the home Wi-Fi.
+      services.logind.settings.Login = {
+        HandleLidSwitch = "suspend";
+        HandleLidSwitchExternalPower = "suspend";
+        HandleLidSwitchDocked = "suspend";
+        IdleAction = "suspend";
+        IdleActionSec = "30min";
+      };
+      systemd.services.home-remote-access = {
+        description = "Keep artsxps reachable on the home network";
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=idle:sleep:handle-lid-switch --why=Home-Wi-Fi-remote-access --who=artsxps ${pkgs.coreutils}/bin/sleep infinity";
+          Restart = "on-failure";
         };
       };
 
@@ -152,7 +290,8 @@
       ############################################
       # KERNEL
       ############################################
-      boot.kernelPackages = pkgs.linuxPackages_latest;
+      # DisplayLink's EVDI 1.14.15 does not support Linux 7.2's DRM API yet.
+      boot.kernelPackages = pkgs.linuxPackages_6_18;
 
       ############################################
       # PERFORMANCE TUNING

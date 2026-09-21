@@ -77,23 +77,9 @@
             doCheck = false;
           };
 
-          computer-use-linux = prev.rustPlatform.buildRustPackage {
-            pname = "computer-use-linux";
-            version = "0.4.0";
-
-            src = prev.fetchFromGitHub {
-              owner = "agent-sh";
-              repo = "computer-use-linux";
-              rev = "510a49a458dca550318bb7f6220163e0bd66c29b";
-              hash = "sha256-yYCLmmyIIrIHUzBHOjul00BI3VwLRuDq8vRyzSBa0kM=";
-            };
-
-            cargoHash = "sha256-WEdEbXjbFcVHBhTM0SmiGX8x1k6y6uS+ly5RKMtOwMA=";
-            nativeBuildInputs = [ prev.pkg-config ];
-            buildInputs = [
-              prev.dbus
-              prev.systemd
-            ];
+          cua-driver = import "${inputs.cua-driver}/nix/cua-driver/package.nix" {
+            pkgs = prev;
+            src = "${inputs.cua-driver}/libs/cua-driver/rust";
           };
         }
       )

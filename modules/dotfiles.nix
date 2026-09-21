@@ -16,6 +16,7 @@
       desktop_links = lib.optionalAttrs (!isWsl) {
         "rofi" = "rofi";
         "waybar" = "waybar";
+        "eww" = "eww";
         "wallust" = "wallust";
       };
 

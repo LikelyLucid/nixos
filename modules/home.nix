@@ -25,7 +25,8 @@
         ########################################
         # RUNTIME ENVIRONMENTS
         ########################################
-        nodejs # JavaScript runtime
+        nodejs # JavaScript runtime (includes Corepack shims)
+        pnpm # Content-addressed dependency store shared across worktrees
         bun # Fast all-in-one JS/TS runtime
         go # Go programming language
         python3 # Python runtime
@@ -40,12 +41,16 @@
         ########################################
         # ENHANCED CLI TOOLS
         ########################################
+        choose # Human-friendly field selection for command pipelines
+        entr # Minimal file watcher for shell pipelines
         fd # `find` replacement that's fast and intuitive
         just # Command runner — like make but modern
         yq # YAML/JSON/XML processor (like jq for everything)
         jq # JSON processor
         ripgrep # `grep` replacement — fast recursive search
+        sd # Simpler command-line search and replace
         hyperfine # Command benchmarking tool
+        watchexec # Rerun commands when files change
         trash-cli # Safe terminal trash instead of permanent rm
         tealdeer # Fast tldr command examples
         file
@@ -117,7 +122,14 @@
       ############################################
       programs.direnv = {
         enable = true;
+        config.global = {
+          hide_env_diff = true;
+          load_dotenv = true;
+          strict_env = true;
+          warn_timeout = "30s";
+        };
         nix-direnv.enable = true;
+        silent = true;
         stdlib = ''
           # Auto-load R project shells — create .envrc in R project dirs:
           #   echo 'use flake' > .envrc

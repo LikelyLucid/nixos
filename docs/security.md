@@ -12,7 +12,7 @@ therefore intentionally not attempted by this configuration.
 
 Before the next reinstall:
 
-1. Verify the Restic restore procedure in [`backups.md`](backups.md).
+1. Create an off-device backup and verify a restore before repartitioning.
 2. Use LUKS2 for the NixOS root filesystem.
 3. Keep `/boot` free of secrets and use a strong recovery passphrase.
 4. Store the recovery key somewhere physically separate from the laptop.
@@ -31,6 +31,6 @@ fallback.
 
 ## Backups
 
-The Restic service is deliberately dormant until an off-device repository and
-sops-managed password exist. Synchronization through Syncthing is useful but is
-not a substitute for an independently retained, tested backup.
+Scheduled backups are not managed by this configuration. Synchronization
+through Syncthing is useful but is not a substitute for an independently
+retained, tested backup.
