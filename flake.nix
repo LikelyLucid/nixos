@@ -151,6 +151,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    blip = {
+      url = "github:blip-net/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     beeper = {
       url = "github:hashcube-dev/beeperDesktopFlake";
       inputs.nixpkgs.follows = "nixpkgs";
