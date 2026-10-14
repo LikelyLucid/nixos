@@ -12,6 +12,7 @@
           "https://pi.cachix.org"
           "https://codex-cli.cachix.org"
           "https://codex-desktop-linux.cachix.org"
+          "https://t3-code-nix-flake.cachix.org"
           "https://nix-community.cachix.org"
           "https://cache.thalheim.io"
         ];
@@ -20,6 +21,7 @@
           "pi.cachix.org-1:lGeoGJaZ5ZDabuRzkcD5EBTNnDM4HJ1vqeOxlWk1Flk="
           "codex-cli.cachix.org-1:1Br3H1hHoRYG22n//cGKJOk3cQXgYobUel6O8DgSing="
           "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
+          "t3-code-nix-flake.cachix.org-1:nyr+c/F8Xmvnook2Yayw4DV7fGNKZXIIZQ/UwMYz6yg="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           "cache.thalheim.io-1:R7msbosLEZKrxk/lKxf9BTjOOH7Ax3H0Qj0/6wiHOgc="
         ];
