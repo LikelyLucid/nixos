@@ -101,6 +101,13 @@ over that input in the deferred module instead of adding `specialArgs` or
 Do not add import-only aggregator files. Deferred modules with the same group
 name merge automatically.
 
+## T3 Code
+
+Desktop systems install the nightly package from
+[`LikelyLucid/t3code-nix`](https://github.com/LikelyLucid/t3code-nix).
+Refresh its pinned release with `nix flake update t3code`, then follow the
+validation and build workflow below.
+
 ## Security boundaries
 
 This configuration does not provision scheduled backups.

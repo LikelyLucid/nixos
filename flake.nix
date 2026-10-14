@@ -25,6 +25,11 @@
 
     handy.url = "github:cjpais/handy/fbd4e15fa14a721c66c57006ae110428b9e255b3";
 
+    t3code = {
+      url = "github:LikelyLucid/t3code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixvim = {
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
