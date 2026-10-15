@@ -22,7 +22,7 @@
             pkgs.autoPatchelfHook
             pkgs.makeWrapper
           ];
-          buildInputs = [ pkgs.stdenv.cc.cc.lib ];
+          buildInputs = [ pkgs.stdenv.cc.cc.lib ] ++ pkgs.lib.optional (pname == "deckcraft") pkgs.alsa-lib;
           dontStrip = true;
 
           installPhase = ''
