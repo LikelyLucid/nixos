@@ -71,7 +71,6 @@
 
       document_defaults = default_for "org.gnome.Papers.desktop" [
         "application/illustrator"
-        "application/pdf"
         "application/vnd.comicbook+zip"
         "application/vnd.comicbook-rar"
         "application/x-cb7"
