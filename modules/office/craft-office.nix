@@ -62,6 +62,27 @@
             platforms = [ "x86_64-linux" ];
           };
         };
+      native_wayland =
+        package: backend_variable:
+        pkgs.symlinkJoin {
+          name = "${package.pname}-wayland-${package.version}";
+          inherit (package) pname version;
+          paths = [ package ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            rm "$out/bin/${package.pname}"
+            makeWrapper "${package}/bin/${package.pname}" "$out/bin/${package.pname}" \
+              --set-default ${backend_variable} 1
+
+            # Desktop launchers must use the wrapper too, rather than bypass it.
+            desktop_file="share/applications/ai.storyteller.${package.pname}.desktop"
+            rm "$out/$desktop_file"
+            cp "${package}/$desktop_file" "$out/$desktop_file"
+            chmod u+w "$out/$desktop_file"
+            substituteInPlace "$out/$desktop_file" \
+              --replace-fail '${package}/bin/${package.pname}' "$out/bin/${package.pname}"
+          '';
+        };
       wordcraft = mk_craft {
         pname = "wordcraft";
         version = "0.7.0";
@@ -89,9 +110,9 @@
     in
     {
       home.packages = [
-        wordcraft
+        (native_wayland wordcraft "WORDCRAFT_WAYLAND")
         gridcraft
-        deckcraft
+        (native_wayland deckcraft "DECKCRAFT_WAYLAND")
         pdfcraft
       ];
       xdg.mimeApps.defaultApplications = {
