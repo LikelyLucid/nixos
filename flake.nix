@@ -139,6 +139,11 @@
       flake = false;
     };
 
+    t3code = {
+      url = "github:LikelyLucid/t3code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux";
 
     codex-cli-nix = {
