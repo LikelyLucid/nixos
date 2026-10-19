@@ -4,11 +4,11 @@
     { pkgs, ... }:
     let
       pname = "t3code";
-      # Run scripts/update-t3code.sh to refresh the pinned nightly release.
-      version = "0.0.46-nightly.20261007.2787";
+      # Official nightly release AppImage.
+      version = "0.1.1-nightly.20261018.3335";
       src = pkgs.fetchurl {
         url = "https://github.com/pingdotgg/t3code/releases/download/v${version}/T3-Code-${version}-x86_64.AppImage";
-        hash = "sha256-g4NPvH725US5SFM5ManAp47vsGo0+nqvIbCw4xrM4s8=";
+        hash = "sha256-TBKIdwcCDKwkScUEMzMZKfdcgyiPSXl+3bTHHqIYCE8=";
       };
       appimage_contents = pkgs.appimageTools.extract { inherit pname version src; };
       t3code = pkgs.appimageTools.wrapType2 {
