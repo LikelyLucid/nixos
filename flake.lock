@@ -1135,6 +1135,7 @@
         "pi": "pi",
         "pi-config": "pi-config",
         "sops-nix": "sops-nix",
+        "t3code": "t3code",
         "zenBrowser": "zenBrowser"
       }
     },
@@ -1283,6 +1284,26 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "t3code": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792375286,
+        "narHash": "sha256-DTtzYaYfKScO8r7SjtIYPRWpzc1Bj5VcBDE04NdOQxk=",
+        "owner": "LikelyLucid",
+        "repo": "t3code-nix",
+        "rev": "56a3b808b2989a52d3d24bf204330b14e7b7c632",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LikelyLucid",
+        "repo": "t3code-nix",
         "type": "github"
       }
     },
