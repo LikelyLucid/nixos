@@ -1,0 +1,66 @@
+# Use agent browsers
+
+Open **Agent Browser Dashboard** from the application launcher, or run:
+
+```bash
+agent-browser-dashboard
+```
+
+The dashboard is available in your main browser at http://localhost:4848.
+It starts with your graphical session and shows each agent's browser and activity.
+Select a session to view its page and send mouse and keyboard input.
+
+To help with login, interrupt the agent in its conversation first, then use the
+dashboard. Tell the agent when you have finished so it can take a fresh snapshot
+and continue. Dashboard input does not suspend an agent's command loop.
+
+## Agent sessions
+
+The installed `agent-browser` wrapper chooses a stable session from the thread
+identity and the nearest agent process. Separate threads in one agent server
+receive separate sessions. Separate agent processes also receive separate sessions.
+In an ordinary terminal, the terminal's session ID is the fallback.
+
+Child agents sharing their parent's process and thread identity need an explicit
+session. The installed skill tells delegating agents to assign one to each child.
+Agents can inspect their current session with:
+
+```bash
+agent-browser session
+```
+
+To select a session yourself:
+
+```bash
+agent-browser --session my-task open https://example.com
+agent-browser --session my-task snapshot -i
+agent-browser --session my-task close
+```
+
+Each session has a separate Chromium instance and cookies. The wrapper supplies
+Nix-managed Chromium. No `npm install` or `agent-browser install` step is needed.
+Use `--restore` to retain a session's authentication across browser restarts.
+Close sessions when finished. The upstream default also closes headless sessions
+after an hour without commands or dashboard input.
+
+## Agent discovery
+
+Home Manager installs the same browser skill into the shared `.agents` skill
+directory and the Claude Code, OpenCode, and Pi skill directories. New conversations
+discover it automatically. Restart existing conversations to refresh their skills.
+The skill points to `agent-browser skills get core` for version-matched commands.
+
+## Service maintenance
+
+```bash
+systemctl --user status agent-browser-dashboard
+systemctl --user restart agent-browser-dashboard
+journalctl --user -u agent-browser-dashboard
+```
+
+The dashboard listens on loopback only. Its session traffic passes through the
+dashboard, so no session ports need forwarding. This setup does not expose it to
+the network or attach agents to your main browser profile.
+
+The desktop Home Manager feature is in `modules/ai/agent-browser.nix`. The binary,
+dashboard assets, and skill data are pinned together to upstream v0.39.1.
