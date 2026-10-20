@@ -82,9 +82,28 @@ class HeliumProfileTests(unittest.TestCase):
             self.assertEqual(browser_helium.launch_arguments(args, self.source, name), args)
             self.assertEqual(list(directory.iterdir()), [])
 
-    def test_missing_profile_fails_instead_of_using_another_account(self):
+    def assert_clean_fallback(self, source, profile_name):
+        destination = self.destination("missing")
+        args = [f"--user-data-dir={destination}", "--password-store=basic", "--use-mock-keychain"]
+        self.assertEqual(browser_helium.launch_arguments(args, source, profile_name), args)
+        self.assertEqual(list(destination.iterdir()), [])
+
+    def test_machine_without_helium_starts_clean(self):
+        self.assert_clean_fallback(self.root / "missing-helium", "AGASSIST")
+
+    def test_missing_named_profile_starts_clean_without_using_another_account(self):
+        self.assert_clean_fallback(self.source, "absent")
+
+    def test_stale_profile_directory_starts_clean(self):
+        import shutil
+        shutil.rmtree(self.profile)
+        self.assert_clean_fallback(self.source, "AGASSIST")
+
+    def test_ambiguous_profile_still_reports_configuration_error(self):
+        self.state["profile"]["info_cache"]["Profile 2"] = {"name": "AGASSIST"}
+        (self.source / "Local State").write_text(json.dumps(self.state))
         with self.assertRaises(ValueError):
-            browser_helium.copy_profile(self.source, self.destination("missing"), "absent")
+            browser_helium.copy_profile(self.source, self.destination("ambiguous"), "AGASSIST")
 
 
 if __name__ == "__main__":
