@@ -113,6 +113,9 @@ Agents use separate Chromium sessions with a dashboard at http://localhost:4848.
 Open **Agent Browser Dashboard** from the application launcher to watch or help.
 See [Use agent browsers](docs/agent-browser.md) for session isolation and handoff.
 
+Cua Spaces provides separate Linux desktops for agents through rootless Podman.
+See [Cua Spaces](docs/cua-spaces.md) for the app, CLI, and first-run setup.
+
 ## R workstation
 
 The R workstation is intentionally kept out of the global Home Manager profile
