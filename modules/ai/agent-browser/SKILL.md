@@ -15,8 +15,9 @@ control to the user. Each session launches its own browser with separate cookies
 Use the same session throughout a task. Explicit `--session` and
 `AGENT_BROWSER_SESSION` override the automatic choice.
 
-New default browsers automatically receive an isolated copy of the user's
-Helium AGASSIST profile, including its login storage. Changes stay in the copy.
+When the user's Helium AGASSIST profile exists, new default browsers automatically
+receive an isolated copy of its login storage. Otherwise they start clean.
+Changes stay in the copy.
 The live Helium profile is never opened for agent control. For a clean browser,
 set `AGENT_BROWSER_HELIUM_PROFILE=none` before starting a new session.
 Explicit `--profile` and custom executable paths override this default.

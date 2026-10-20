@@ -20,12 +20,17 @@ EXCLUDED = {
 
 
 def copy_profile(source_root, destination, profile_name):
-    state = json.loads((source_root / "Local State").read_text())
+    try:
+        state = json.loads((source_root / "Local State").read_text())
+    except FileNotFoundError:
+        return
     profiles = state.get("profile", {}).get("info_cache", {})
     matches = [
         key for key, value in profiles.items()
         if value.get("name", "").casefold() == profile_name.casefold()
     ]
+    if not matches:
+        return
     if len(matches) != 1:
         raise ValueError(f"Expected one Helium profile named {profile_name!r}; found {len(matches)}")
     directory = matches[0]
@@ -33,7 +38,7 @@ def copy_profile(source_root, destination, profile_name):
         raise ValueError("Invalid Helium profile directory")
     source = source_root / directory
     if not source.is_dir():
-        raise ValueError("Helium profile directory is missing")
+        return
     destination.chmod(0o700)
 
     def ignore(folder, names):

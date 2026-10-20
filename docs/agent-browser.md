@@ -37,9 +37,11 @@ agent-browser --session my-task snapshot -i
 agent-browser --session my-task close
 ```
 
-Each session has a separate Helium instance and cookies. Every new default browser
-receives a private copy of the Helium profile named `AGASSIST`, currently
-`~/.config/net.imput.helium/Profile 1`. It includes cookies and site storage, with
+Each session has a separate Helium instance and cookies. When the Helium profile
+named `AGASSIST` exists, new default browsers receive a private copy of its login
+storage, currently in `~/.config/net.imput.helium/Profile 1`. On machines without
+Helium profile data or that named profile, browsers start clean automatically.
+The copy includes cookies and site storage, with
 cookie databases copied through SQLite's backup API while Helium stays open.
 The source profile remains untouched. Browser caches, history, saved passwords,
 extensions, desktop preferences, and open-tab restoration are excluded.
