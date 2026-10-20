@@ -37,8 +37,24 @@ agent-browser --session my-task snapshot -i
 agent-browser --session my-task close
 ```
 
-Each session has a separate Chromium instance and cookies. The wrapper supplies
-Nix-managed Chromium. No `npm install` or `agent-browser install` step is needed.
+Each session has a separate Helium instance and cookies. Every new default browser
+receives a private copy of the Helium profile named `AGASSIST`, currently
+`~/.config/net.imput.helium/Profile 1`. It includes cookies and site storage, with
+cookie databases copied through SQLite's backup API while Helium stays open.
+The source profile remains untouched. Browser caches, history, saved passwords,
+extensions, desktop preferences, and open-tab restoration are excluded.
+Helium uses its normal desktop keyring
+to read copied cookies. The copy is deleted with the browser's temporary directory
+on normal shutdown. Already-running agent browsers keep their existing profiles.
+
+To start without the AgAssist login state:
+
+```bash
+AGENT_BROWSER_HELIUM_PROFILE=none agent-browser --session clean-test open about:blank
+```
+
+Explicit `--profile` paths and custom executable overrides retain their normal
+behavior. No `npm install` or `agent-browser install` step is needed.
 Use `--restore` to retain a session's authentication across browser restarts.
 Close sessions when finished. The upstream default also closes headless sessions
 after an hour without commands or dashboard input.
@@ -60,7 +76,7 @@ journalctl --user -u agent-browser-dashboard
 
 The dashboard listens on loopback only. Its session traffic passes through the
 dashboard, so no session ports need forwarding. This setup does not expose it to
-the network or attach agents to your main browser profile.
+the network or attach agents to your live main browser.
 
 The desktop Home Manager feature is in `modules/ai/agent-browser.nix`. The binary,
 dashboard assets, and skill data are pinned together to upstream v0.39.1.

@@ -33,8 +33,12 @@
           mainProgram = "agent-browser";
         };
       };
+      helium_browser = pkgs.writeShellScriptBin "agent-browser-helium" ''
+        exec ${pkgs.python3}/bin/python3 ${./agent-browser/helium.py} \
+          ${pkgs.helium}/bin/helium "$@"
+      '';
       agent_browser = pkgs.writeShellScriptBin "agent-browser" ''
-        export AGENT_BROWSER_EXECUTABLE_PATH="''${AGENT_BROWSER_EXECUTABLE_PATH:-${pkgs.chromium}/bin/chromium}"
+        export AGENT_BROWSER_EXECUTABLE_PATH="''${AGENT_BROWSER_EXECUTABLE_PATH:-${helium_browser}/bin/agent-browser-helium}"
         exec ${pkgs.python3}/bin/python3 ${./agent-browser/session.py} \
           ${agent_browser_unwrapped}/bin/agent-browser "$@"
       '';
@@ -67,7 +71,7 @@
         Service = {
           Type = "forking";
           PIDFile = "%t/agent-browser/dashboard.pid";
-          Environment = "AGENT_BROWSER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium";
+          Environment = "AGENT_BROWSER_EXECUTABLE_PATH=${helium_browser}/bin/agent-browser-helium";
           ExecStart = "${agent_browser_unwrapped}/bin/agent-browser dashboard start";
           ExecStop = "${agent_browser_unwrapped}/bin/agent-browser dashboard stop";
           Restart = "on-failure";
