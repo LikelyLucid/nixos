@@ -1,7 +1,12 @@
 { ... }:
 {
   homeManager.modules.desktop =
-    { lib, pkgs, ... }:
+    {
+      lib,
+      osConfig,
+      pkgs,
+      ...
+    }:
     let
       version = "0.39.1";
       agent_browser_unwrapped = pkgs.stdenvNoCC.mkDerivation {
@@ -56,6 +61,10 @@
         agent_browser
         dashboard
       ];
+      home.activation.codexAgentBrowserMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        run ${osConfig.programs.codexDesktopLinux.cliPackage}/bin/codex mcp add agent-browser -- \
+          ${agent_browser}/bin/agent-browser mcp --tools all
+      '';
       home.file = {
         ".agents/skills/agent-browser/SKILL.md" = skill;
         ".claude/skills/agent-browser/SKILL.md" = skill;

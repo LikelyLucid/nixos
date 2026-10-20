@@ -5,14 +5,16 @@ description: Use agent-browser for browser interaction, website testing, screens
 
 # Browser workflow
 
-The CLI and Helium are installed through Nix. Run `agent-browser` directly.
+The CLI and Helium are installed through Nix. Use the agent-browser MCP tools
+when available, or run `agent-browser` directly from the shell.
 Read `agent-browser skills get core` before browser commands. Load specialized
 guides with `agent-browser skills list` and `agent-browser skills get <name>`.
 
 The wrapper chooses a stable session from your thread and agent process.
 Run `agent-browser session` to see its name and include that name when handing
 control to the user. Each session launches its own browser with separate cookies.
-Use the same session throughout a task. Explicit `--session` and
+Each MCP process gets its own default browser session. Use the same session
+throughout a task. Explicit MCP `session` fields, `--session`, and
 `AGENT_BROWSER_SESSION` override the automatic choice.
 
 When the user's Helium AGASSIST profile exists, new default browsers automatically

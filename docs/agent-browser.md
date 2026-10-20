@@ -68,6 +68,21 @@ directory and the Claude Code, OpenCode, and Pi skill directories. New conversat
 discover it automatically. Restart existing conversations to refresh their skills.
 The skill points to `agent-browser skills get core` for version-matched commands.
 
+## Codex MCP servers
+
+Home Manager registers `agent-browser` and `cua-driver` in Codex's user MCP
+configuration during activation, using `codex mcp add`. Existing Codex settings
+and other server entries remain intact. These two registrations are managed by
+Nix and refreshed on activation. Start a new Codex session after changing them.
+
+Agent-browser exposes its full MCP tool catalog, with the same automatic profile
+reuse and clean fallback as the CLI. Each MCP process gets a separate default
+browser session. Tools can select an explicit `session` when needed.
+CUA connects to the existing user daemon at `~/.cache/cua-driver/cua-driver.sock`
+with Wayland enabled. The daemon must be running for that MCP server to work.
+
+Check registration with `codex mcp list`.
+
 ## Service maintenance
 
 ```bash
