@@ -5,7 +5,7 @@ description: Use agent-browser for browser interaction, website testing, screens
 
 # Browser workflow
 
-The CLI and Chromium are installed through Nix. Run `agent-browser` directly.
+The CLI and Helium are installed through Nix. Run `agent-browser` directly.
 Read `agent-browser skills get core` before browser commands. Load specialized
 guides with `agent-browser skills list` and `agent-browser skills get <name>`.
 
@@ -14,6 +14,12 @@ Run `agent-browser session` to see its name and include that name when handing
 control to the user. Each session launches its own browser with separate cookies.
 Use the same session throughout a task. Explicit `--session` and
 `AGENT_BROWSER_SESSION` override the automatic choice.
+
+New default browsers automatically receive an isolated copy of the user's
+Helium AGASSIST profile, including its login storage. Changes stay in the copy.
+The live Helium profile is never opened for agent control. For a clean browser,
+set `AGENT_BROWSER_HELIUM_PROFILE=none` before starting a new session.
+Explicit `--profile` and custom executable paths override this default.
 
 When delegating browser work, give every child agent a unique session name in
 its task instructions. A child sharing its parent's process or thread cannot be
