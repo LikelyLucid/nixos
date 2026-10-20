@@ -3,6 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Temporary Zotero 10 compatibility: it requires Firefox ESR 140.
+    # Remove when nixpkgs fixes https://github.com/NixOS/nixpkgs/issues/568692.
+    nixpkgs-zotero.url = "github:NixOS/nixpkgs/2ad48bb4ab952d317de4a966aa0af5822c5d3d34";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     disko = {
@@ -41,11 +44,6 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    lazyvim-config = {
-      url = "github:LikelyLucid/lazyvim-dotfiles";
-      flake = false;
-    };
-
     dotfiles = {
       url = "github:LikelyLucid/dotfiles";
       flake = false;
@@ -75,68 +73,14 @@
     };
 
     cua-driver = {
-      url = "github:trycua/cua/cua-driver-rs-v0.25.0";
+      # Follow upstream; flake.lock still makes each build reproducible.
+      url = "github:trycua/cua";
       flake = false;
     };
 
     herdr = {
       url = "github:herdrdev/herdr/d277d2f83b749a38c90eb96ef7cd329cc2171cd7";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    herdr-workspace-manager = {
-      url = "github:razajamil/herdr-plugin-workspace-manager/v0.6.0";
-      flake = false;
-    };
-
-    herdr-worktree-setup = {
-      url = "github:tdi/herdr-worktree-setup/v0.2.0";
-      flake = false;
-    };
-
-    herdr-command-palette = {
-      url = "github:JanTvrdik/herdr-command-palette";
-      flake = false;
-    };
-
-    herdr-pluck = {
-      url = "github:rmarganti/herdr-pluck/v0.3.0";
-      flake = false;
-    };
-
-    herdr-sidebar = {
-      url = "github:alexarthurs/herdr-sidebar/4faeea73503bcfb7e5ba72ef0c683649f64f74e5";
-      flake = false;
-    };
-
-    herdr-nvim = {
-      url = "github:ChmaraX/herdr-nvim/5e20a4048a461457df995cf121c1a6c39990e95b";
-      flake = false;
-    };
-
-    herdr-automatic-rename = {
-      url = "github:qu8n/herdr-automatic-rename/v0.7.0";
-      flake = false;
-    };
-
-    herdr-board = {
-      url = "github:nelsonPires5/herdr-board/v0.15.0";
-      flake = false;
-    };
-
-    herdr-navigator = {
-      url = "github:thanhdat77/herdr-navigator/9bdf30f03f53730e6232377a3fca3bdc6ed9f3ca";
-      flake = false;
-    };
-
-    memex = {
-      url = "github:nicosuave/memex/969ab58c88661557d9e5a3445d7dfc583e89e1cb";
-      flake = false;
-    };
-
-    herdr-hunk-diff = {
-      url = "github:jhochenbaum/herdr-hunk-diff";
-      flake = false;
     };
 
     t3code = {

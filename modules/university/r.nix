@@ -41,18 +41,7 @@
         plotly
         codetools
       ];
-      # RStudio currently selects EOL Electron 41. Keep the optional R shell
-      # evaluable until nixpkgs updates that runtime, without permitting the
-      # insecure package globally.
-      electron_41 = pkgs.electron_41.overrideAttrs (_old: {
-        meta = {
-          knownVulnerabilities = [ ];
-          mainProgram = "electron";
-        };
-      });
-      rstudio = pkgs.rstudio.override { inherit electron_41; };
       rstudio_with_workspace_packages = pkgs.rstudioWrapper.override {
-        inherit rstudio;
         packages = r_workspace_packages;
       };
     in
