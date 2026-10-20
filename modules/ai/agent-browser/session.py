@@ -37,6 +37,17 @@ def session_name(environment, process):
     return process
 
 
+def default_session(environment, process, arguments, pid):
+    # A Codex app-server can own several MCP processes. Scope each connection
+    # to its own lifetime rather than sharing its parent app-server's browser.
+    if arguments[:1] == ["mcp"]:
+        process = f"browser-mcp-{pid}"
+    return session_name(environment, process)
+
+
 if __name__ == "__main__":
-    os.environ.setdefault("AGENT_BROWSER_SESSION", session_name(os.environ, agent_process()))
+    os.environ.setdefault(
+        "AGENT_BROWSER_SESSION",
+        default_session(os.environ, agent_process(), sys.argv[2:], os.getpid()),
+    )
     os.execv(sys.argv[1], [sys.argv[1], *sys.argv[2:]])

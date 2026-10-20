@@ -43,6 +43,28 @@ class BrowserSessionTests(unittest.TestCase):
         self.assertRegex(name, r"^[a-zA-Z0-9_-]+$")
         self.assertLess(len(name), 48)
 
+    def test_mcp_connections_under_one_agent_get_separate_sessions(self):
+        for environment in [{}, {"CODEX_THREAD_ID": "shared-thread"}]:
+            with self.subTest(environment=environment):
+                first = browser_session.default_session(environment, "codex-123", ["mcp"], 100)
+                second = browser_session.default_session(environment, "codex-123", ["mcp"], 200)
+                self.assertNotEqual(first, second)
+                self.assertEqual(
+                    first,
+                    browser_session.default_session(environment, "codex-123", ["mcp"], 100),
+                )
+
+    def test_regular_cli_commands_keep_the_thread_session(self):
+        environment = {"CODEX_THREAD_ID": "thread"}
+        self.assertEqual(
+            browser_session.default_session(environment, "codex-123", ["open", "about:blank"], 100),
+            browser_session.default_session(environment, "codex-123", ["snapshot"], 200),
+        )
+        self.assertEqual(
+            browser_session.default_session(environment, "codex-123", ["fill", "@e1", "mcp"], 100),
+            browser_session.session_name(environment, "codex-123"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
