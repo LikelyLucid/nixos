@@ -23,7 +23,10 @@
             url = "https://github.com/trycua/cua/releases/download/cua-sdk-v0.4.3/cua-cli-0.4.3-linux-x64.tar.gz";
             hash = "sha256-3BFaRfBCGuOMS/iekGaMb14h+MdbPvbffshbrXq+YCk=";
           };
-          nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+          nativeBuildInputs = [
+            pkgs.autoPatchelfHook
+            pkgs.makeWrapper
+          ];
           buildInputs = [ pkgs.stdenv.cc.cc.lib ];
           sourceRoot = ".";
           dontBuild = true;
@@ -31,6 +34,11 @@
             runHook preInstall
             install -Dm755 cua "$out/bin/cua"
             runHook postInstall
+          '';
+          postFixup = ''
+            wrapProgram "$out/bin/cua" \
+              --set-default CUA_SPACES_CLI \
+                ${config.flake.packages.${system}.cua-spaces}/lib/cua-spaces/resources/native/cua
           '';
           meta = {
             description = "Cua CLI for local desktop Spaces and computer-use agents";

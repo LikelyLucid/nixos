@@ -5,6 +5,12 @@ The desktop configuration installs the app and `cua` on PATH, enables
 rootless Podman and its user socket, and registers `cua mcp` with Codex.
 The existing `cua-driver` MCP continues to control the host desktop.
 
+`cua` automatically delegates Spaces-only commands such as `cua teleport`
+to the app's bundled CLI. The wrapper sets `CUA_SPACES_CLI` unless you have
+explicitly supplied another path. Preview a transfer with
+`cua teleport manifest` before approving it; browser sessions can include
+signed-in site data.
+
 Sign in through the app when prompted. Account enrollment and device
 confirmation require your interaction. This configuration does not enroll
 the computer in a relay account or enable unattended desktop sharing.
