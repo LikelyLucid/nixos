@@ -36,9 +36,13 @@
             runHook postInstall
           '';
           postFixup = ''
-            wrapProgram "$out/bin/cua" \
+            mkdir -p "$out/libexec"
+            mv "$out/bin/cua" "$out/libexec/cua"
+            wrapProgram "$out/libexec/cua" \
               --set-default CUA_SPACES_CLI \
                 ${config.flake.packages.${system}.cua-spaces}/lib/cua-spaces/resources/native/cua
+            makeWrapper ${pkgs.python3}/bin/python3 "$out/bin/cua" \
+              --add-flags "${../../scripts/cua_routes.py} $out/libexec/cua"
           '';
           meta = {
             description = "Cua CLI for local desktop Spaces and computer-use agents";
@@ -175,6 +179,14 @@
       home.file = {
         ".agents/skills/cua-spaces".source = "${cua_packages.cua-spaces.skills}/cua-spaces";
         ".agents/skills/cua-sandboxes".source = "${cua_packages.cua-spaces.skills}/cua-sandboxes";
+      };
+      xdg.configFile."cua/routes.json" = lib.mkIf (osConfig.networking.hostName == "artsxps") {
+        text = builtins.toJSON {
+          "relay:space-b8fc63135c22a3db" = {
+            direct = "direct:100.75.156.101:8212";
+            url = "http://100.75.156.101:8212";
+          };
+        };
       };
       xdg.mimeApps.defaultApplications."x-scheme-handler/cua" = [ "cua-spaces.desktop" ];
     };
