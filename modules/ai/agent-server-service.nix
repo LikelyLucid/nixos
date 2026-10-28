@@ -10,7 +10,6 @@
       systemd.services.t3-server = {
         description = "T3 Code headless coding server";
         wantedBy = [ "multi-user.target" ];
-        requires = [ "sops-install-secrets.service" ];
         wants = [
           "network-online.target"
           "tailscaled.service"
@@ -20,7 +19,6 @@
           "network-online.target"
           "tailscaled.service"
           "home-manager-lucid.service"
-          "sops-install-secrets.service"
           "tailscaled-autoconnect.service"
         ];
         environment = {
