@@ -191,3 +191,11 @@ the desktop to this host definition.
 - [Pi model configuration](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/models.md)
 - [Tailscale SSH](https://tailscale.com/docs/features/tailscale-ssh)
 - [SOPS on NixOS](https://github.com/Mic92/sops-nix)
+
+The artsxps desktop uses the same SOPS-encrypted proxy key and endpoint for
+Codex, OpenCode and Pi. Launchers discover the catalog when needed and pass the
+key only through the child environment. Existing Codex plugins and MCP settings,
+OpenCode plugins and Pi packages, extensions, settings and sessions remain in
+place. Pi loads the proxy through an additional provider extension rather than
+switching its configuration directory. Run `agent-models-refresh` to refresh the
+catalog immediately.

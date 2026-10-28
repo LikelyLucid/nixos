@@ -139,6 +139,38 @@ class RuntimeTests(unittest.TestCase):
                 else:
                     self.assertTrue((Path(environment["PI_CODING_AGENT_DIR"]) / "models.json").is_file())
 
+    def test_desktop_launch_preserves_pi_home_and_opencode_plugins(self):
+        self.refresh()
+        pi_home = self.home / "custom-pi"
+        pi_home.mkdir()
+        settings = pi_home / "settings.json"
+        settings.write_text('{"packages":["npm:existing-plugin"]}')
+        original = settings.read_bytes()
+        config = {"plugin": ["existing-plugin"], "provider": {"existing": {"name": "Keep"}}}
+        with patch.dict(os.environ, {
+            "CLI_PROXY_KEEP_AGENT_CONFIG": "1", "PI_CODING_AGENT_DIR": str(pi_home),
+            "OPENCODE_CONFIG": "/custom/opencode.jsonc",
+            "OPENCODE_CONFIG_CONTENT": json.dumps(config),
+        }):
+            for agent in ("pi", "opencode", "codex"):
+                with patch.object(proxy.os, "execve") as execute:
+                    with patch.object(proxy.sys, "argv", ["agent_proxy.py", agent, "/fake/client"]):
+                        proxy.main()
+                    _, arguments, environment = execute.call_args.args
+                    self.assertEqual(environment["PI_CODING_AGENT_DIR"], str(pi_home))
+                    self.assertEqual(environment["OPENCODE_CONFIG"], "/custom/opencode.jsonc")
+                    if agent == "pi":
+                        self.assertIn("--extension", arguments)
+                        extension = Path(arguments[arguments.index("--extension") + 1])
+                        self.assertIn('pi.registerProvider("cliproxy"', extension.read_text())
+                        self.assertNotIn("fixture-secret", extension.read_text())
+                    elif agent == "opencode":
+                        merged = json.loads(environment["OPENCODE_CONFIG_CONTENT"])
+                        self.assertEqual(merged["plugin"], config["plugin"])
+                        self.assertIn("existing", merged["provider"])
+                        self.assertIn("cliproxy", merged["provider"])
+        self.assertEqual(settings.read_bytes(), original)
+
     def test_redirects_cannot_forward_bearer_token(self):
         with patch.object(proxy.urllib.request, "build_opener") as opener:
             opener.return_value.open.return_value = self.response()

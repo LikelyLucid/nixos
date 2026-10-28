@@ -197,15 +197,31 @@ def main():
         environment.update(json.loads((current / "claude.json").read_text())["env"])
         arguments = ["--settings", str(current / "claude.json"), *arguments]
     elif command == "opencode":
-        environment["OPENCODE_CONFIG"] = str(current / "opencode.json")
+        if environment.get("CLI_PROXY_KEEP_AGENT_CONFIG") == "1":
+            # Inline overrides merge above global/project config, including plugins.
+            config = json.loads(environment.get("OPENCODE_CONFIG_CONTENT", "{}"))
+            generated = json.loads((current / "opencode.json").read_text())
+            config.setdefault("provider", {}).update(generated.pop("provider"))
+            config.update(generated)
+            environment["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
+        else:
+            environment["OPENCODE_CONFIG"] = str(current / "opencode.json")
     elif command == "pi":
-        # Keep sessions/auth/extensions writable and stable across catalog swaps.
-        pi_home = state / "pi"
-        pi_home.mkdir(exist_ok=True, mode=0o700)
-        models = pi_home / "models.json"
-        if not models.is_symlink():
-            models.symlink_to(state / "current/pi/models.json")
-        environment["PI_CODING_AGENT_DIR"] = str(pi_home)
+        if environment.get("CLI_PROXY_KEEP_AGENT_CONFIG") == "1":
+            # Add one provider without moving Pi's settings, extensions or sessions.
+            extension = state / "cliproxy-provider.mjs"
+            provider = json.loads((current / "pi/models.json").read_text())["providers"]["cliproxy"]
+            atomic_write(extension, "export default function(pi) { pi.registerProvider(\"cliproxy\", "
+                         + json.dumps(provider) + "); }\n")
+            arguments = ["--extension", str(extension), *arguments]
+        else:
+            # Keep sessions/auth/extensions writable and stable across catalog swaps.
+            pi_home = state / "pi"
+            pi_home.mkdir(exist_ok=True, mode=0o700)
+            models = pi_home / "models.json"
+            if not models.is_symlink():
+                models.symlink_to(state / "current/pi/models.json")
+            environment["PI_CODING_AGENT_DIR"] = str(pi_home)
         default = json.loads((current / "defaults.json").read_text())["codex"]
         arguments = ["--provider", "cliproxy", *(["--model", default] if default else []), *arguments]
     else:
