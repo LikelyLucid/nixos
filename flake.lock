@@ -1294,11 +1294,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792375286,
-        "narHash": "sha256-DTtzYaYfKScO8r7SjtIYPRWpzc1Bj5VcBDE04NdOQxk=",
+        "lastModified": 1793186960,
+        "narHash": "sha256-Ug1ukfWB9SDhmelQvcz/bA67phI2qxpYXJ7vOQsEGWg=",
         "owner": "LikelyLucid",
         "repo": "t3code-nix",
-        "rev": "56a3b808b2989a52d3d24bf204330b14e7b7c632",
+        "rev": "babe8e4e29f503be53f9ed014856025a28e6ad03",
         "type": "github"
       },
       "original": {

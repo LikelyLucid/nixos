@@ -1,8 +1,10 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   nixos.modules.agent-server =
     { pkgs, lib, ... }:
     {
+      imports = [ inputs.t3code.nixosModules.runtime-compat ];
+
       networking.hostName = lib.mkDefault "agent-server";
       networking.useDHCP = lib.mkDefault true;
       networking.firewall = {
@@ -43,15 +45,6 @@
         pciutils
         wget
       ];
-      # T3 SSH setup and service install download generic Linux Node runtimes.
-      programs.nix-ld = {
-        enable = true;
-        libraries = with pkgs; [
-          stdenv.cc.cc.lib
-          openssl
-          libsecret
-        ];
-      };
       systemd.sleep.settings.Sleep = {
         AllowSuspend = "no";
         AllowHibernation = "no";
