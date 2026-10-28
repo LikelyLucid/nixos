@@ -211,6 +211,12 @@ def main():
             # Add one provider without moving Pi's settings, extensions or sessions.
             extension = state / "cliproxy-provider.mjs"
             provider = json.loads((current / "pi/models.json").read_text())["providers"]["cliproxy"]
+            # Extension registration requires full model fields. Match Pi's own
+            # models.json fallback limits; these are client limits, not discovered
+            # capabilities or a claim about upstream pricing.
+            for model in provider["models"]:
+                model.update(reasoning=False, input=["text"], contextWindow=128000,
+                             maxTokens=16384, cost=dict(input=0, output=0, cacheRead=0, cacheWrite=0))
             atomic_write(extension, "export default function(pi) { pi.registerProvider(\"cliproxy\", "
                          + json.dumps(provider) + "); }\n")
             arguments = ["--extension", str(extension), *arguments]
