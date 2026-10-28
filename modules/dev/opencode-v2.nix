@@ -1,6 +1,6 @@
-{ ... }:
+{ getSystem, ... }:
 {
-  homeManager.modules.common =
+  perSystem =
     { pkgs, ... }:
     let
       version = "2.0.26";
@@ -50,6 +50,12 @@
       };
     in
     {
-      home.packages = [ opencode ];
+      packages.opencode-v2 = opencode;
+    };
+
+  homeManager.modules.common =
+    { pkgs, ... }:
+    {
+      home.packages = [ (getSystem pkgs.stdenv.hostPlatform.system).packages.opencode-v2 ];
     };
 }

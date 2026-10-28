@@ -72,6 +72,9 @@ def catalogs(ids, base_url):
     codex_ids = [m for m in ids if any(x in m.lower() for x in ("gpt", "codex"))
                  or m.lower().split("/")[-1].startswith(("o1", "o3", "o4"))]
     claude_ids = [m for m in ids if "claude" in m.lower()]
+    # Prefer the model verified on this server when it is still advertised.
+    codex_default = next((m for m in ("gpt-6.1-sol", "gpt-5.3-codex") if m in codex_ids),
+                         next((m for m in codex_ids if "image" not in m and m != "codex-auto-review"), None))
     models = [dict(
         slug=model, display_name=model, description="CLI proxy model",
         supported_reasoning_levels=[], shell_type="unified_exec",
@@ -98,20 +101,21 @@ def catalogs(ids, base_url):
         "metadata.json": {"base_url": base_url},
         "models.json": {"data": [{"id": m} for m in ids]},
         "codex-models.json": {"models": models},
-        "defaults.json": {"codex": codex_ids[0] if codex_ids else None},
+        "defaults.json": {"codex": codex_default},
         "claude.json": claude,
         "opencode.json": {
             "$schema": "https://opencode.ai/config.json",
             "enabled_providers": ["cliproxy"],
+            **({"model": "cliproxy/" + codex_default} if codex_default else {}),
             "provider": {"cliproxy": {
-                "npm": "@ai-sdk/openai-compatible", "name": "CLI proxy",
+                "npm": "@ai-sdk/openai", "name": "CLI proxy",
                 "options": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
                 "models": {model: {"name": model} for model in ids},
             }},
         },
         "pi/models.json": {"providers": {"cliproxy": {
-            "baseUrl": base_url, "api": "openai-completions",
-            "apiKey": "CLI_PROXY_API_KEY", "models": pi_models,
+            "baseUrl": base_url, "api": "openai-responses",
+            "apiKey": "$CLI_PROXY_API_KEY", "models": pi_models,
         }}},
     }
 
@@ -202,7 +206,8 @@ def main():
         if not models.is_symlink():
             models.symlink_to(state / "current/pi/models.json")
         environment["PI_CODING_AGENT_DIR"] = str(pi_home)
-        arguments = ["--provider", "cliproxy", *arguments]
+        default = json.loads((current / "defaults.json").read_text())["codex"]
+        arguments = ["--provider", "cliproxy", *(["--model", default] if default else []), *arguments]
     else:
         raise ValueError("Unknown agent")
     os.execve(executable, [executable, *arguments], environment)

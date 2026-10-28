@@ -36,6 +36,14 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(codex[0]["supported_reasoning_levels"], [])
         self.assertEqual(generated["claude.json"]["model"], "claude-sonnet-example")
 
+    def test_verified_default_and_current_pi_auth_syntax(self):
+        generated = proxy.catalogs(["codex-auto-review", "gpt-6.1-sol", "gpt-image-2"], BASE_URL)
+        self.assertEqual(generated["defaults.json"]["codex"], "gpt-6.1-sol")
+        self.assertEqual(generated["opencode.json"]["model"], "cliproxy/gpt-6.1-sol")
+        pi = generated["pi/models.json"]["providers"]["cliproxy"]
+        self.assertEqual(pi["apiKey"], "$CLI_PROXY_API_KEY")
+        self.assertEqual(pi["api"], "openai-responses")
+
     def test_missing_codex_models_does_not_fabricate_one(self):
         self.assertIsNone(proxy.catalogs(["gemini-example"], BASE_URL)["defaults.json"]["codex"])
 

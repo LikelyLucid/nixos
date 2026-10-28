@@ -76,8 +76,8 @@ server age key or plaintext credential file needs to be copied.
 
 SOPS installs the proxy key at `/run/secrets/agent-proxy-api-key`, owned by
 `lucid` with mode `0400`. The endpoint has the same protection at
-`/run/secrets/agent-proxy-base-url`. Tailscale's key is root-only. The T3 service waits for
-secret installation and tailnet enrollment. Agent launchers and the model
+`/run/secrets/agent-proxy-base-url`. Tailscale's key is root-only. SOPS installs secrets during system activation,
+before the T3 service starts. T3 also waits for tailnet enrollment. Agent launchers and the model
 refresh timer read the SOPS-managed path automatically. Their version/help
 probes work without credentials or proxy access.
 
@@ -105,14 +105,16 @@ discovery requires a working credential and endpoint. Redirects are rejected.
 - Codex receives a custom Responses provider and a generated model catalog.
   GPT/Codex and recognized OpenAI reasoning IDs populate its picker. Other
   IDs remain available in OpenCode and Pi. Codex requires the proxy to support
-  `/v1/responses` for the selected model.
+  `/v1/responses` for the selected model. When advertised, `gpt-6.1-sol` is
+  the default, verified by a real request on artslaptop.
 - Claude Code uses the proxy's Anthropic endpoint, native gateway model
   discovery where supported by the installed version, and discovered Claude
   IDs for its model allowlist and family defaults. The proxy must support
   `/v1/messages`; an OpenAI-only endpoint is insufficient.
-- OpenCode receives a generated OpenAI-compatible provider containing every
-  discovered ID.
-- Pi receives the same model IDs through an OpenAI-compatible provider. Its
+- OpenCode v2 receives a generated Responses provider containing every
+  discovered ID. It uses the same default model as Codex.
+- Pi receives the same model IDs through a Responses provider, using an
+  environment reference for its key and the same default as Codex. Its
   writable agent directory is `~/.local/state/agent-proxy/pi`, separate from
   the desktop's `~/pi-config` links. Put server-specific Pi extensions there.
 
@@ -129,6 +131,11 @@ systemctl --user status agent-models-refresh.timer
 journalctl --user -u agent-models-refresh.service
 cat ~/.local/state/agent-proxy/current/models.json
 ```
+
+The artslaptop inference checks passed for Codex, OpenCode v2 and Pi using
+`gpt-6.1-sol`. The proxy advertised Claude IDs but rejected the tested Claude
+requests upstream as unsupported. Claude Code is configured, but its inference
+remains blocked until the proxy exposes a working Anthropic-compatible route.
 
 ## T3 Code
 

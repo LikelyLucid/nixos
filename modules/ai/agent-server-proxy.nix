@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, getSystem, ... }:
 {
   homeManager.modules.agent-server =
     { pkgs, lib, ... }:
@@ -17,7 +17,7 @@
       home.packages = [
         (agent_wrapper "codex" inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default)
         (agent_wrapper "claude" pkgs.claude-code)
-        (agent_wrapper "opencode" pkgs.opencode)
+        (agent_wrapper "opencode" (getSystem pkgs.stdenv.hostPlatform.system).packages.opencode-v2)
         (agent_wrapper "pi" pkgs.pi-coding-agent)
         (proxy_command "agent-models-refresh" "refresh")
       ];
