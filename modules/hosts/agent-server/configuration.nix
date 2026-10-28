@@ -43,6 +43,15 @@
         pciutils
         wget
       ];
+      # T3 SSH setup and service install download generic Linux Node runtimes.
+      programs.nix-ld = {
+        enable = true;
+        libraries = with pkgs; [
+          stdenv.cc.cc.lib
+          openssl
+          libsecret
+        ];
+      };
       systemd.sleep.settings.Sleep = {
         AllowSuspend = "no";
         AllowHibernation = "no";

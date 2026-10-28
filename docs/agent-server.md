@@ -139,6 +139,12 @@ remains blocked until the proxy exposes a working Anthropic-compatible route.
 
 ## T3 Code
 
+The server profile enables `nix-ld` for generic Linux executables downloaded by
+T3 desktop SSH setup and `t3 service install`. Without it, those unpatched
+runtimes fail with exit 127 on NixOS, even though the Nix-packaged server works.
+The system-managed `t3-server` service already starts at boot; an additional
+`t3 service install` is unnecessary for that service.
+
 The server uses the pinned upstream standalone CLI release `0.1.3`, separately
 from the desktop AppImage input. It runs as `lucid`, starts at boot and restarts
 on failure. State lives under `~/.t3`; back up this directory and your projects.
