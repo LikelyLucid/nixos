@@ -1,6 +1,17 @@
 { inputs, getSystem, ... }:
 {
-  nixos.modules.artsxps = {
+  nixos.modules.artsxps = { pkgs, lib, ... }: {
+    # The desktop app starts cliPackage directly rather than looking up PATH.
+    programs.codexDesktopLinux.cliPackage = lib.mkForce (
+      pkgs.writeShellScriptBin "codex" ''
+        export CLI_PROXY_API_KEY_FILE=/run/secrets/agent-proxy-api-key
+        export CLI_PROXY_BASE_URL_FILE=/run/secrets/agent-proxy-base-url
+        export CLI_PROXY_KEEP_AGENT_CONFIG=1
+        exec ${pkgs.python3}/bin/python3 ${../../scripts/agent_proxy.py} codex ${
+          lib.getExe inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+        } "$@"
+      ''
+    );
     sops.secrets = {
       agent-proxy-api-key = {
         sopsFile = ../../secrets/agent-server.yaml;
