@@ -194,7 +194,8 @@ the desktop to this host definition.
 
 The artsxps desktop uses the same SOPS-encrypted proxy key and endpoint for
 Codex, OpenCode and Pi. Launchers discover the catalog when needed and pass the
-key only through the child environment. Existing Codex plugins and MCP settings,
+key through the child environment. OpenCode's saved proxy account is synchronized
+when it contains an older key, since saved accounts override environment auth. Existing Codex plugins and MCP settings,
 OpenCode plugins and Pi packages, extensions, settings and sessions remain in
 place. Pi loads the proxy through an additional provider extension rather than
 switching its configuration directory. Run `agent-models-refresh` to refresh the

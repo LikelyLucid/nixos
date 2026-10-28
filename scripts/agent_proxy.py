@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -98,18 +99,22 @@ def catalogs(ids, base_url):
         claude["model"] = claude_env.get("ANTHROPIC_DEFAULT_SONNET_MODEL", claude_ids[0])
         claude["availableModels"] = claude_ids
     return {
-        "metadata.json": {"base_url": base_url},
+        "metadata.json": {"base_url": base_url, "schema_version": 2},
         "models.json": {"data": [{"id": m} for m in ids]},
         "codex-models.json": {"models": models},
         "defaults.json": {"codex": codex_default},
         "claude.json": claude,
         "opencode.json": {
             "$schema": "https://opencode.ai/config.json",
-            "enabled_providers": ["cliproxy"],
+            "policies": [
+                {"action": "provider.use", "resource": "*", "effect": "deny"},
+                {"action": "provider.use", "resource": "cliproxy", "effect": "allow"},
+            ],
             **({"model": "cliproxy/" + codex_default} if codex_default else {}),
-            "provider": {"cliproxy": {
-                "npm": "@ai-sdk/openai", "name": "CLI proxy",
-                "options": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
+            "providers": {"cliproxy": {
+                "package": "@opencode/ai/providers/openai-compatible/responses", "name": "CLI proxy",
+                "env": ["CLI_PROXY_API_KEY"],
+                "settings": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
                 "models": {model: {"name": model} for model in ids},
             }},
         },
@@ -126,7 +131,8 @@ def refresh(state, key, base_url, force=False):
         fcntl.flock(lock, fcntl.LOCK_EX)
         current = state / "current"
         if (not force and current.exists() and time.time() - current.stat().st_mtime < 900
-                and json.loads((current / "metadata.json").read_text())["base_url"] == base_url):
+                and json.loads((current / "metadata.json").read_text()) == {
+                    "base_url": base_url, "schema_version": 2}):
             return
         request = urllib.request.Request(base_url + "/models", headers={
             "Authorization": "Bearer " + key, "Accept": "application/json",
@@ -152,6 +158,33 @@ def refresh(state, key, base_url, force=False):
             raise
         # Keep previous generations for already-running clients.
         print(f"Discovered {len(generated['models.json']['data'])} proxy models", file=sys.stderr)
+
+
+def sync_opencode_auth(executable, environment, key):
+    # V2 saved accounts take precedence over provider environment credentials.
+    # Use the public CLI so account IDs and unrelated integrations stay intact.
+    exported = subprocess.run([executable, "auth", "export", "--standalone"],
+                              env=environment, capture_output=True, timeout=30, check=True)
+    for account in json.loads(exported.stdout):
+        if (account.get("integrationID", "").lower() == "cliproxy"
+                and account.get("value", {}).get("type") == "key"
+                and account["value"].get("key") != key):
+            original = json.dumps([account]).encode()
+            account["value"]["key"] = key
+            # Import deliberately skips existing IDs. Replace only this account,
+            # restoring the old credential if the new import fails.
+            subprocess.run([executable, "auth", "logout", account["integrationID"],
+                            account["id"], "--standalone"], env=environment,
+                           capture_output=True, timeout=30, check=True)
+            try:
+                subprocess.run([executable, "auth", "import", "--standalone"],
+                               input=json.dumps([account]).encode(), env=environment,
+                               capture_output=True, timeout=30, check=True)
+            except Exception:
+                subprocess.run([executable, "auth", "import", "--standalone"],
+                               input=original, env=environment, capture_output=True,
+                               timeout=30, check=True)
+                raise
 
 
 def main():
@@ -201,11 +234,14 @@ def main():
             # Inline overrides merge above global/project config, including plugins.
             config = json.loads(environment.get("OPENCODE_CONFIG_CONTENT", "{}"))
             generated = json.loads((current / "opencode.json").read_text())
-            config.setdefault("provider", {}).update(generated.pop("provider"))
+            config.setdefault("providers", {}).update(generated.pop("providers"))
             config.update(generated)
             environment["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
         else:
             environment["OPENCODE_CONFIG"] = str(current / "opencode.json")
+        with (state / "opencode-auth.lock").open("w") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            sync_opencode_auth(executable, environment, key)
     elif command == "pi":
         if environment.get("CLI_PROXY_KEEP_AGENT_CONFIG") == "1":
             # Add one provider without moving Pi's settings, extensions or sessions.

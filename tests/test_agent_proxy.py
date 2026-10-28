@@ -28,7 +28,7 @@ class DiscoveryTests(unittest.TestCase):
         ids = proxy.model_ids({"data": [{"id": "gpt-example"}, {"id": "claude-sonnet-example"},
                                           {"id": "gemini-example"}, {"id": "gpt-example"}]})
         generated = proxy.catalogs(ids, BASE_URL)
-        self.assertEqual(len(generated["opencode.json"]["provider"]["cliproxy"]["models"]), 3)
+        self.assertEqual(len(generated["opencode.json"]["providers"]["cliproxy"]["models"]), 3)
         self.assertEqual(len(generated["pi/models.json"]["providers"]["cliproxy"]["models"]), 3)
         codex = generated["codex-models.json"]["models"]
         self.assertEqual([m["slug"] for m in codex], ["gpt-example"])
@@ -48,18 +48,57 @@ class DiscoveryTests(unittest.TestCase):
         self.assertIsNone(proxy.catalogs(["gemini-example"], BASE_URL)["defaults.json"]["codex"])
 
 
+class OpenCodeAuthTests(unittest.TestCase):
+    def test_rotates_only_saved_proxy_account_and_retains_identity(self):
+        accounts = [
+            {"id": "proxy-account", "integrationID": "cliproxy", "active": True,
+             "value": {"type": "key", "key": "old"}},
+            {"id": "other-account", "integrationID": "other", "value": {"type": "key", "key": "keep"}},
+        ]
+        with patch.object(proxy.subprocess, "run") as run:
+            run.return_value.stdout = json.dumps(accounts).encode()
+            proxy.sync_opencode_auth("/client", {}, "new")
+            updated = json.loads(run.call_args.kwargs["input"])
+            self.assertEqual(len(updated), 1)
+            self.assertEqual(updated[0]["id"], "proxy-account")
+            self.assertTrue(updated[0]["active"])
+            self.assertEqual(updated[0]["value"]["key"], "new")
+            self.assertNotIn("new", str(run.call_args.args))
+
+    def test_failed_rotation_restores_previous_proxy_credential(self):
+        account = {"id": "proxy-account", "integrationID": "cliproxy", "active": True,
+                   "value": {"type": "key", "key": "old"}}
+        exported = unittest.mock.Mock(stdout=json.dumps([account]).encode())
+        with patch.object(proxy.subprocess, "run") as run:
+            run.side_effect = [exported, unittest.mock.Mock(), OSError("import failed"), unittest.mock.Mock()]
+            with self.assertRaises(OSError):
+                proxy.sync_opencode_auth("/client", {}, "new")
+            self.assertEqual(json.loads(run.call_args.kwargs["input"]), [account])
+
+    def test_matching_proxy_key_leaves_saved_credentials_untouched(self):
+        with patch.object(proxy.subprocess, "run") as run:
+            run.return_value.stdout = json.dumps([{
+                "integrationID": "cliproxy", "value": {"type": "key", "key": "same"}
+            }]).encode()
+            proxy.sync_opencode_auth("/client", {}, "same")
+            self.assertEqual(run.call_count, 1)
+
+
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.home = Path(self.temporary.name)
         self.home_patch = patch.object(Path, "home", return_value=self.home)
         self.home_patch.start()
+        self.auth_patch = patch.object(proxy, "sync_opencode_auth")
+        self.auth_patch.start()
         proxy.atomic_write(proxy.key_path(), "fixture-secret\n")
         proxy.atomic_write(self.home / ".config/agent-server/proxy-url", BASE_URL)
         self.state = self.home / ".local/state/agent-proxy"
 
     def tearDown(self):
         self.home_patch.stop()
+        self.auth_patch.stop()
         self.temporary.cleanup()
 
     def response(self):
@@ -146,7 +185,7 @@ class RuntimeTests(unittest.TestCase):
         settings = pi_home / "settings.json"
         settings.write_text('{"packages":["npm:existing-plugin"]}')
         original = settings.read_bytes()
-        config = {"plugin": ["existing-plugin"], "provider": {"existing": {"name": "Keep"}}}
+        config = {"plugin": ["existing-plugin"], "providers": {"existing": {"name": "Keep"}}}
         with patch.dict(os.environ, {
             "CLI_PROXY_KEEP_AGENT_CONFIG": "1", "PI_CODING_AGENT_DIR": str(pi_home),
             "OPENCODE_CONFIG": "/custom/opencode.jsonc",
@@ -167,8 +206,8 @@ class RuntimeTests(unittest.TestCase):
                     elif agent == "opencode":
                         merged = json.loads(environment["OPENCODE_CONFIG_CONTENT"])
                         self.assertEqual(merged["plugin"], config["plugin"])
-                        self.assertIn("existing", merged["provider"])
-                        self.assertIn("cliproxy", merged["provider"])
+                        self.assertIn("existing", merged["providers"])
+                        self.assertIn("cliproxy", merged["providers"])
         self.assertEqual(settings.read_bytes(), original)
 
     def test_redirects_cannot_forward_bearer_token(self):
