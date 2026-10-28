@@ -10,7 +10,21 @@ lazygit, compiler tools, Codex, Claude Code, OpenCode and Pi. The CLI runtimes
 still take disk space, especially Neovim and language tooling; this is not a
 minimal rescue system.
 
-## Install on the physical machine
+## Existing server: artslaptop
+
+`nixosConfigurations.artslaptop` composes the headless agent-server group with
+its verified physical disk UUIDs and Intel hardware. It preserves the hostname,
+NetworkManager Wi-Fi profiles and the existing Tailscale machine identity.
+Its existing SSH host public identity is enrolled in SOPS. The desktop group,
+Bluetooth audio and laptop suspend behavior are removed from this host.
+
+Build `.#nixosConfigurations.artslaptop.config.system.build.toplevel`, copy the
+closure with `nix copy --to ssh://lucid@artslaptop`, then activate the resulting
+system's `bin/switch-to-configuration switch` using sudo in an interactive SSH
+terminal. Keep the previous system path for rollback. No disk formatting or
+reinstallation is needed for this conversion.
+
+## Install on another physical machine
 
 1. Generate the target's hardware configuration from the installer with
    `nixos-generate-config --root /mnt`. Adapt the generated settings into

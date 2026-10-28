@@ -1,10 +1,10 @@
 { config, ... }:
 {
   nixos.modules.agent-server =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
     {
-      networking.hostName = "agent-server";
-      networking.useDHCP = true;
+      networking.hostName = lib.mkDefault "agent-server";
+      networking.useDHCP = lib.mkDefault true;
       networking.firewall = {
         enable = true;
         interfaces.tailscale0.allowedTCPPorts = [ 22 ];
