@@ -1,10 +1,14 @@
 # LikelyLucid NixOS configuration
 
-This flake manages three systems:
+This flake provides these systems:
 
 - `artsxps` — the main NixOS desktop
 - `nixos-wsl` — the WSL development environment
 - `generic` — a hardware-neutral base for new NixOS installations
+- `agent-server` — a headless physical server for coding agents, T3 Code and Tailscale SSH
+
+See [Coding agent server](docs/agent-server.md) for hardware preparation,
+tailnet enrollment, private proxy credentials and model discovery.
 
 It uses the [dendritic pattern](https://github.com/mightyiam/dendritic): every
 Nix file except `flake.nix` is a top-level flake-parts module. Feature files
