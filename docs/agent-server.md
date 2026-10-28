@@ -162,6 +162,17 @@ systemctl status t3-server
 t3 pair --tailscale
 ```
 
+For T3 Connect, authorize with `t3 connect --headless` and use
+`sudo systemctl restart t3-server` to apply the link. Check it with
+`t3 connect status`. This host uses the NixOS system service; the CLI's
+`t3 service status` describes a separate optional user service and can report
+"not installed" while `t3-server` is running normally.
+
+The T3 Connect account must have a free machine slot. If startup reports the
+managed tunnel limit, remove an unused environment from the account's T3
+Connect page, then restart `t3-server`. Tailscale pairing and SSH do not consume
+those cloud tunnel slots.
+
 Use the pairing link from your desktop or phone on the tailnet. Pairing links
 are credentials; do not publish them. Tailnet access and T3 pairing both apply.
 Boot and refresh do not require an interactive login because `lucid` has linger
