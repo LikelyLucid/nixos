@@ -44,6 +44,16 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(pi["apiKey"], "$CLI_PROXY_API_KEY")
         self.assertEqual(pi["api"], "openai-responses")
 
+    def test_all_discovered_opencode_models_use_chat_completions(self):
+        ids = ["deepseek-v4.1-flash", "gpt-example", "new-provider/new-model"]
+        generated = proxy.catalogs(ids, BASE_URL)
+        provider = generated["opencode.json"]["providers"]["cliproxy"]
+        self.assertEqual(provider["package"], "@opencode/ai/providers/openai-compatible")
+        self.assertEqual(set(provider["models"]), set(ids))
+        self.assertEqual(provider["settings"]["baseURL"], BASE_URL)
+        self.assertTrue(all("package" not in model for model in provider["models"].values()))
+        self.assertEqual(generated["pi/models.json"]["providers"]["cliproxy"]["api"], "openai-responses")
+
     def test_missing_codex_models_does_not_fabricate_one(self):
         self.assertIsNone(proxy.catalogs(["gemini-example"], BASE_URL)["defaults.json"]["codex"])
 
@@ -86,6 +96,14 @@ class OpenCodeAuthTests(unittest.TestCase):
 
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
+        # Never let a developer shell redirect fixture writes to real secret files.
+        environment = {key: value for key, value in os.environ.items() if key not in {
+            "CLI_PROXY_API_KEY_FILE", "CLI_PROXY_BASE_URL_FILE", "CLI_PROXY_KEEP_AGENT_CONFIG", "CLI_PROXY_STATE_DIR",
+            "OPENCODE_CONFIG_CONTENT", "OPENCODE_CONFIG", "PI_CODING_AGENT_DIR",
+        }}
+        self.environment_patch = patch.dict(os.environ, environment, clear=True)
+        self.environment_patch.start()
+        self.addCleanup(self.environment_patch.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.home = Path(self.temporary.name)
         self.home_patch = patch.object(Path, "home", return_value=self.home)
@@ -149,6 +167,28 @@ class RuntimeTests(unittest.TestCase):
         for path in (self.state / "current").rglob("*.json"):
             self.assertNotIn("fixture-secret", path.read_text())
 
+    def test_refresh_replaces_recent_responses_catalog_and_discovers_new_models(self):
+        self.refresh()
+        previous = (self.state / "current").resolve()
+        metadata = json.loads((previous / "metadata.json").read_text())
+        metadata["schema_version"] = 2
+        proxy.atomic_write(previous / "metadata.json", json.dumps(metadata))
+        catalog = json.loads((previous / "opencode.json").read_text())
+        catalog["providers"]["cliproxy"]["package"] = "@opencode/ai/providers/openai-compatible/responses"
+        proxy.atomic_write(previous / "opencode.json", json.dumps(catalog))
+        response = self.response()
+        response.__enter__.return_value.read.return_value = json.dumps({"data": [
+            {"id": "deepseek-v4.1-flash"}, {"id": "new-provider/new-model"}
+        ]}).encode()
+        with patch.object(proxy.urllib.request, "build_opener") as opener:
+            opener.return_value.open.return_value = response
+            proxy.refresh(self.state, "fixture-secret", BASE_URL)
+            opener.return_value.open.assert_called_once()
+        self.assertNotEqual((self.state / "current").resolve(), previous)
+        provider = json.loads((self.state / "current/opencode.json").read_text())["providers"]["cliproxy"]
+        self.assertEqual(provider["package"], "@opencode/ai/providers/openai-compatible")
+        self.assertEqual(set(provider["models"]), {"deepseek-v4.1-flash", "new-provider/new-model"})
+
     def test_failed_refresh_preserves_exact_previous_generation(self):
         self.refresh()
         previous = (self.state / "current").resolve()
@@ -157,6 +197,22 @@ class RuntimeTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 proxy.refresh(self.state, "fixture-secret", BASE_URL, force=True)
         self.assertEqual((self.state / "current").resolve(), previous)
+
+    def test_separate_opencode_state_preserves_existing_shared_catalog(self):
+        self.refresh()
+        previous = (self.state / "current").resolve()
+        isolated = self.home / ".local/state/agent-proxy-opencode-chat"
+        with patch.dict(os.environ, {"CLI_PROXY_STATE_DIR": str(isolated)}):
+            with patch.object(proxy.urllib.request, "build_opener") as opener:
+                opener.return_value.open.return_value = self.response()
+                with patch.object(proxy.os, "execve") as execute:
+                    with patch.object(proxy.sys, "argv", ["agent_proxy.py", "opencode", "/fake/client"]):
+                        proxy.main()
+        environment = execute.call_args.args[2]
+        self.assertEqual(Path(environment["OPENCODE_CONFIG"]), (isolated / "current").resolve() / "opencode.json")
+        self.assertEqual((self.state / "current").resolve(), previous)
+        provider = json.loads(Path(environment["OPENCODE_CONFIG"]).read_text())["providers"]["cliproxy"]
+        self.assertEqual(provider["package"], "@opencode/ai/providers/openai-compatible")
 
     def test_all_launchers_receive_runtime_key_and_discovered_config(self):
         self.refresh()

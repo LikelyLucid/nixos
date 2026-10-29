@@ -99,7 +99,7 @@ def catalogs(ids, base_url):
         claude["model"] = claude_env.get("ANTHROPIC_DEFAULT_SONNET_MODEL", claude_ids[0])
         claude["availableModels"] = claude_ids
     return {
-        "metadata.json": {"base_url": base_url, "schema_version": 2},
+        "metadata.json": {"base_url": base_url, "schema_version": 3},
         "models.json": {"data": [{"id": m} for m in ids]},
         "codex-models.json": {"models": models},
         "defaults.json": {"codex": codex_default},
@@ -112,7 +112,7 @@ def catalogs(ids, base_url):
             ],
             **({"model": "cliproxy/" + codex_default} if codex_default else {}),
             "providers": {"cliproxy": {
-                "package": "@opencode/ai/providers/openai-compatible/responses", "name": "CLI proxy",
+                "package": "@opencode/ai/providers/openai-compatible", "name": "CLI proxy",
                 "env": ["CLI_PROXY_API_KEY"],
                 "settings": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
                 "models": {model: {"name": model} for model in ids},
@@ -132,7 +132,7 @@ def refresh(state, key, base_url, force=False):
         current = state / "current"
         if (not force and current.exists() and time.time() - current.stat().st_mtime < 900
                 and json.loads((current / "metadata.json").read_text()) == {
-                    "base_url": base_url, "schema_version": 2}):
+                    "base_url": base_url, "schema_version": 3}):
             return
         request = urllib.request.Request(base_url + "/models", headers={
             "Authorization": "Bearer " + key, "Accept": "application/json",
@@ -198,7 +198,8 @@ def main():
         return
     key = read_key()
     base_url = read_base_url()
-    state = Path.home() / ".local/state/agent-proxy"
+    # Allow independently upgraded launchers to avoid rewriting each other's catalogs.
+    state = Path(os.environ.get("CLI_PROXY_STATE_DIR", str(Path.home() / ".local/state/agent-proxy")))
     if command == "refresh":
         refresh(state, key, base_url, force=True)
         return
