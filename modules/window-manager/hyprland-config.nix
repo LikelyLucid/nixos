@@ -303,7 +303,6 @@
             wallust -d /home/lucid/dotfiles/wallust run "$wallpaper"
             hyprctl hyprpaper wallpaper ",$wallpaper" 2>/dev/null || true
             pkill -SIGUSR2 -x .waybar-wrapped 2>/dev/null || pkill -SIGUSR2 -x waybar 2>/dev/null || true
-            swaync-client -rs 2>/dev/null || true
             hyprctl reload 2>/dev/null || true
           '';
           executable = true;
@@ -348,8 +347,8 @@
                 "Screenshot Area") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
                 "Screenshot Full Screen") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
-                "Notifications") swaync-client -t -sw ;;
-                "Do Not Disturb") swaync-client -d -sw ;;
+                "Notifications") hyprctl dispatch exec 'hokum' ;;
+                "Do Not Disturb") hokum dnd toggle >/dev/null ;;
                 "Lock") hyprlock ;;
                 "Sleep") systemctl suspend ;;
                 "Log Out") hyprctl dispatch exit ;;
