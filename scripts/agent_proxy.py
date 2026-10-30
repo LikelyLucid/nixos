@@ -214,10 +214,14 @@ def main():
     environment = os.environ.copy()
     environment["CLI_PROXY_API_KEY"] = key
     executable = arguments.pop(0)
+    cua_command = environment.get("AGENT_CUA_COMMAND")
     if command == "codex":
         default = json.loads((current / "defaults.json").read_text())["codex"]
         if not default:
             raise ValueError("Proxy catalog contains no recognized Codex/Responses model IDs")
+        if cua_command:
+            arguments = ["-c", f"mcp_servers.cua.command={json.dumps(cua_command)}",
+                         "-c", 'mcp_servers.cua.args=["mcp"]', *arguments]
         arguments = ["-c", 'model_provider="cliproxy"', "-c", f"model={json.dumps(default)}",
                      "-c", f"model_catalog_json={json.dumps(str(current / 'codex-models.json'))}",
                      "-c", 'model_providers.cliproxy.name="CLI proxy"',
@@ -230,7 +234,21 @@ def main():
         environment.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
         environment.update(json.loads((current / "claude.json").read_text())["env"])
         arguments = ["--settings", str(current / "claude.json"), *arguments]
+        if cua_command:
+            mcp_config = state / "claude-cua-mcp.json"
+            atomic_write(mcp_config, json.dumps({"mcpServers": {"cua": {
+                "command": cua_command, "args": ["mcp"],
+            }}}))
+            arguments = ["--mcp-config", str(mcp_config), *arguments]
     elif command == "opencode":
+        if cua_command:
+            config = json.loads((current / "opencode.json").read_text())
+            config["mcp"] = {"servers": {"cua": {
+                "type": "local", "command": [cua_command, "mcp"],
+            }}}
+            mcp_config = state / "opencode-cua.json"
+            atomic_write(mcp_config, json.dumps(config))
+            environment["OPENCODE_CONFIG"] = str(mcp_config)
         if environment.get("CLI_PROXY_KEEP_AGENT_CONFIG") == "1":
             # Inline overrides merge above global/project config, including plugins.
             config = json.loads(environment.get("OPENCODE_CONFIG_CONTENT", "{}"))
@@ -238,7 +256,7 @@ def main():
             config.setdefault("providers", {}).update(generated.pop("providers"))
             config.update(generated)
             environment["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
-        else:
+        elif not cua_command:
             environment["OPENCODE_CONFIG"] = str(current / "opencode.json")
         with (state / "opencode-auth.lock").open("w") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)

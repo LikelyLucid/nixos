@@ -200,3 +200,21 @@ OpenCode plugins and Pi packages, extensions, settings and sessions remain in
 place. Pi loads the proxy through an additional provider extension rather than
 switching its configuration directory. Run `agent-models-refresh` to refresh the
 catalog immediately.
+
+
+## Cua Spaces on the server
+
+The headless server includes `cua`, the native Spaces runtime and rootless
+Podman. The desktop application is not installed on this host. Its Podman socket
+starts with the lingering user session, so local Linux Spaces can run without a
+physical login.
+
+Codex, Claude Code and OpenCode launch the `cua mcp` server automatically. Pi
+receives the Cua Spaces, sandbox and volume skills in its server agent directory
+and can use the `cua` CLI. Existing agent settings and plugins remain in place.
+
+Sign in once from artslaptop with `cua auth login --remote`, then complete the
+printed device approval on your signed-in computer. The server has its own Cua
+device identity; proxy credentials do not sign it in to Cua. Run `cua spaces list`
+to check which existing Spaces and machines this identity can access. Access to
+another computer still follows the Cua account's grants and device approval.

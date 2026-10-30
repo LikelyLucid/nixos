@@ -5,7 +5,16 @@
     let
       pkgs = import inputs.nixpkgs {
         inherit system;
-        config.allowUnfreePredicate = package: lib.getName package == "cua-spaces";
+        config.allowUnfreePredicate =
+          package:
+          builtins.elem (lib.getName package) [
+            "cua-spaces"
+            "cua-spaces-cli"
+          ];
+      };
+      spaces_src = pkgs.fetchurl {
+        url = "https://github.com/trycua/cua/releases/download/cua-spaces-v0.12.0/cua-spaces_0.12.0_amd64.deb";
+        hash = "sha256-ujQff57hKIA/fTZGk/E3uHusJcm0OTE6A2G73PY4MEA=";
       };
       cua_source = pkgs.fetchFromGitHub {
         owner = "trycua";
@@ -40,10 +49,11 @@
             mv "$out/bin/cua" "$out/libexec/cua"
             wrapProgram "$out/libexec/cua" \
               --set-default CUA_SPACES_CLI \
-                ${config.flake.packages.${system}.cua-spaces}/lib/cua-spaces/resources/native/cua
+                ${config.flake.packages.${system}.cua-spaces-cli}/bin/cua
             makeWrapper ${pkgs.python3}/bin/python3 "$out/bin/cua" \
               --add-flags "${../../scripts/cua_routes.py} $out/libexec/cua"
           '';
+          passthru.skills = "${cua_source}/libs/cua/skills";
           meta = {
             description = "Cua CLI for local desktop Spaces and computer-use agents";
             homepage = "https://cua.ai/docs/cua-cli";
@@ -54,13 +64,45 @@
           };
         };
 
+        # The embedded Spaces CLI and its native libraries work without Electron.
+        cua-spaces-cli = pkgs.stdenvNoCC.mkDerivation {
+          pname = "cua-spaces-cli";
+          version = "0.12.0";
+          src = spaces_src;
+          nativeBuildInputs = [
+            pkgs.autoPatchelfHook
+            pkgs.dpkg
+            pkgs.makeWrapper
+          ];
+          buildInputs = [ pkgs.stdenv.cc.cc.lib ];
+          unpackPhase = "dpkg-deb --fsys-tarfile $src | tar --no-same-permissions -x";
+          dontBuild = true;
+          dontStrip = true;
+          installPhase = ''
+            runHook preInstall
+            mkdir -p "$out/libexec/cua" "$out/bin"
+            cp "opt/Cua Spaces/resources/native/"* "$out/libexec/cua/"
+            makeWrapper "$out/libexec/cua/cua" "$out/bin/cua" \
+              --prefix PATH : ${
+                lib.makeBinPath [
+                  pkgs.openssh
+                  pkgs.git
+                ]
+              }
+            runHook postInstall
+          '';
+          meta = {
+            description = "Headless Cua Spaces runtime";
+            license = lib.licenses.unfree;
+            platforms = [ "x86_64-linux" ];
+            mainProgram = "cua";
+          };
+        };
+
         cua-spaces = pkgs.stdenvNoCC.mkDerivation {
           pname = "cua-spaces";
           version = "0.12.0";
-          src = pkgs.fetchurl {
-            url = "https://github.com/trycua/cua/releases/download/cua-spaces-v0.12.0/cua-spaces_0.12.0_amd64.deb";
-            hash = "sha256-ujQff57hKIA/fTZGk/E3uHusJcm0OTE6A2G73PY4MEA=";
-          };
+          src = spaces_src;
           nativeBuildInputs = with pkgs; [
             autoPatchelfHook
             dpkg
