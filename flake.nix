@@ -23,7 +23,11 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    handy.url = "github:cjpais/handy/fbd4e15fa14a721c66c57006ae110428b9e255b3";
+    hex = {
+      url = "github:anomalyco/hex/385b6259b0bd00829c08d8df58ebec874fdb3595";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
 
     nixvim = {
       url = "github:nix-community/nixvim";

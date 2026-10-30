@@ -629,6 +629,30 @@
         "type": "github"
       }
     },
+    "hex": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793400170,
+        "narHash": "sha256-k+gipYX7/jtcjWKnxrVUqtkKmis0Cq1QIvfUnV7Ojd0=",
+        "owner": "anomalyco",
+        "repo": "hex",
+        "rev": "385b6259b0bd00829c08d8df58ebec874fdb3595",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "hex",
+        "rev": "385b6259b0bd00829c08d8df58ebec874fdb3595",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1107,7 +1131,6 @@
         "disko": "disko",
         "dotfiles": "dotfiles",
         "flake-parts": "flake-parts",
-        "handy": "handy",
         "helium-browser": "helium-browser",
         "herdr": "herdr",
         "herdr-automatic-rename": "herdr-automatic-rename",
@@ -1121,6 +1144,7 @@
         "herdr-workspace-manager": "herdr-workspace-manager",
         "herdr-worktree-setup": "herdr-worktree-setup",
         "hermes-agent": "hermes-agent",
+        "hex": "hex",
         "home-manager": "home-manager_2",
         "hyprland-canvas": "hyprland-canvas",
         "import-tree": "import-tree_2",
