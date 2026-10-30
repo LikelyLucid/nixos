@@ -1,5 +1,6 @@
 {
   "homeManagerModuleGroups": [
+    "agent-server",
     "common",
     "desktop",
     "firefox",
@@ -7,6 +8,7 @@
     "wsl"
   ],
   "nixosModuleGroups": [
+    "agent-server",
     "artslaptop",
     "artsxps",
     "common",
@@ -16,6 +18,7 @@
     "wsl"
   ],
   "hosts": {
+    "agent-server": "agent-server",
     "artslaptop": "artslaptop",
     "artsxps": "artsxps",
     "generic": "generic",

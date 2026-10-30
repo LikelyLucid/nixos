@@ -1,2 +1,4 @@
 creation_rules:
+  - path_regex: secrets/agent-server\.yaml$
+    age: age1xy4x6qlc5vgqkh5vw4202h33k2z24ct0xr53kavnmsdem3u8gg2q8850sf,age1vvdsse7dy2thsug7rlaxa5jlczljhmapahlf8ukr9z8hne28xvxqlvtx8y,age12yfvlzfz8sx8wqcvzt2namphdhcjzvps4ar54uhxh8ew3tr6ugesrcqzgc
   - age: age1vvdsse7dy2thsug7rlaxa5jlczljhmapahlf8ukr9z8hne28xvxqlvtx8y

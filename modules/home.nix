@@ -36,7 +36,6 @@
         # AI / AGENT DEVELOPMENT TOOLS
         ########################################
         pi-coding-agent # pi coding agent (from lukasl-dev/pi.nix overlay)
-        opencode # Terminal UI for LLMs
 
         ########################################
         # ENHANCED CLI TOOLS
