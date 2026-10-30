@@ -174,10 +174,6 @@
         hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
 
-        -- Hex documents Hyprland's global dispatch because its portal does not
-        -- register a key itself; this lets Ctrl+Shift+Space hold-to-dictate.
-        hl.bind("CTRL + SHIFT + SPACE", hl.dsp.global("hex:dictation"))
-
         hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
         hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
         hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }))
@@ -524,9 +520,6 @@
             Super Shift + Left/Right  navigate to prev/next window
             Super Shift + C           toggle canvas floating mode
             Super Shift + G           invert pan direction
-
-          DICTATION:
-            Ctrl Shift + Space       hold to dictate; release to transcribe
 
           SYSTEM:
             Super + M    exit Hyprland
