@@ -25,9 +25,10 @@ class DiscoveryTests(unittest.TestCase):
                 proxy.model_ids(payload)
 
     def test_catalogs_keep_exact_ids_without_claiming_capabilities(self):
-        ids = proxy.model_ids({"data": [{"id": "gpt-example"}, {"id": "claude-sonnet-example"},
-                                          {"id": "deepseek-v4.1-flash"}, {"id": "gpt-example"}]})
-        generated = proxy.catalogs(ids, BASE_URL)
+        payload = {"data": [{"id": "gpt-example"}, {"id": "claude-sonnet-example"},
+                            {"id": "deepseek-v4.1-flash"}, {"id": "gpt-example"}]}
+        ids = proxy.model_ids(payload)
+        generated = proxy.catalogs(payload, BASE_URL)
         models = generated["opencode.json"]["provider"]["cliproxy"]["models"]
         self.assertEqual(set(models), set(ids))
         for model in models.values():
@@ -39,8 +40,35 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(codex[0]["supported_reasoning_levels"], [])
         self.assertEqual(generated["claude.json"]["model"], "claude-sonnet-example")
 
+    def test_advertised_modalities_are_normalized_for_opencode(self):
+        cases = [
+            ({"modalities": {"input": ["TEXT", "IMAGE"], "output": ["TEXT"]}},
+             {"input": ["text", "image"], "output": ["text"]}),
+            ({"modalities": {"input": ["text", "image/png", "image/jpeg", "application/pdf", "audio/wav", "video/mp4"],
+                             "output": ["image/png"]}},
+             {"input": ["text", "image", "pdf", "audio", "video"], "output": ["image"]}),
+            ({"architecture": {"input_modalities": ["text", "image"], "output_modalities": ["text"]}},
+             {"input": ["text", "image"], "output": ["text"]}),
+            ({"modalities": {"input": ["text"], "output": ["text"]},
+              "architecture": {"input_modalities": ["text", "image"]}},
+             {"input": ["text"], "output": ["text"]}),
+            ({"modalities": {"input": "image", "output": [None, "unsupported"]}},
+             {"input": ["text"], "output": ["text"]}),
+            ({"modalities": None, "architecture": None},
+             {"input": ["text"], "output": ["text"]}),
+        ]
+        for metadata, expected in cases:
+            with self.subTest(metadata=metadata):
+                entry = {"id": "model-example", **metadata}
+                generated = proxy.catalogs({"data": [entry]}, BASE_URL)
+                model = generated["opencode.json"]["provider"]["cliproxy"]["models"][entry["id"]]
+                self.assertEqual(model["modalities"], expected)
+                self.assertEqual(generated["models.json"]["data"], [entry])
+
     def test_verified_default_and_current_pi_auth_syntax(self):
-        generated = proxy.catalogs(["codex-auto-review", "gpt-6.1-sol", "gpt-image-2"], BASE_URL)
+        generated = proxy.catalogs({"data": [{"id": m} for m in [
+            "codex-auto-review", "gpt-6.1-sol", "gpt-image-2",
+        ]]}, BASE_URL)
         self.assertEqual(generated["defaults.json"]["codex"], "gpt-6.1-sol")
         self.assertEqual(generated["opencode.json"]["model"], "cliproxy/gpt-6.1-sol")
         pi = generated["pi/models.json"]["providers"]["cliproxy"]
@@ -48,7 +76,7 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(pi["api"], "openai-responses")
 
     def test_missing_codex_models_does_not_fabricate_one(self):
-        self.assertIsNone(proxy.catalogs(["gemini-example"], BASE_URL)["defaults.json"]["codex"])
+        self.assertIsNone(proxy.catalogs({"data": [{"id": "gemini-example"}]}, BASE_URL)["defaults.json"]["codex"])
 
 
 class RuntimeTests(unittest.TestCase):
@@ -74,7 +102,11 @@ class RuntimeTests(unittest.TestCase):
     def response(self):
         response = unittest.mock.MagicMock()
         response.__enter__.return_value.read.return_value = json.dumps({"data": [
-            {"id": "gpt-example"}, {"id": "claude-sonnet-example"}
+            {"id": "gpt-example"}, {"id": "claude-sonnet-example"},
+            {"id": "deepseek-v4.1-flash", "modalities": {
+                "input": ["text", "image/jpeg", "image/png", "image/gif", "image/webp"],
+                "output": ["text"],
+            }},
         ]}).encode()
         return response
 
@@ -116,13 +148,18 @@ class RuntimeTests(unittest.TestCase):
     def test_successful_refresh_never_writes_key_to_catalog(self):
         self.refresh()
         self.assertTrue((self.state / "current").is_symlink())
+        config = json.loads((self.state / "current/opencode.json").read_text())
+        models = config["provider"]["cliproxy"]["models"]
+        self.assertEqual(models["deepseek-v4.1-flash"]["modalities"], {
+            "input": ["text", "image"], "output": ["text"],
+        })
         for path in (self.state / "current").rglob("*.json"):
             self.assertNotIn("fixture-secret", path.read_text())
 
     def test_refresh_replaces_a_fresh_catalog_with_unknown_capabilities(self):
         self.refresh()
         previous = (self.state / "current").resolve()
-        proxy.atomic_write(previous / "metadata.json", json.dumps({"base_url": BASE_URL}))
+        proxy.atomic_write(previous / "metadata.json", json.dumps({"base_url": BASE_URL, "version": 2}))
         with patch.object(proxy.urllib.request, "build_opener") as opener:
             opener.return_value.open.return_value = self.response()
             proxy.refresh(self.state, "fixture-secret", BASE_URL)

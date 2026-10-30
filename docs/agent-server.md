@@ -112,20 +112,20 @@ discovery requires a working credential and endpoint. Redirects are rejected.
   IDs for its model allowlist and family defaults. The proxy must support
   `/v1/messages`; an OpenAI-only endpoint is insufficient.
 - OpenCode v2 receives a generated Responses provider containing every
-  discovered ID. It uses the same default model as Codex. Models explicitly use
-  text-only input/output until multimodal support is verified; OpenCode's default
-  image support otherwise sends image-bearing tool results that text-only proxy
-  routes reject, including when resuming saved sessions.
+  discovered ID. It uses the same default model as Codex. Input/output modalities
+  come from the proxy catalog, including image support. MIME-specific modalities
+  such as `image/png` are normalized to OpenCode's modality names. Models without
+  modality metadata conservatively default to text-only.
 - Pi receives the same model IDs through a Responses provider, using an
   environment reference for its key and the same default as Codex. Its
   writable agent directory is `~/.local/state/agent-proxy/pi`, separate from
   the desktop's `~/pi-config` links. Put server-specific Pi extensions there.
 
-The catalog reports IDs, not necessarily API compatibility, context windows,
-reasoning levels or vision support. Discovery does not prove that every model
-can run every client. The generated configuration does not invent those
-capabilities. New sessions read updated catalogs; active sessions may need to
-be restarted. The original per-user Codex/Claude configuration is not replaced.
+The raw catalog preserves the metadata returned by the proxy. OpenCode uses its
+advertised modalities, but discovery does not prove that every model can run every
+client or that every route supports images in tool results. The generated
+configuration does not infer capabilities from model names. New sessions read
+updated catalogs; active sessions may need a configuration reload. The original per-user Codex/Claude configuration is not replaced.
 
 Refresh diagnostics:
 

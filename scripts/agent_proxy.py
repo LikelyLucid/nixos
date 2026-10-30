@@ -13,7 +13,7 @@ import urllib.request
 import urllib.parse
 
 
-CATALOG_VERSION = 2
+CATALOG_VERSION = 3
 
 
 def atomic_write(path, content):
@@ -68,9 +68,30 @@ def model_ids(payload):
     return sorted(set(ids))
 
 
-def catalogs(ids, base_url):
-    # /models supplies IDs, not capabilities. Do not invent context limits,
-    # prices, image support, or reasoning levels from model names.
+def model_modalities(entry):
+    modalities = entry.get("modalities")
+    architecture = entry.get("architecture")
+    modalities = modalities if isinstance(modalities, dict) else {}
+    architecture = architecture if isinstance(architecture, dict) else {}
+    result = {}
+    for direction in ("input", "output"):
+        values = modalities.get(direction, architecture.get(direction + "_modalities"))
+        normalized = []
+        for value in values if isinstance(values, list) else []:
+            if not isinstance(value, str):
+                continue
+            value = value.lower()
+            value = "pdf" if value == "application/pdf" else value.split("/", 1)[0]
+            if value in ("text", "image", "audio", "video", "pdf") and value not in normalized:
+                normalized.append(value)
+        result[direction] = normalized or ["text"]
+    return result
+
+
+def catalogs(payload, base_url):
+    ids = model_ids(payload)
+    entries = {entry["id"]: entry for entry in payload["data"]}
+    # Use advertised capabilities, never infer them from a model's name.
     codex_ids = [m for m in ids if any(x in m.lower() for x in ("gpt", "codex"))
                  or m.lower().split("/")[-1].startswith(("o1", "o3", "o4"))]
     claude_ids = [m for m in ids if "claude" in m.lower()]
@@ -101,7 +122,7 @@ def catalogs(ids, base_url):
         claude["availableModels"] = claude_ids
     return {
         "metadata.json": {"base_url": base_url, "version": CATALOG_VERSION},
-        "models.json": {"data": [{"id": m} for m in ids]},
+        "models.json": {"data": [entries[m] for m in ids]},
         "codex-models.json": {"models": models},
         "defaults.json": {"codex": codex_default},
         "claude.json": claude,
@@ -112,10 +133,10 @@ def catalogs(ids, base_url):
             "provider": {"cliproxy": {
                 "npm": "@ai-sdk/openai", "name": "CLI proxy",
                 "options": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
-                # OpenCode otherwise assumes image input, breaking text-only tool history.
-                "models": {model: {"name": model, "modalities": {
-                    "input": ["text"], "output": ["text"],
-                }} for model in ids},
+                "models": {
+                    model: {"name": model, "modalities": model_modalities(entries[model])}
+                    for model in ids
+                },
             }},
         },
         "pi/models.json": {"providers": {"cliproxy": {
@@ -144,7 +165,7 @@ def refresh(state, key, base_url, force=False):
                 return None
         with urllib.request.build_opener(NoRedirect).open(request, timeout=30) as response:
             payload = json.loads(response.read(4 * 1024 * 1024))
-        generated = catalogs(model_ids(payload), base_url)
+        generated = catalogs(payload, base_url)
         generation = Path(tempfile.mkdtemp(prefix="catalog-", dir=state))
         try:
             for name, value in generated.items():
