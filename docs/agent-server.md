@@ -143,30 +143,34 @@ The server profile imports `inputs.t3code.nixosModules.runtime-compat`, which
 enables `nix-ld` for generic Linux executables downloaded by
 T3 desktop SSH setup and `t3 service install`. Without it, those unpatched
 runtimes fail with exit 127 on NixOS, even though the Nix-packaged server works.
-The system-managed `t3-server` service already starts at boot; an additional
-`t3 service install` is unnecessary for that service.
+NixOS's `t3-server` unit bootstraps and enables T3's native `t3code` user
+service. The initial install downloads the current stable runtime through the
+CLI from your `LikelyLucid/t3code-nix` input. Later Nix rebuilds retain T3's
+installed version. The `t3` command dispatches to its writable launcher.
 
-The server uses `inputs.t3code.packages.x86_64-linux.t3-cli` from your
-`LikelyLucid/t3code-nix` flake, currently the upstream standalone release `0.1.3`.
-The same input packages desktop AppImages and provides runtime compatibility. It runs as `lucid`, starts at boot and restarts
-on failure. State lives under `~/.t3`; back up this directory and your projects.
-This configuration does not provision backups or automatic OS upgrades.
+T3 starts with the lingering user manager at boot and restarts on failure.
+State remains under `~/.t3`; back up this directory and your projects. This
+configuration does not provision backups or automatic OS upgrades.
 
-The backend binds to `127.0.0.1:3773` and requests Tailscale Serve HTTPS. It
-does not open the T3 port on the LAN. Tailscale enrollment and HTTPS setup must
-be complete before remote pairing works. After enrolling:
+The backend binds to `127.0.0.1:3773` and requests Tailscale Serve HTTPS. A
+Home Manager service drop-in supplies these settings without owning the main
+unit, so T3 can update and restart itself. The T3 port is not open on the LAN.
+Tailscale enrollment and HTTPS setup must be complete before pairing works.
 
 ```bash
-sudo systemctl restart t3-server
-systemctl status t3-server
+t3 service status
+t3 service restart
+t3 update --yes
 t3 pair --tailscale
 ```
 
-For T3 Connect, authorize with `t3 connect --headless` and use
-`sudo systemctl restart t3-server` to apply the link. Check it with
-`t3 connect status`. This host uses the NixOS system service; the CLI's
-`t3 service status` describes a separate optional user service and can report
-"not installed" while `t3-server` is running normally.
+Updates can also be requested through T3. No `npx t3 serve` session is needed.
+The NixOS bootstrap retries a failed first install when networking returns.
+`sudo systemctl restart t3-server` reconciles the user service when diagnosing
+boot or secret changes; normal T3 service commands require no sudo.
+
+For T3 Connect, authorize with `t3 connect --headless`, then run
+`t3 service restart`. Check the link with `t3 connect status`.
 
 The T3 Connect account must have a free machine slot. If startup reports the
 managed tunnel limit, remove an unused environment from the account's T3
