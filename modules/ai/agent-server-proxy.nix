@@ -9,6 +9,7 @@
         pkgs.writeShellScriptBin name ''
           export CLI_PROXY_API_KEY_FILE=/run/secrets/agent-proxy-api-key
           export CLI_PROXY_BASE_URL_FILE=/run/secrets/agent-proxy-base-url
+          export AGENT_BROWSER_COMMAND=${(getSystem pkgs.stdenv.hostPlatform.system).packages.agent-browser-headless}/bin/agent-browser
           export AGENT_CUA_COMMAND=${(getSystem pkgs.stdenv.hostPlatform.system).packages.cua}/bin/cua
           exec ${pkgs.python3}/bin/python3 ${proxy_script} ${command} "$@"
         '';

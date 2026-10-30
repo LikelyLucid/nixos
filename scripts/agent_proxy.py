@@ -214,14 +214,20 @@ def main():
     environment = os.environ.copy()
     environment["CLI_PROXY_API_KEY"] = key
     executable = arguments.pop(0)
-    cua_command = environment.get("AGENT_CUA_COMMAND")
+    mcp_servers = {}
+    for name, variable, args in (
+        ("cua", "AGENT_CUA_COMMAND", ["mcp"]),
+        ("agent-browser", "AGENT_BROWSER_COMMAND", ["mcp", "--tools", "all"]),
+    ):
+        if environment.get(variable):
+            mcp_servers[name] = {"command": environment[variable], "args": args}
     if command == "codex":
         default = json.loads((current / "defaults.json").read_text())["codex"]
         if not default:
             raise ValueError("Proxy catalog contains no recognized Codex/Responses model IDs")
-        if cua_command:
-            arguments = ["-c", f"mcp_servers.cua.command={json.dumps(cua_command)}",
-                         "-c", 'mcp_servers.cua.args=["mcp"]', *arguments]
+        for name, server in mcp_servers.items():
+            arguments = ["-c", f"mcp_servers.{name}.command={json.dumps(server['command'])}",
+                         "-c", f"mcp_servers.{name}.args={json.dumps(server['args'])}", *arguments]
         arguments = ["-c", 'model_provider="cliproxy"', "-c", f"model={json.dumps(default)}",
                      "-c", f"model_catalog_json={json.dumps(str(current / 'codex-models.json'))}",
                      "-c", 'model_providers.cliproxy.name="CLI proxy"',
@@ -234,29 +240,30 @@ def main():
         environment.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
         environment.update(json.loads((current / "claude.json").read_text())["env"])
         arguments = ["--settings", str(current / "claude.json"), *arguments]
-        if cua_command:
-            mcp_config = state / "claude-cua-mcp.json"
-            atomic_write(mcp_config, json.dumps({"mcpServers": {"cua": {
-                "command": cua_command, "args": ["mcp"],
-            }}}))
+        if mcp_servers:
+            mcp_config = state / "claude-agent-mcp.json"
+            atomic_write(mcp_config, json.dumps({"mcpServers": mcp_servers}))
             arguments = ["--mcp-config", str(mcp_config), *arguments]
     elif command == "opencode":
-        if cua_command:
-            config = json.loads((current / "opencode.json").read_text())
-            config["mcp"] = {"servers": {"cua": {
-                "type": "local", "command": [cua_command, "mcp"],
-            }}}
-            mcp_config = state / "opencode-cua.json"
-            atomic_write(mcp_config, json.dumps(config))
-            environment["OPENCODE_CONFIG"] = str(mcp_config)
+        generated = json.loads((current / "opencode.json").read_text())
+        if mcp_servers:
+            generated["mcp"] = {"servers": {
+                name: {"type": "local", "command": [server["command"], *server["args"]]}
+                for name, server in mcp_servers.items()
+            }}
         if environment.get("CLI_PROXY_KEEP_AGENT_CONFIG") == "1":
             # Inline overrides merge above global/project config, including plugins.
             config = json.loads(environment.get("OPENCODE_CONFIG_CONTENT", "{}"))
-            generated = json.loads((current / "opencode.json").read_text())
             config.setdefault("providers", {}).update(generated.pop("providers"))
+            if "mcp" in generated:
+                config.setdefault("mcp", {}).setdefault("servers", {}).update(generated.pop("mcp")["servers"])
             config.update(generated)
             environment["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
-        elif not cua_command:
+        elif mcp_servers:
+            mcp_config = state / "opencode-agent-mcp.json"
+            atomic_write(mcp_config, json.dumps(generated))
+            environment["OPENCODE_CONFIG"] = str(mcp_config)
+        else:
             environment["OPENCODE_CONFIG"] = str(current / "opencode.json")
         with (state / "opencode-auth.lock").open("w") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)

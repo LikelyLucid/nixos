@@ -222,3 +222,16 @@ printed device approval on your signed-in computer. The server has its own Cua
 device identity; proxy credentials do not sign it in to Cua. Run `cua spaces list`
 to check which existing Spaces and machines this identity can access. Access to
 another computer still follows the Cua account's grants and device approval.
+
+
+## Browser automation
+
+Both desktop and server profiles install agent-browser and Chromium. The server
+uses system Chromium in headless mode, without a desktop session or a browser
+download step. Codex, Claude Code and OpenCode receive its MCP server alongside
+Cua; Pi receives the agent-browser skill in its isolated server agent directory.
+The desktop keeps its existing browser integration and dashboard.
+
+Browser sessions are isolated per agent or thread through the existing session
+wrapper. Explicit `agent-browser --session <name>` still selects a named session.
+Close unused sessions with `agent-browser close`.

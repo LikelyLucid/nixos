@@ -268,7 +268,8 @@ class RuntimeTests(unittest.TestCase):
 
     def test_server_agents_receive_cua_mcp_without_replacing_other_config(self):
         self.refresh()
-        with patch.dict(os.environ, {"AGENT_CUA_COMMAND": "/nix/store/fixture/bin/cua"}):
+        with patch.dict(os.environ, {"AGENT_CUA_COMMAND": "/nix/store/fixture/bin/cua",
+                                   "AGENT_BROWSER_COMMAND": "/nix/store/fixture/bin/agent-browser"}):
             for agent in ("codex", "claude", "opencode"):
                 with self.subTest(agent=agent), patch.object(proxy.os, "execve") as execute:
                     with patch.object(proxy.sys, "argv", ["agent_proxy.py", agent, "/fake/client"]):
@@ -277,15 +278,18 @@ class RuntimeTests(unittest.TestCase):
                     if agent == "codex":
                         self.assertIn('mcp_servers.cua.command="/nix/store/fixture/bin/cua"', args)
                         self.assertIn('mcp_servers.cua.args=["mcp"]', args)
+                        self.assertIn('mcp_servers.agent-browser.command="/nix/store/fixture/bin/agent-browser"', args)
                     elif agent == "claude":
                         config = json.loads(Path(args[args.index("--mcp-config") + 1]).read_text())
                         self.assertEqual(config["mcpServers"]["cua"]["args"], ["mcp"])
                         self.assertNotIn("--strict-mcp-config", args)
+                        self.assertEqual(config["mcpServers"]["agent-browser"]["args"], ["mcp", "--tools", "all"])
                     else:
                         config = json.loads(Path(env["OPENCODE_CONFIG"]).read_text())
                         self.assertEqual(config["mcp"]["servers"]["cua"]["command"],
                                          ["/nix/store/fixture/bin/cua", "mcp"])
                         self.assertIn("cliproxy", config["providers"])
+                        self.assertIn("agent-browser", config["mcp"]["servers"])
 
     def test_redirects_cannot_forward_bearer_token(self):
         with patch.object(proxy.urllib.request, "build_opener") as opener:
