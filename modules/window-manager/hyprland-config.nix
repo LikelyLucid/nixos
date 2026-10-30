@@ -169,6 +169,7 @@
         hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
         hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
         hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(controlCenter))
+        hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("hokum"))
         hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("night-light-toggle"))
         hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
@@ -347,7 +348,7 @@
                 "Screenshot Area") pkill -x rofi 2>/dev/null; (grim -g "$(slurp)" - | swappy -f -) & ;;
                 "Screenshot Full Screen") pkill -x rofi 2>/dev/null; (grim - | swappy -f -) & ;;
                 "Clipboard") pkill -x rofi 2>/dev/null; (cliphist list | rofi -dmenu -p Clipboard | cliphist decode | wl-copy) & ;;
-                "Notifications") hyprctl dispatch exec 'hokum' ;;
+                "Notifications") hokum ;;
                 "Do Not Disturb") hokum dnd toggle >/dev/null ;;
                 "Lock") hyprlock ;;
                 "Sleep") systemctl suspend ;;
@@ -510,6 +511,7 @@
             Super + Q    terminal        Super + E    file manager
             Super + F    file search     Super + R    app launcher
             Super + X    control center  Super + S    scratchpad
+            Super + N    notification settings
             Super Shift + N              toggle night light
             Super + /    show this cheatsheet
 

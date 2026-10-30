@@ -1,10 +1,10 @@
-{ ... }:
+{ getSystem, ... }:
 {
-  homeManager.modules.desktop =
+  perSystem =
     { pkgs, ... }:
-    let
-      # Hokum ships prebuilt desktop builds; there is no upstream Nix package.
-      hokum = pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
+    {
+      # Hokum ships prebuilt desktop builds; there is no upstream nixpkgs package.
+      packages.hokum = pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
         pname = "hokum";
         version = "0.1.2";
 
@@ -19,10 +19,14 @@
           pkgs.stdenv.cc.cc.lib
           pkgs.libxkbcommon
         ];
-        # Vulkan is dlopen'd, so autoPatchelf cannot discover it from DT_NEEDED.
-        # Without the loader on RUNPATH the GPU backend falls back to nothing and
-        # Hokum cannot draw its layer surfaces at all.
-        runtimeDependencies = [ pkgs.vulkan-loader ];
+        # Both libraries are dlopen'd, so autoPatchelf cannot discover them from
+        # DT_NEEDED. Without the Vulkan loader Hokum cannot draw at all; without
+        # libwayland-client winit panics with "The wayland library could not be
+        # loaded" and the daemon never owns org.freedesktop.Notifications.
+        runtimeDependencies = [
+          pkgs.vulkan-loader
+          pkgs.wayland
+        ];
 
         installPhase = ''
           runHook preInstall
@@ -38,6 +42,12 @@
           mainProgram = "hokum";
         };
       });
+    };
+
+  homeManager.modules.desktop =
+    { pkgs, ... }:
+    let
+      hokum = (getSystem pkgs.stdenv.hostPlatform.system).packages.hokum;
     in
     {
       home.packages = [ hokum ];
@@ -45,8 +55,8 @@
       # config.kdl is NOT declared here: Hokum rewrites it when DND or the theme
       # changes, so a read-only store symlink would break `hokum dnd` and the
       # settings window. modules/dotfiles.nix links ~/dotfiles/hokum instead.
-      # The theme is generated from the wallpaper palette by wallust, so
-      # palette changes reach Hokum live. Source template:
+      # The theme is generated from the wallpaper palette by wallust, so palette
+      # changes reach Hokum live. Source template:
       # ~/dotfiles/wallust/templates/hokum.kdl
 
       # Hokum replaces swaync as the org.freedesktop.Notifications owner. The unit
@@ -69,31 +79,28 @@
         Install.WantedBy = [ "graphical-session.target" ];
       };
 
-      home.file.".local/share/dbus-1/services/app.hokum.Notifications.service" = {
-        force = true;
-        text = ''
-          [D-BUS Service]
-          Name=org.freedesktop.Notifications
-          Exec=${hokum}/bin/hokum service
-          SystemdService=hokum.service
-        '';
-      };
+      xdg.dataFile."dbus-1/services/app.hokum.Notifications.service".text = ''
+        [D-BUS Service]
+        Name=org.freedesktop.Notifications
+        Exec=${hokum}/bin/hokum service
+        SystemdService=hokum.service
+      '';
 
-      home.file.".local/share/applications/hokum.desktop" = {
-        force = true;
-        text = ''
-          [Desktop Entry]
-          Type=Application
-          Name=Hokum
-          GenericName=Notification Settings
-          Comment=Style and configure your notifications
-          Exec=${hokum}/bin/hokum
-          Icon=preferences-desktop-notification
-          Terminal=false
-          StartupNotify=true
-          Categories=Settings;DesktopSettings;
-          Keywords=notifications;notification;daemon;do not disturb;
-        '';
+      # `hokum` with no arguments opens the settings window, which is what the
+      # launcher entry should do. Card appearance is theme-driven, not configured
+      # here.
+      xdg.desktopEntries.hokum = {
+        name = "Hokum";
+        genericName = "Notification Settings";
+        comment = "Style and configure your notifications";
+        exec = "${hokum}/bin/hokum";
+        icon = "preferences-desktop-notification";
+        terminal = false;
+        categories = [
+          "Settings"
+          "DesktopSettings"
+        ];
+        settings.Keywords = "notifications;notification;daemon;do not disturb;";
       };
     };
 }
