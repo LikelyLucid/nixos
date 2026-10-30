@@ -18,6 +18,9 @@
         "waybar" = "waybar";
         "eww" = "eww";
         "wallust" = "wallust";
+        # Hokum rewrites its config when DND or the theme changes, so it needs a
+        # writable out-of-store path like the wallust-generated files above.
+        "hokum" = "hokum";
       };
 
       # Common symlinks (from dotfiles flake input)

@@ -111,6 +111,13 @@ This configuration does not provision scheduled backups.
 Storage encryption and fingerprint-authentication boundaries are recorded in
 [`docs/security.md`](docs/security.md).
 
+## Notifications
+
+Hokum owns `org.freedesktop.Notifications`. Press `Super + N`, choose
+**Notifications** in the system menu, or open **Hokum** from the launcher.
+See [Notifications](docs/notifications.md) for the service, the wallust theme,
+Do not disturb and dismissing cards.
+
 ## Agent browsers
 
 Agents use separate Chromium sessions with a dashboard at http://localhost:4848.
