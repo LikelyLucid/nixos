@@ -26,9 +26,12 @@ class DiscoveryTests(unittest.TestCase):
 
     def test_catalogs_keep_exact_ids_without_claiming_capabilities(self):
         ids = proxy.model_ids({"data": [{"id": "gpt-example"}, {"id": "claude-sonnet-example"},
-                                          {"id": "gemini-example"}, {"id": "gpt-example"}]})
+                                          {"id": "deepseek-v4.1-flash"}, {"id": "gpt-example"}]})
         generated = proxy.catalogs(ids, BASE_URL)
-        self.assertEqual(len(generated["opencode.json"]["provider"]["cliproxy"]["models"]), 3)
+        models = generated["opencode.json"]["provider"]["cliproxy"]["models"]
+        self.assertEqual(set(models), set(ids))
+        for model in models.values():
+            self.assertEqual(model["modalities"], {"input": ["text"], "output": ["text"]})
         self.assertEqual(len(generated["pi/models.json"]["providers"]["cliproxy"]["models"]), 3)
         codex = generated["codex-models.json"]["models"]
         self.assertEqual([m["slug"] for m in codex], ["gpt-example"])
@@ -50,6 +53,12 @@ class DiscoveryTests(unittest.TestCase):
 
 class RuntimeTests(unittest.TestCase):
     def setUp(self):
+        environment = os.environ.copy()
+        environment.pop("CLI_PROXY_API_KEY_FILE", None)
+        environment.pop("CLI_PROXY_BASE_URL_FILE", None)
+        self.environment_patch = patch.dict(os.environ, environment, clear=True)
+        self.environment_patch.start()
+        self.addCleanup(self.environment_patch.stop)
         self.temporary = tempfile.TemporaryDirectory()
         self.home = Path(self.temporary.name)
         self.home_patch = patch.object(Path, "home", return_value=self.home)
@@ -109,6 +118,20 @@ class RuntimeTests(unittest.TestCase):
         self.assertTrue((self.state / "current").is_symlink())
         for path in (self.state / "current").rglob("*.json"):
             self.assertNotIn("fixture-secret", path.read_text())
+
+    def test_refresh_replaces_a_fresh_catalog_with_unknown_capabilities(self):
+        self.refresh()
+        previous = (self.state / "current").resolve()
+        proxy.atomic_write(previous / "metadata.json", json.dumps({"base_url": BASE_URL}))
+        with patch.object(proxy.urllib.request, "build_opener") as opener:
+            opener.return_value.open.return_value = self.response()
+            proxy.refresh(self.state, "fixture-secret", BASE_URL)
+        self.assertNotEqual((self.state / "current").resolve(), previous)
+        current = (self.state / "current").resolve()
+        with patch.object(proxy.urllib.request, "build_opener") as opener:
+            proxy.refresh(self.state, "fixture-secret", BASE_URL)
+            opener.assert_not_called()
+        self.assertEqual((self.state / "current").resolve(), current)
 
     def test_failed_refresh_preserves_exact_previous_generation(self):
         self.refresh()

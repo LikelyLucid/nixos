@@ -112,7 +112,10 @@ discovery requires a working credential and endpoint. Redirects are rejected.
   IDs for its model allowlist and family defaults. The proxy must support
   `/v1/messages`; an OpenAI-only endpoint is insufficient.
 - OpenCode v2 receives a generated Responses provider containing every
-  discovered ID. It uses the same default model as Codex.
+  discovered ID. It uses the same default model as Codex. Models explicitly use
+  text-only input/output until multimodal support is verified; OpenCode's default
+  image support otherwise sends image-bearing tool results that text-only proxy
+  routes reject, including when resuming saved sessions.
 - Pi receives the same model IDs through a Responses provider, using an
   environment reference for its key and the same default as Codex. Its
   writable agent directory is `~/.local/state/agent-proxy/pi`, separate from

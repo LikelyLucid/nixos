@@ -13,6 +13,8 @@ import urllib.request
 import urllib.parse
 
 
+CATALOG_VERSION = 2
+
 
 def atomic_write(path, content):
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -98,7 +100,7 @@ def catalogs(ids, base_url):
         claude["model"] = claude_env.get("ANTHROPIC_DEFAULT_SONNET_MODEL", claude_ids[0])
         claude["availableModels"] = claude_ids
     return {
-        "metadata.json": {"base_url": base_url},
+        "metadata.json": {"base_url": base_url, "version": CATALOG_VERSION},
         "models.json": {"data": [{"id": m} for m in ids]},
         "codex-models.json": {"models": models},
         "defaults.json": {"codex": codex_default},
@@ -110,7 +112,10 @@ def catalogs(ids, base_url):
             "provider": {"cliproxy": {
                 "npm": "@ai-sdk/openai", "name": "CLI proxy",
                 "options": {"baseURL": base_url, "apiKey": "{env:CLI_PROXY_API_KEY}"},
-                "models": {model: {"name": model} for model in ids},
+                # OpenCode otherwise assumes image input, breaking text-only tool history.
+                "models": {model: {"name": model, "modalities": {
+                    "input": ["text"], "output": ["text"],
+                }} for model in ids},
             }},
         },
         "pi/models.json": {"providers": {"cliproxy": {
@@ -126,7 +131,8 @@ def refresh(state, key, base_url, force=False):
         fcntl.flock(lock, fcntl.LOCK_EX)
         current = state / "current"
         if (not force and current.exists() and time.time() - current.stat().st_mtime < 900
-                and json.loads((current / "metadata.json").read_text())["base_url"] == base_url):
+                and json.loads((current / "metadata.json").read_text()) == {
+                    "base_url": base_url, "version": CATALOG_VERSION}):
             return
         request = urllib.request.Request(base_url + "/models", headers={
             "Authorization": "Bearer " + key, "Accept": "application/json",
