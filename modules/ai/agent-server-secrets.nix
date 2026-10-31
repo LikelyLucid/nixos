@@ -13,13 +13,13 @@
             key = "cli-proxy-api-key";
             owner = "lucid";
             mode = "0400";
-            restartUnits = [ "t3-server.service" ];
+            restartUnits = [ "agent-proxy-config.service" ];
           };
           agent-proxy-base-url = {
             key = "cli-proxy-base-url";
             owner = "lucid";
             mode = "0400";
-            restartUnits = [ "t3-server.service" ];
+            restartUnits = [ "agent-proxy-config.service" ];
           };
           tailscale-auth-key.mode = "0400";
         };
