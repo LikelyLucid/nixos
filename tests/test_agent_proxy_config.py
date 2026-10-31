@@ -251,6 +251,32 @@ class ConfigTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 proxy.validate_catalogs(value)
 
+    def test_sops_generation_switch_cannot_mix_key_and_url_during_fetch(self):
+        old_key = self.home / "generation-old/key"
+        old_url = self.home / "generation-old/url"
+        new_key = self.home / "generation-new/key"
+        new_url = self.home / "generation-new/url"
+        for path, value in [(old_key, KEY), (old_url, BASE),
+                            (new_key, "replacement-key"), (new_url, "https://replacement.invalid/v1")]:
+            proxy.atomic_write(path, value.encode())
+        self.key.unlink()
+        self.url.unlink()
+        self.key.symlink_to(old_key)
+        self.url.symlink_to(old_url)
+        original = proxy.read_private
+        def rotate_after_key_read(path):
+            value = original(path)
+            if path == old_key:
+                self.key.unlink()
+                self.key.symlink_to(new_key)
+                self.url.unlink()
+                self.url.symlink_to(new_url)
+            return value
+        with patch.object(proxy, "read_private", side_effect=rotate_after_key_read), patch.object(proxy, "fetch_catalog") as fetch, self.assertRaises(RuntimeError):
+            proxy.reconcile(self.spec)
+        fetch.assert_not_called()
+        self.assertEqual(proxy.read_connection(self.key, self.url), ("replacement-key", "https://replacement.invalid/v1"))
+
     def test_private_secret_validation_and_url_validation(self):
         self.key.chmod(0o644)
         with self.assertRaises(ValueError):

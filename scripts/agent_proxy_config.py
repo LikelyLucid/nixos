@@ -42,6 +42,23 @@ def validate_url(value):
     return value.rstrip("/")
 
 
+def read_connection(key_file, url_file):
+    """Never fetch with a URL/key pair read across two SOPS generations."""
+    def fingerprint(path):
+        resolved = Path(path).resolve(strict=True)
+        info = resolved.stat()
+        return resolved, info.st_dev, info.st_ino, info.st_mtime_ns, info.st_size
+
+    before = (fingerprint(key_file), fingerprint(url_file))
+    # Read the pinned targets rather than following a newly switched /run/secrets.
+    key = read_private(before[0][0])
+    base = validate_url(read_private(before[1][0]))
+    after = (fingerprint(key_file), fingerprint(url_file))
+    if before != after:
+        raise RuntimeError("Proxy secrets changed during reconciliation; retry")
+    return key, base
+
+
 def atomic_write(path, content, expected=None):
     """Replace a file (not its symlink target), preserving concurrent edits on retry."""
     path = Path(path)
@@ -334,8 +351,7 @@ def reconcile(spec):
     state.mkdir(parents=True, exist_ok=True, mode=0o700)
     with (state / "sync.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        key = read_private(spec["key_file"])
-        base = validate_url(read_private(spec["url_file"]))
+        key, base = read_connection(spec["key_file"], spec["url_file"])
         cache_file = state / "catalogs.json"
         try:
             previous_cache = json.loads(cache_file.read_text()) if cache_file.exists() else {}
