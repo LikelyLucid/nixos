@@ -1,0 +1,135 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 96d254e939..17510a4275 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -233,6 +233,13 @@ if(CUA_HYPRLAND_BUILD_PLUGIN)
+     endif()
+     message(STATUS "Building against Hyprland headers ${HYPRLAND_VERSION}")
+ 
++    # 0.57 moved window state behind CWindow::backend() (see src/hyprland_compat.hpp).
++    if(HYPRLAND_VERSION VERSION_GREATER_EQUAL "0.57.0")
++        set(cua_hyprland_window_backend_api 1)
++    else()
++        set(cua_hyprland_window_backend_api 0)
++    endif()
++
+     cua_detect_hyprland_api(cua_hyprland_socket1_api
+         "${HYPRLAND_INCLUDE_DIRS}" "${HYPRLAND_CFLAGS_OTHER}")
+     if(cua_hyprland_socket1_api STREQUAL "1")
+@@ -246,8 +253,10 @@ if(CUA_HYPRLAND_BUILD_PLUGIN)
+ 
+     add_library(cua_hyprland_plugin MODULE src/plugin.cpp)
+     if(CUA_HYPRLAND_TEST_INPUT OR CUA_HYPRLAND_INPUT)
+-        if(NOT HYPRLAND_VERSION STREQUAL "0.56.2")
+-            message(FATAL_ERROR "Input is pinned to Hyprland 0.56.2")
++        if(NOT HYPRLAND_VERSION STREQUAL "0.56.2" AND
++           NOT HYPRLAND_VERSION STREQUAL "0.57.0")
++            message(FATAL_ERROR
++                "Input is pinned to Hyprland 0.56.2 or 0.57.0 (found ${HYPRLAND_VERSION})")
+         endif()
+         target_sources(cua_hyprland_plugin PRIVATE src/input_experiment.cpp)
+     endif()
+@@ -278,6 +287,7 @@ if(CUA_HYPRLAND_BUILD_PLUGIN)
+     target_compile_definitions(cua_hyprland_plugin PRIVATE
+         CUA_HYPRLAND_PLUGIN_VERSION="${PROJECT_VERSION}"
+         CUA_HYPRLAND_SOCKET1_API=${cua_hyprland_socket1_api}
++        CUA_HYPRLAND_WINDOW_BACKEND_API=${cua_hyprland_window_backend_api}
+         _GNU_SOURCE)
+     target_compile_options(cua_hyprland_plugin PRIVATE
+         -Wall -Wextra -Wpedantic -Werror -Wno-return-type-c-linkage)
+diff --git a/src/hyprland_compat.hpp b/src/hyprland_compat.hpp
+new file mode 100644
+index 0000000000..1616e86eb6
+--- /dev/null
++++ b/src/hyprland_compat.hpp
+@@ -0,0 +1,47 @@
++#pragma once
++
++// Hyprland 0.57 moved window state behind a backend object and renamed the
++// exclusive layer-surface list. CMake defines CUA_HYPRLAND_WINDOW_BACKEND_API=1
++// for 0.57 or newer headers and 0 for 0.56.x. Include after <src/Compositor.hpp>.
++#ifndef CUA_HYPRLAND_WINDOW_BACKEND_API
++#error CMake must define CUA_HYPRLAND_WINDOW_BACKEND_API
++#endif
++
++namespace cua::hyprland::compat {
++
++inline bool window_mapped(const PHLWINDOW& window) {
++#if CUA_HYPRLAND_WINDOW_BACKEND_API
++    return window->mapped();
++#else
++    return window->m_isMapped;
++#endif
++}
++
++inline bool window_is_x11(const PHLWINDOW& window) {
++#if CUA_HYPRLAND_WINDOW_BACKEND_API
++    return window->backend().isX11();
++#else
++    return window->m_isX11;
++#endif
++}
++
++inline pid_t window_pid(const PHLWINDOW& window) {
++#if CUA_HYPRLAND_WINDOW_BACKEND_API
++    return window->backend().pid();
++#else
++    return window->getPID();
++#endif
++}
++
++// Layer surfaces holding exclusive keyboard interactivity. 0.57 stopped letting
++// them gate pointer focus, so the list is named for the keyboard; the plugin
++// still treats any of them as a grab and refuses.
++inline bool exclusive_layer_surface_active() {
++#if CUA_HYPRLAND_WINDOW_BACKEND_API
++    return !g_pInputManager->m_exclusiveKeyboardLSes.empty();
++#else
++    return !g_pInputManager->m_exclusiveLSes.empty();
++#endif
++}
++
++} // namespace cua::hyprland::compat
+diff --git a/src/input_experiment.cpp b/src/input_experiment.cpp
+index ea89e6f6a5..aca1f248ee 100644
+--- a/src/input_experiment.cpp
++++ b/src/input_experiment.cpp
+@@ -24,6 +24,7 @@
+ #include <src/protocols/core/Seat.hpp>
+ #include <src/protocols/core/DataDevice.hpp>
+ #include <src/layout/LayoutManager.hpp>
++#include "hyprland_compat.hpp"
+ #include <linux/input-event-codes.h>
+ #include <wayland.hpp>
+ #include <wayland-server-core.h>
+@@ -524,8 +525,8 @@ struct InputExperiment::Impl {
+     }
+     static std::optional<std::array<double, 6>> target_geometry(
+         const PHLWINDOW& window, const SP<CWLSurfaceResource>& surface) {
+-        if (!window || !surface || !window->m_isMapped || window->isHidden() ||
+-            window->m_isX11 || window->resource() != surface || !surface->m_mapped || !surface->good()) return std::nullopt;
++        if (!window || !surface || !compat::window_mapped(window) || window->isHidden() ||
++            compat::window_is_x11(window) || window->resource() != surface || !surface->m_mapped || !surface->good()) return std::nullopt;
+         // Match Driver's captured client surface, not the decorated window box
+         // (which includes compositor borders and shifts clicks by their width).
+         const auto box = window->surfaceLogicalBox(); const auto surface_box = box;
+@@ -845,7 +846,7 @@ struct InputExperiment::Impl {
+             .physical_keys = pressed,
+             .physical_buttons = g_pInputManager->hasHeldButtons(),
+             .grab = bool(g_pSeatManager->m_seatGrab) || bool(g_layoutManager->dragController()->target()) ||
+-                !g_pInputManager->m_exclusiveLSes.empty(),
++                compat::exclusive_layer_surface_active(),
+             .dnd = PROTO::data && PROTO::data->dndActive(),
+             .constraint = g_pInputManager->isConstrained(),
+             .exact_keyboard_focus = root && g_pSeatManager->m_state.keyboardFocus == root &&
+@@ -1147,8 +1148,8 @@ struct InputExperiment::Impl {
+             const auto pid = number(f[1]); const auto address = number(f[2], 16);
+             PHLWINDOW window;
+             for (const auto& w : Desktop::windowState()->windows())
+-                if (reinterpret_cast<std::uintptr_t>(w.get()) == address && static_cast<std::uint64_t>(w->getPID()) == pid) window = w;
+-            if (!window || window->m_isX11 || !window->m_isMapped || window->isHidden() || !window->resource()) {
++                if (reinterpret_cast<std::uintptr_t>(w.get()) == address && static_cast<std::uint64_t>(compat::window_pid(w)) == pid) window = w;
++            if (!window || compat::window_is_x11(window) || !compat::window_mapped(window) || window->isHidden() || !window->resource()) {
+                 invalidate(c); send(c, refusal("stale_target")); return;
+             }
+             // Retire the old target before rebinding: even if the new target's

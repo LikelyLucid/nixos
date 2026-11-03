@@ -13,6 +13,12 @@
         pname = "cua-hyprland-plugin";
         version = "0.1.0";
         src = "${inputs.cua-driver}/libs/cua-driver/hyprland-plugin";
+        # Upstream pins the input experiment to Hyprland 0.56.2. Hyprland 0.57
+        # moved window state behind CWindow::backend() and renamed the exclusive
+        # layer-surface list; this is the plugin half of trycua/cua#6329, which
+        # qualifies the same input code for 0.57. Drop it once that lands in the
+        # pinned cua-driver input.
+        patches = [ ./patches/cua-hyprland-0.57.patch ];
         nativeBuildInputs = [
           pkgs.cmake
           pkgs.ninja

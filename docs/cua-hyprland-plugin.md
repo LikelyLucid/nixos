@@ -26,6 +26,17 @@ loading and automatic Lua startup loading in disposable nested Hyprland sessions
 The test compositor had physical-seat access disabled and its own runtime directory.
 No application input was injected during these installation checks.
 
+## Hyprland 0.57 support
+
+Upstream pins the input experiment to Hyprland 0.56.2. The build applies
+`modules/ai/patches/cua-hyprland-0.57.patch`, the plugin half of
+[trycua/cua#6329](https://github.com/trycua/cua/pull/6329), which moves the input
+code onto 0.57's `CWindow::backend()` accessors and the renamed exclusive
+layer-surface list. Remove the patch and the `patches` argument from
+`modules/ai/cua-hyprland-plugin.nix` once that change reaches the pinned
+`cua-driver` input; until then a Hyprland version outside 0.56.2 and 0.57.0
+fails the plugin's own version guard by design.
+
 ## Compatibility limits
 
 Upstream's recorded raw background-input qualification covers the specific Arch
