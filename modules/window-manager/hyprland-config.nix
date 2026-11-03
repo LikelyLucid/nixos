@@ -197,7 +197,9 @@
           hl.dispatch(hl.dsp.window.drag())
           hl.exec_cmd("canvas-ctl edge-start")
         end, { mouse = true })
-        hl.bind(mainMod .. " + mouse:272", hl.dsp.exec_cmd("canvas-ctl edge-stop"), { mouse = true, release = true })
+        -- A release bind cannot also carry the mouse (bindm) flag; Hyprland rejects
+        -- the combination, and the mouse:272 key already identifies the button.
+        hl.bind(mainMod .. " + mouse:272", hl.dsp.exec_cmd("canvas-ctl edge-stop"), { release = true })
         hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
         hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume raise --max-volume 100"), { locked = true, repeating = true })
@@ -212,7 +214,7 @@
         hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("swayosd-client --playerctl prev"), { locked = true })
 
         hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd("canvas-ctl pan-start"), { mouse = true })
-        hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd("canvas-ctl pan-stop"), { mouse = true, release = true })
+        hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.exec_cmd("canvas-ctl pan-stop"), { release = true })
         hl.bind(mainMod .. " + SHIFT + left", hl.dsp.exec_cmd("canvas-ctl nav-left"))
         hl.bind(mainMod .. " + SHIFT + right", hl.dsp.exec_cmd("canvas-ctl nav-right"))
         hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("canvas-ctl canvas-toggle"))
