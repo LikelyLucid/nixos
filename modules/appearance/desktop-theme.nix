@@ -67,9 +67,13 @@
           package = pkgs.bibata-cursors;
           size = 24;
         };
-        gtk3.extraConfig.gtk-application-prefer-dark-theme = true;
+        gtk3.extraConfig = {
+          gtk-application-prefer-dark-theme = true;
+          gtk-enable-primary-paste = false;
+        };
         # Libadwaita applications follow the dconf color scheme directly;
         # injecting a GTK 4 theme or legacy dark-theme key causes warnings.
+        gtk4.extraConfig.gtk-enable-primary-paste = false;
         gtk4.theme = null;
       };
 
@@ -91,6 +95,9 @@
 
       home.packages = [ desktop_theme_toggle ];
 
-      dconf.settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
+      dconf.settings."org/gnome/desktop/interface" = {
+        color-scheme = "prefer-dark";
+        gtk-enable-primary-paste = false;
+      };
     };
 }

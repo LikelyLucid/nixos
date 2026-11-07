@@ -1,5 +1,12 @@
-{ inputs, ... }:
+{ getSystem, inputs, ... }:
 {
+  homeManager.modules.common =
+    { pkgs, ... }:
+    {
+      home.packages = [ (getSystem pkgs.stdenv.hostPlatform.system).packages.nvim ];
+      home.file.".local/share/nvim/site/.keep".text = "";
+    };
+
   perSystem =
     { pkgs, system, ... }:
     let
@@ -33,6 +40,28 @@
                   rev = "43a8c4f1436d1563e033dd2cd4d2e5188109c9e2";
                   hash = "sha256-wd/sFanVvq0LrIKPuT4faW/aEPwW/Dw+/180NE+7Ylc=";
                 };
+                postPatch = ''
+                  substituteInPlace lua/r/health.lua \
+                    --replace-fail \
+                      '    if vim.fn.executable("gcc") == 1 or vim.fn.executable("clang") == 1 then
+                          vim.health.ok("C compiler (`gcc` or `clang`) found.")
+                      else
+                          vim.health.error("C compiler (`gcc` or `clang`) not found.")
+                      end' \
+                      '    if vim.fn.executable("R") ~= 1 then
+                          vim.health.warn("R is unavailable; use the Nix R development shell for R.nvim.")
+                      elseif vim.fn.executable("gcc") == 1 or vim.fn.executable("clang") == 1 then
+                          vim.health.ok("C compiler (`gcc` or `clang`) found.")
+                      else
+                          vim.health.warn("C compiler (`gcc` or `clang`) not found.")
+                      end'
+                  substituteInPlace lua/r/health.lua \
+                    --replace-fail \
+                      '    check_lang()' \
+                      '    if vim.fn.executable("R") == 1 then
+                          check_lang()
+                      end'
+                '';
               };
             in
             {
@@ -121,7 +150,24 @@
               };
 
               plugins = {
-                blink-cmp.enable = true;
+                blink-cmp = {
+                  enable = true;
+                  settings.sources = {
+                    default = [
+                      "lsp"
+                      "path"
+                      "snippets"
+                      "buffer"
+                      "copilot"
+                    ];
+                    providers.copilot = {
+                      async = true;
+                      module = "blink-copilot";
+                      name = "copilot";
+                      score_offset = 100;
+                    };
+                  };
+                };
                 blink-copilot.enable = true;
                 bufferline.enable = true;
                 conform-nvim = {
@@ -154,8 +200,22 @@
                 copilot-lua = {
                   enable = true;
                   settings = {
+                    filetypes = {
+                      help = true;
+                      markdown = true;
+                    };
                     panel.enabled = false;
-                    suggestion.enabled = false;
+                    server.custom_server_filepath = "${pkgs.copilot-language-server}/bin/copilot-language-server";
+                    suggestion = {
+                      auto_trigger = true;
+                      enabled = false;
+                      hide_during_completion = true;
+                      keymap = {
+                        accept = false;
+                        next = "<M-]>";
+                        prev = "<M-[>";
+                      };
+                    };
                   };
                 };
                 crates.enable = true;
@@ -235,6 +295,7 @@
                   grammarPackages = with config.plugins.treesitter.package.builtGrammars; [
                     bash
                     c
+                    dtd
                     diff
                     git_config
                     git_rebase
@@ -247,6 +308,7 @@
                     jsdoc
                     json
                     json5
+                    latex
                     lua
                     luadoc
                     luap
@@ -290,6 +352,14 @@
                 lsp = {
                   enable = true;
                   servers = {
+                    bashls = {
+                      enable = true;
+                      package = null;
+                      cmd = [
+                        "bash-language-server"
+                        "start"
+                      ];
+                    };
                     basedpyright = {
                       enable = true;
                       package = null;
@@ -314,6 +384,15 @@
                         "server"
                       ];
                       rootMarkers = [ ".git" ];
+                    };
+                    lua_ls = {
+                      enable = true;
+                      package = null;
+                      cmd = [ "lua-language-server" ];
+                      settings.Lua = {
+                        diagnostics.globals = [ "vim" ];
+                        workspace.checkThirdParty = false;
+                      };
                     };
                     r_language_server = {
                       enable = true;
@@ -364,7 +443,6 @@
                 async_nvim
                 r_nvim
                 catppuccin-nvim
-                dressing-nvim
                 friendly-snippets
                 markdown-preview-nvim
                 nui-nvim
@@ -373,17 +451,36 @@
               ];
 
               extraPackages = with pkgs; [
+                ast-grep
+                basedpyright
+                bash-language-server
+                copilot-language-server
                 fd
                 fzf
+                gcc
                 git
+                lua-language-server
+                lynx
+                markdown-toc
+                markdownlint-cli2
+                marksman
+                prettier
+                python3Packages.jupytext
                 ripgrep
+                ruff
+                rust-analyzer
+                shellcheck
+                shfmt
+                taplo
+                tree-sitter
+                vscode-json-languageserver
                 yazi
+                yaml-language-server
               ];
 
               extraFiles = {
                 "lua/lucid/config.lua".source = ./nixvim/config.lua;
                 "lua/lucid/theme.lua".source = ./nixvim/theme.lua;
-                "lua/herdr-nvim".source = inputs.herdr-nvim + "/lua/herdr-nvim";
                 "queries/lua/highlights.scm".source = ./nixvim/queries/lua/highlights.scm;
                 "queries/vim/highlights.scm".source = ./nixvim/queries/vim/highlights.scm;
               };
@@ -391,42 +488,35 @@
               extraConfigLua = ''
                 require("lucid.theme")
                 require("lucid.config")
-                require("herdr-nvim").setup()
               '';
 
             }
           )
         ];
       };
-      nvim_nix = pkgs.writeShellApplication {
-        name = "nvim-nix";
-        text = ''
-          exec ${configuration.config.build.package}/bin/nvim "$@"
-        '';
-      };
+      nvim = configuration.config.build.package;
       r_with_language_server = pkgs.rWrapper.override {
         packages = [ pkgs.rPackages.languageserver ];
       };
     in
     {
       checks.nvim = configuration.config.build.test;
-      packages.nvim-nix = nvim_nix;
-      packages.nvim-nix-unwrapped = configuration.config.build.package;
+      packages.nvim = nvim;
 
       devShells.nvim = pkgs.mkShell {
-        packages = [ nvim_nix ];
+        packages = [ nvim ];
         shellHook = ''
-          echo "Pure NixVim is available as nvim-nix; the existing LazyVim remains nvim."
+          echo "NixVim is available as nvim."
         '';
       };
 
       devShells.nvim-r = pkgs.mkShell {
         packages = [
-          nvim_nix
+          nvim
           r_with_language_server
         ];
         shellHook = ''
-          echo "Pure NixVim, R, and the R language server are available as nvim-nix and R."
+          echo "NixVim, R, and the R language server are available as nvim and R."
         '';
       };
     };

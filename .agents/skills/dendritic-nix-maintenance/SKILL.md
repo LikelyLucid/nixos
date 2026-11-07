@@ -5,7 +5,7 @@ description:
   flake input updates, package/version maintenance, evaluation or rebuild
   failures, module moves, stale documentation, repository health checks, and
   preparing verified commits. For a switch-only request with no source change,
-  use the dedicated NixOS rebuild workflow instead.
+  follow `AGENTS.md` § Applying the configuration instead.
 compatibility:
   Requires Git, Nix with flakes, nixfmt, and access to the configured NixOS
   hosts.

@@ -300,6 +300,8 @@ local function setup_autocmds()
 end
 
 local function setup_r()
+  if vim.fn.executable("R") ~= 1 then return end
+
   vim.g.rout_follow_colorscheme = true
   require("r").setup({
     R_args = { "--quiet", "--no-save" },
@@ -316,7 +318,7 @@ end
 
 local plugin_manifest = {
   "CopilotChat.nvim", "R.nvim", "SchemaStore.nvim", "async.nvim", "blink-copilot", "blink.cmp",
-  "bufferline.nvim", "catppuccin", "conform.nvim", "copilot.lua", "crates.nvim", "dressing.nvim",
+  "bufferline.nvim", "catppuccin", "conform.nvim", "copilot.lua", "crates.nvim",
   "flash.nvim", "friendly-snippets", "gitsigns.nvim", "grug-far.nvim", "jupytext.nvim", "lazydev.nvim",
   "lualine.nvim", "markdown-preview.nvim", "mini.ai", "mini.icons", "mini.pairs", "neo-tree.nvim",
   "noice.nvim", "nui.nvim", "nvim-lint", "nvim-lspconfig", "nvim-treesitter",
@@ -335,5 +337,8 @@ setup_autocmds()
 setup_keymaps()
 require("uv").setup()
 setup_r()
+
+Snacks.input.enable()
+vim.ui.select = Snacks.picker.select
 
 return M

@@ -49,6 +49,8 @@ def compare(baseline: dict, candidate: dict) -> dict:
     candidate_commands = set(candidate["commands"])
 
     ignored_plugins = {
+        # Snacks.input and Snacks.picker replace Dressing's vim.ui providers.
+        "dressing.nvim",
         "LazyVim",
         "lazy.nvim",
         "mason-lspconfig.nvim",
@@ -56,6 +58,15 @@ def compare(baseline: dict, candidate: dict) -> dict:
     }
     baseline_plugins = set(baseline["plugins"]) - ignored_plugins
     candidate_plugins = set(candidate["plugins"])
+
+    # The JSON grammar accepts comments and is registered for the jsonc filetype.
+    parser_aliases = {"jsonc": "json"}
+    candidate_parsers = set(candidate["parsers"])
+    missing_parsers = sorted(
+        parser
+        for parser in set(baseline["parsers"])
+        if parser not in candidate_parsers and parser_aliases.get(parser) not in candidate_parsers
+    )
 
     missing_capabilities = sorted(
         name
@@ -75,7 +86,7 @@ def compare(baseline: dict, candidate: dict) -> dict:
             {"mode": mode, "lhs": lhs, "desc": desc}
             for mode, lhs, desc in missing_maps
         ],
-        "missingParsers": sorted(set(baseline["parsers"]) - set(candidate["parsers"])),
+        "missingParsers": missing_parsers,
         "missingPlugins": sorted(baseline_plugins - candidate_plugins),
         "optionDifferences": option_differences,
     }

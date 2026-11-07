@@ -79,7 +79,9 @@
 
           cua-driver = import "${inputs.cua-driver}/nix/cua-driver/package.nix" {
             pkgs = prev;
-            src = "${inputs.cua-driver}/libs/cua-driver/rust";
+            # Keep sibling path dependencies (e.g. cua-telemetry) in the source tree.
+            src = "${inputs.cua-driver}/libs";
+            sourceSubdir = "cua-driver/rust";
           };
         }
       )

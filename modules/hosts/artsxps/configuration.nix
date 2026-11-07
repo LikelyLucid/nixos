@@ -290,8 +290,6 @@
       ############################################
       # KERNEL
       ############################################
-      # DisplayLink's EVDI 1.14.15 does not support Linux 7.2's DRM API yet.
-      boot.kernelPackages = pkgs.linuxPackages_6_18;
 
       ############################################
       # PERFORMANCE TUNING

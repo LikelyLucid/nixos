@@ -17,7 +17,6 @@
       # GRAPHICS
       ############################################
       services.xserver.enable = false;
-      services.xserver.videoDrivers = [ "displaylink" ];
       hardware.graphics.enable = true;
 
       ############################################
