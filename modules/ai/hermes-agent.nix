@@ -43,6 +43,13 @@
           }
         );
       };
+
+      hermes_home = "${config.services.hermes-agent.stateDir}/.hermes";
+      hermes_env_snapshot = "/run/hermes-agent-env-before-activation";
+      hermes_env_manifest = "${hermes_home}/.env-nix-managed-keys";
+      hermes_env_merge = pkgs.writeText "hermes-env-merge.py" (
+        builtins.readFile ../../scripts/merge_hermes_env.py
+      );
     in
     {
       imports = [ inputs.hermes-agent.nixosModules.default ];
@@ -91,6 +98,26 @@
       # declarative settings into it, so rebuilds preserve all other user choices.
       system.activationScripts.hermes-agent-user-config = lib.stringAfter [ "hermes-agent-setup" ] ''
         rm -f /var/lib/hermes/.hermes/.managed
+      '';
+
+      # The upstream setup script recreates .env from environmentFiles. Snapshot
+      # the current file first, then carry forward keys not managed by Nix.
+      # Nix-declared keys win, and the manifest prevents removed Nix keys from
+      # being mistaken for user-managed values on later activations.
+      system.activationScripts.hermes-agent-env-snapshot = ''
+        rm -f "${hermes_env_snapshot}"
+        if [ -f "${hermes_home}/.env" ]; then
+          install -m 0600 -o root -g root "${hermes_home}/.env" "${hermes_env_snapshot}"
+        fi
+      '';
+      system.activationScripts.hermes-agent-setup.deps = [ "hermes-agent-env-snapshot" ];
+
+      system.activationScripts.hermes-agent-env-merge = lib.stringAfter [ "hermes-agent-user-config" ] ''
+        if [ -f "${hermes_home}/.env" ]; then
+          ${pkgs.python3}/bin/python3 "${hermes_env_merge}" \
+            "${hermes_home}/.env" "${hermes_env_snapshot}" "${hermes_env_manifest}"
+        fi
+        rm -f "${hermes_env_snapshot}"
       '';
 
       systemd.services.hermes-agent.environment = {
