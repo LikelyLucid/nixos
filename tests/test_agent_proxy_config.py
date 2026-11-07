@@ -363,5 +363,94 @@ class ConfigTests(unittest.TestCase):
 
 
 
+def modality_catalogs(standard, native):
+    return {"standard": {"data": standard}, "native": {"models": native}}
+
+
+class ModalityTests(unittest.TestCase):
+    """Image capability must survive every catalog shape the proxy emits."""
+
+    def build(self, standard, native):
+        return proxy.build_models(modality_catalogs(standard, native))
+
+    def test_mime_entries_do_not_drop_image(self):
+        # The proxy reports DeepSeek as image/jpeg + image/png while its Codex
+        # catalog still says text-only; the richer general catalog must win.
+        _, _, oc = self.build(
+            [{"id": "deepseek-v4.1-flash", "context_length": 1000000,
+              "max_completion_tokens": 384000,
+              "modalities": {"input": ["text", "image/jpeg", "image/png"]}}],
+            [{"slug": "deepseek-v4.1-flash", "context_window": 1000000,
+              "max_tokens": 384000, "input_modalities": ["text"]}])
+        self.assertEqual(oc["deepseek-v4.1-flash"]["capabilities"]["input"], ["text", "image"])
+
+    def test_uppercase_modalities_normalize(self):
+        _, _, oc = self.build(
+            [{"id": "claude-opus-4.8", "context_length": 264000, "max_completion_tokens": 64000,
+              "modalities": {"input": ["TEXT", "IMAGE"]}}],
+            [{"slug": "claude-opus-4.8", "context_window": 264000, "max_tokens": 64000}])
+        self.assertEqual(oc["claude-opus-4.8"]["capabilities"]["input"], ["text", "image"])
+
+    def test_native_image_support_is_not_lost(self):
+        _, _, oc = self.build(
+            [{"id": "vision-native", "context_length": 200000, "max_completion_tokens": 32000}],
+            [{"slug": "vision-native", "context_window": 200000, "max_tokens": 32000,
+              "input_modalities": ["text", "IMAGE"]}])
+        self.assertEqual(oc["vision-native"]["capabilities"]["input"], ["text", "image"])
+
+    def test_text_only_and_missing_stay_text(self):
+        _, _, oc = self.build(
+            [{"id": "deepseek-v4-pro", "context_length": 1000000, "max_completion_tokens": 384000,
+              "modalities": {"input": ["text"]}},
+             {"id": "quiet", "context_length": 128000, "max_completion_tokens": 8000}],
+            [{"slug": "deepseek-v4-pro", "context_window": 1000000, "max_tokens": 384000,
+              "input_modalities": ["text"]},
+             {"slug": "quiet", "context_window": 128000, "max_tokens": 8000}])
+        self.assertEqual(oc["deepseek-v4-pro"]["capabilities"]["input"], ["text"])
+        self.assertEqual(oc["quiet"]["capabilities"]["input"], ["text"])
+
+    def test_reasoning_efforts_survive_modality_normalization(self):
+        _, _, oc = self.build(
+            [{"id": "reasoner", "context_length": 1000000, "max_completion_tokens": 384000,
+              "modalities": {"input": ["text", "image/png"]},
+              "capabilities": {"reasoning": {"supported": True, "effort": ["low", "high", "max"]}}}],
+            [{"slug": "reasoner", "context_window": 1000000, "max_tokens": 384000}])
+        self.assertEqual(oc["reasoner"]["capabilities"]["reasoning"],
+                         {"supported": True, "effort": ["low", "high", "max"]})
+
+    def test_reasoning_levels_are_all_selectable(self):
+        _, _, oc = self.build(
+            [{"id": "deepseek-max", "context_length": 1000000, "max_completion_tokens": 384000,
+              "capabilities": {"reasoning": {"supported": True, "effort": ["low", "high", "max"]}}}],
+            [{"slug": "deepseek-max", "context_window": 1000000, "max_tokens": 384000}])
+        self.assertEqual([v["id"] for v in oc["deepseek-max"]["variants"]],
+                         ["low", "medium", "high", "max"])
+        self.assertEqual(oc["deepseek-max"]["variants"][-1],
+                         {"id": "max", "settings": {"reasoningEffort": "max"}})
+
+    def test_max_is_only_offered_when_advertised(self):
+        _, _, oc = self.build(
+            [{"id": "plain-reasoner", "context_length": 200000, "max_completion_tokens": 32000,
+              "capabilities": {"reasoning": {"supported": True, "effort": ["low", "medium", "high"]}}}],
+            [{"slug": "plain-reasoner", "context_window": 200000, "max_tokens": 32000}])
+        self.assertEqual([v["id"] for v in oc["plain-reasoner"]["variants"]],
+                         ["low", "medium", "high"])
+
+    def test_non_reasoning_model_gets_no_variants(self):
+        _, _, oc = self.build(
+            [{"id": "no-think", "context_length": 200000, "max_completion_tokens": 32000,
+              "capabilities": {"reasoning": {"supported": False, "effort": ["max"]}}}],
+            [{"slug": "no-think", "context_window": 200000, "max_tokens": 32000}])
+        self.assertNotIn("variants", oc["no-think"])
+
+    def test_pi_and_opencode_agree(self):
+        _, pi, oc = self.build(
+            [{"id": "vision", "context_length": 200000, "max_completion_tokens": 32000,
+              "modalities": {"input": ["text", "image/png"]}}],
+            [{"slug": "vision", "context_window": 200000, "max_tokens": 32000}])
+        self.assertEqual(pi[0]["input"], ["text", "image"])
+        self.assertEqual(oc["vision"]["capabilities"]["input"], ["text", "image"])
+
+
 if __name__ == "__main__":
     unittest.main()

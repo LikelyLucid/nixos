@@ -166,6 +166,29 @@ def default_model(models, previous=None):
     return sorted(models)[0]
 
 
+def normalize_modalities(values):
+    """Collapse advertised input modalities to OpenCode's text/image vocabulary.
+
+    Discovery catalogs mix shapes: lowercase values, uppercase models.dev
+    values, and per-MIME entries such as "image/png". The Codex-native catalog
+    is narrower than the general one (it reports image-capable models such as
+    deepseek-v4.1-flash as text-only), so callers union both instead of letting
+    one silently drop image support.
+    """
+    normalized = []
+    for value in values or ():
+        token = str(value).strip().lower()
+        if token == "text":
+            capability = "text"
+        elif token == "image" or token.startswith("image/"):
+            capability = "image"
+        else:
+            continue
+        if capability not in normalized:
+            normalized.append(capability)
+    return normalized
+
+
 def build_models(catalogs):
     standard, native = validate_catalogs(catalogs)
     pi_models, opencode_models = [], {}
@@ -176,9 +199,10 @@ def build_models(catalogs):
         # Do not invent limits for unknown models: leave them unlisted until advertised.
         if not positive_int(context) or not positive_int(output):
             continue
-        modalities = row.get("modalities", {}).get("input", [])
-        modalities = codex.get("input_modalities") or modalities
-        modalities = [v for v in modalities if v in ("text", "image")]
+        modalities = normalize_modalities(row.get("modalities", {}).get("input"))
+        for value in normalize_modalities(codex.get("input_modalities")):
+            if value not in modalities:
+                modalities.append(value)
         if not modalities:
             modalities = ["text"]
         capabilities = copy.deepcopy(row.get("capabilities", {}))
@@ -209,7 +233,7 @@ def build_models(catalogs):
             "cost": {"input": cost.get("input", 0), "output": cost.get("output", 0),
                      "cacheRead": cost.get("cache_read", 0), "cacheWrite": cost.get("cache_write", 0)},
         })
-        opencode_models[name] = {
+        entry = {
             "name": row.get("display_name") or name,
             "limit": {"context": context, "output": output},
             "capabilities": oc_capabilities,
@@ -217,6 +241,18 @@ def build_models(catalogs):
                           "cache": {k.removeprefix("cache_"): v for k, v in cost.items()
                                     if k in ("cache_read", "cache_write")}}} if cost else {}),
         }
+        # Declaring variants replaces the runtime's derived low/medium/high set,
+        # so when we add one we must list the standard levels too. The gateway
+        # accepts low/medium/high for every reasoning model and "max" only where
+        # it advertises it; "xhigh" is deliberately skipped because the gateway
+        # rejects it for several models that still list it.
+        if reasoning:
+            levels = ["low", "medium", "high"]
+            if isinstance(efforts, list) and "max" in efforts:
+                levels.append("max")
+            entry["variants"] = [{"id": level, "settings": {"reasoningEffort": level}}
+                                 for level in levels]
+        opencode_models[name] = entry
     if not pi_models:
         raise ValueError("No models advertise usable limits")
     return standard, pi_models, opencode_models
