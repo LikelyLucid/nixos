@@ -74,68 +74,28 @@ to the server. GitHub receives ciphertext and public recipients. The machine's
 SSH host private key decrypts its secrets automatically on boot; no separate
 server age key or plaintext credential file needs to be copied.
 
-SOPS installs the proxy key at `/run/secrets/agent-proxy-api-key`, owned by
-`lucid` with mode `0400`. The endpoint has the same protection at
-`/run/secrets/agent-proxy-base-url`. Tailscale's key is root-only. SOPS installs secrets during system activation,
-before the T3 service starts. T3 also waits for tailnet enrollment. Agent launchers and the model
-refresh timer read the SOPS-managed path automatically. Their version/help
-probes work without credentials or proxy access.
+SOPS installs the proxy key and endpoint in owner-only files for `lucid`.
+Tailscale's key is root-only. The proxy configuration service reads these files
+and updates the native client settings. T3 waits for tailnet enrollment.
 
 To rotate a credential, edit the encrypted file with SOPS on your trusted admin
-machine, commit and push it, then rebuild the server. The proxy secret restarts
-T3 when it changes; restart existing interactive agent sessions too. Do not
-commit plaintext, private keys or pairing links. Back up the host identity
-securely if you want it to survive a disk replacement. To replace the host
-identity, run the enrollment helper against the new mounted target again.
+machine, commit and push it, then rebuild the server. The proxy secrets restart
+the proxy configuration service when they change. Restart a client if it does
+not reload the updated settings. Do not commit plaintext, private keys or
+pairing links. Back up the host identity securely if it must survive a disk
+replacement. To replace the host identity, enroll the new mounted target again.
 
-The proxy credential enters the child process environment and is
-available to programs running as `lucid`. This host assumes trusted projects
-and agents operating as that user. It does not isolate agents from one another.
-Runtime catalogs contain the decrypted endpoint in files private to `lucid`.
-Encrypting the Git version does not hide the address from clients using it.
+The clients run as `lucid` and can read the runtime credential snapshot. This
+host assumes trusted projects and agents operating as that user. It does not
+isolate agents from one another.
 
 ## Model discovery
 
-The refresh service queries
-the SOPS-provided endpoint's `/models` route with bearer authentication at boot
-and every 15 minutes. Launching an agent also refreshes a catalog older than
-15 minutes. Failed refreshes retain the last successful generation. Initial
-discovery requires a working credential and endpoint. Redirects are rejected.
-
-- Codex receives a custom Responses provider and a generated model catalog.
-  GPT/Codex and recognized OpenAI reasoning IDs populate its picker. Other
-  IDs remain available in OpenCode and Pi. Codex requires the proxy to support
-  `/v1/responses` for the selected model. When advertised, `gpt-6.1-sol` is
-  the default, verified by a real request on artslaptop.
-- Claude Code uses the proxy's Anthropic endpoint, native gateway model
-  discovery where supported by the installed version, and discovered Claude
-  IDs for its model allowlist and family defaults. The proxy must support
-  `/v1/messages`; an OpenAI-only endpoint is insufficient.
-- OpenCode v2 receives a generated Responses provider containing every
-  discovered ID. It uses the same default model as Codex.
-- Pi receives the same model IDs through a Responses provider, using an
-  environment reference for its key and the same default as Codex. Its
-  writable agent directory is `~/.local/state/agent-proxy/pi`, separate from
-  the desktop's `~/pi-config` links. Put server-specific Pi extensions there.
-
-The catalog reports IDs, not necessarily API compatibility, context windows,
-reasoning levels or vision support. Discovery does not prove that every model
-can run every client. The generated configuration does not invent those
-capabilities. New sessions read updated catalogs; active sessions may need to
-be restarted. The original per-user Codex/Claude configuration is not replaced.
-
-Refresh diagnostics:
-
-```bash
-systemctl --user status agent-models-refresh.timer
-journalctl --user -u agent-models-refresh.service
-cat ~/.local/state/agent-proxy/current/models.json
-```
-
-The artslaptop inference checks passed for Codex, OpenCode v2 and Pi using
-`gpt-6.1-sol`. The proxy advertised Claude IDs but rejected the tested Claude
-requests upstream as unsupported. Claude Code is configured, but its inference
-remains blocked until the proxy exposes a working Anthropic-compatible route.
+The server and desktop share the native client configuration and model refresh
+service described in [Declarative agent proxy configuration](agent-proxy.md).
+That guide covers client transports, credential rotation, diagnostics and
+verification. A discovered model still requires a compatible working route on
+the proxy; discovery alone does not prove inference works.
 
 ## T3 Code
 
@@ -195,16 +155,6 @@ the desktop to this host definition.
 - [Pi model configuration](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/models.md)
 - [Tailscale SSH](https://tailscale.com/docs/features/tailscale-ssh)
 - [SOPS on NixOS](https://github.com/Mic92/sops-nix)
-
-The artsxps desktop uses the same SOPS-encrypted proxy key and endpoint for
-Codex, OpenCode and Pi. Launchers discover the catalog when needed and pass the
-key through the child environment. OpenCode's saved proxy account is synchronized
-when it contains an older key, since saved accounts override environment auth. Existing Codex plugins and MCP settings,
-OpenCode plugins and Pi packages, extensions, settings and sessions remain in
-place. Pi loads the proxy through an additional provider extension rather than
-switching its configuration directory. Run `agent-models-refresh` to refresh the
-catalog immediately.
-
 
 ## Cua Spaces on the server
 
